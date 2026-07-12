@@ -8,6 +8,7 @@
 |-----|-------------|------|
 | `apps/web` | User-facing Next.js app | 3000 |
 | `apps/admin` | Admin dashboard | 3001 |
+| `apps/backend` | FastAPI backend | 8000 |
 
 ## Stack
 
@@ -18,14 +19,46 @@
 
 ## Getting Started
 
+### 1. Backend
+
+Navigate to the backend directory, set up a Python virtual environment, install the required packages, and run the server:
+
 ```bash
-# User app
+cd apps/backend
+
+# Create a virtual environment
+python3 -m venv .venv
+
+# Activate the virtual environment
+# On macOS/Linux:
+source .venv/bin/activate
+# On Windows (CMD):
+# .venv\Scripts\activate
+# On Windows (PowerShell):
+# .venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+
+# Run the backend
+python run.py
+```
+
+### 2. Frontend Applications
+
+In separate terminals, configure and run the frontend apps:
+
+```bash
+# User app (runs on port 3000)
 cd apps/web
 cp .env.example .env.local
-# Set NEXT_PUBLIC_API_URL to your backend URL
+# Set NEXT_PUBLIC_API_URL to http://localhost:8000
 npm run dev
 
-# Admin app
+# Admin app (runs on port 3001)
 cd apps/admin
 cp .env.example .env.local
 npm run dev -- -p 3001
