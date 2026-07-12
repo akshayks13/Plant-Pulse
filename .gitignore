@@ -1,15 +1,15 @@
-backend/
-  xylem.db
-  .env
-  uploads/
-  __pycache__/
-  .venv/
-  venv/
-  env/
-  *.pyc
-  model/*.tflite
-  model/*.h5
-  model/*.keras
+# Python
+**/__pycache__/
+**/*.pyc
+apps/backend/.venv/
+apps/backend/venv/
+apps/backend/env/
+apps/backend/.env
+apps/backend/xylem.db
+apps/backend/uploads/
+apps/backend/model/*.tflite
+apps/backend/model/*.h5
+apps/backend/model/*.keras
 
 # Node
 node_modules/
