@@ -1,0 +1,117 @@
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  transition: background 0.25s, border-color 0.25s;
+  border-bottom: 1px solid transparent;
+}
+
+.scrolled {
+  background: rgba(6, 13, 10, 0.88);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logoText {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f0f7f2;
+  letter-spacing: -0.3px;
+}
+
+/* Nav links */
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.link {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(240, 247, 242, 0.45);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+.link:hover { color: rgba(240, 247, 242, 0.85); background: rgba(255, 255, 255, 0.04); }
+.active { color: #f0f7f2 !important; }
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.signIn {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(240, 247, 242, 0.5);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.15s;
+}
+.signIn:hover { color: rgba(240, 247, 242, 0.85); }
+
+.getStarted {
+  font-size: 14px;
+  font-weight: 600;
+  color: #060d0a;
+  background: #00e87a;
+  text-decoration: none;
+  padding: 7px 16px;
+  border-radius: 9px;
+  transition: all 0.15s;
+  font-family: 'Outfit', sans-serif;
+}
+.getStarted:hover { background: #00f285; }
+
+/* User row */
+.userRow { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00e87a, #00b4d8);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 700; color: #060d0a;
+}
+.logoutBtn {
+  font-size: 13px;
+  color: rgba(240, 247, 242, 0.35);
+  background: none; border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.logoutBtn:hover { color: rgba(240, 247, 242, 0.7); background: rgba(255, 255, 255, 0.04); }
+
+@media (max-width: 600px) {
+  .inner { gap: 16px; }
+  .links { display: none; }
+}

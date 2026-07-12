@@ -1,0 +1,71 @@
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: var(--sidebar, 260px);
+  background: rgba(9, 18, 13, 0.95);
+  border-right: 1px solid rgba(0,232,122,0.08);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid rgba(0,232,122,0.06);
+}
+.brandIcon { filter: drop-shadow(0 0 10px rgba(0,232,122,0.3)); flex-shrink: 0; }
+.brandName {
+  font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;
+  background: linear-gradient(135deg,#00e87a,#00b4d8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1.2;
+}
+.brandTag { font-size: 10px; color: rgba(240,247,242,0.3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 1px; }
+
+.nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+
+.navItem {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 12px;
+  font-size: 14px; font-weight: 500; color: rgba(240,247,242,0.5);
+  text-decoration: none; transition: all 0.2s; position: relative;
+}
+.navItem:hover { color: rgba(240,247,242,0.9); background: rgba(255,255,255,0.04); }
+.navItem.active {
+  color: #00e87a !important;
+  background: rgba(0,232,122,0.08);
+  font-weight: 600;
+}
+
+.navIcon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+.navLabel { flex: 1; }
+
+.activePill {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 20px; border-radius: 2px 0 0 2px;
+  background: #00e87a; box-shadow: 0 0 10px rgba(0,232,122,0.5);
+}
+
+.bottom {
+  padding: 16px 12px 24px;
+  border-top: 1px solid rgba(0,232,122,0.06);
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.userRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #00e87a, #00b4d8);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; color: #060d0a;
+  flex-shrink: 0;
+}
+.userInfo { display: flex; flex-direction: column; min-width: 0; }
+.userName { font-size: 13px; font-weight: 600; color: rgba(240,247,242,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.userRole { font-size: 11px; color: rgba(0,232,122,0.6); }
+
+.logoutBtn { width: 100%; justify-content: flex-start; gap: 10px; padding: 10px 12px !important; border-radius: 10px !important; }

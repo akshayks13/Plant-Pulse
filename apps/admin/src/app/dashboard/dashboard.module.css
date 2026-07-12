@@ -1,0 +1,89 @@
+.layout { display: flex; min-height: 100vh; }
+.main {
+  margin-left: var(--sidebar, 260px);
+  flex: 1; padding: 40px;
+  min-height: 100vh;
+  animation: fadeIn 0.4s ease both;
+}
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; gap: 16px; flex-wrap: wrap; }
+.title { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: #f0f7f2; margin-bottom: 4px; letter-spacing: -0.5px; }
+.sub { font-size: 14px; color: rgba(240,247,242,0.4); }
+
+.healthBadge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 99px;
+  font-size: 13px; font-weight: 600;
+}
+.healthOk { background: rgba(0,232,122,0.1); color: #00e87a; border: 1px solid rgba(0,232,122,0.2); }
+.healthBad { background: rgba(255,74,107,0.1); color: #ff4a6b; border: 1px solid rgba(255,74,107,0.2); }
+.healthDot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse-glow 2s ease-in-out infinite; }
+
+.loadWrap { display: flex; align-items: center; justify-content: center; height: 300px; }
+
+/* Stats grid */
+.statsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+.statCard {
+  background: rgba(11,22,16,0.7);
+  border: 1px solid rgba(0,232,122,0.1);
+  border-radius: 20px; padding: 24px;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s;
+  animation: fadeUp 0.5s ease both;
+}
+.statCard:hover { border-color: rgba(0,232,122,0.25); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.statTop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.statIcon { font-size: 24px; }
+.statDelta { font-size: 12px; font-weight: 600; color: #00e87a; background: rgba(0,232,122,0.1); padding: 2px 8px; border-radius: 99px; }
+.statValue { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 6px; animation: count-up 0.6s ease both; }
+.statLabel { font-size: 13px; color: rgba(240,247,242,0.4); }
+
+/* Disease chart section */
+.section {
+  background: rgba(11,22,16,0.6); border: 1px solid rgba(0,232,122,0.08);
+  border-radius: 20px; padding: 28px; margin-bottom: 24px;
+  backdrop-filter: blur(20px);
+}
+.sectionHead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; }
+.sectionTitle { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #f0f7f2; }
+.sectionSub { font-size: 12px; color: rgba(240,247,242,0.3); }
+.noData { font-size: 14px; color: rgba(240,247,242,0.3); padding: 20px 0; }
+
+.diseaseChart { display: flex; flex-direction: column; gap: 14px; }
+.chartRow {
+  display: grid; grid-template-columns: 220px 1fr 50px;
+  align-items: center; gap: 16px;
+  animation: slide-right 0.4s ease both;
+}
+.chartLabel { font-size: 13px; color: rgba(240,247,242,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chartBar { height: 8px; background: rgba(255,255,255,0.04); border-radius: 99px; overflow: hidden; }
+.chartFill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, #00e87a, #00b4d8);
+  animation: bar-fill 1s cubic-bezier(0.4,0,0.2,1) both;
+  --w: 0%;
+}
+.chartCount { font-size: 13px; font-weight: 700; color: rgba(240,247,242,0.6); text-align: right; }
+
+/* Quick links */
+.quickLinks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.quickCard {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px; border-radius: 16px;
+  background: rgba(11,22,16,0.5); border: 1px solid rgba(0,232,122,0.08);
+  text-decoration: none; transition: all 0.3s;
+  backdrop-filter: blur(16px);
+}
+.quickCard:hover { border-color: rgba(0,232,122,0.25); background: rgba(0,232,122,0.06); transform: translateY(-2px); }
+.quickIcon { font-size: 22px; }
+.quickLabel { flex: 1; font-size: 14px; font-weight: 600; color: rgba(240,247,242,0.75); }
+.quickArrow { font-size: 16px; color: rgba(0,232,122,0.5); transition: transform 0.2s; }
+.quickCard:hover .quickArrow { transform: translateX(4px); color: #00e87a; }
+
+@media (max-width: 1200px) { .statsGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) {
+  .main { margin-left: 0; padding: 20px; }
+  .statsGrid { grid-template-columns: 1fr 1fr; }
+  .quickLinks { grid-template-columns: 1fr; }
+  .chartRow { grid-template-columns: 150px 1fr 40px; }
+}
