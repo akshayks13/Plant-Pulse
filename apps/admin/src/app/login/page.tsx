@@ -17,10 +17,10 @@ export default function AdminLogin() {
     setError(''); setLoading(true);
     try {
       const tokens = await adminLogin(email, password) as { access_token: string };
-      localStorage.setItem('xylem_admin_token', tokens.access_token);
+      localStorage.setItem('plant_pulse_admin_token', tokens.access_token);
       const me = await getMe() as { role: string; full_name: string };
-      if (me.role !== 'ADMIN') { localStorage.removeItem('xylem_admin_token'); throw new Error('Access denied. Admin role required.'); }
-      localStorage.setItem('xylem_admin_user', JSON.stringify(me));
+      if (me.role !== 'ADMIN') { localStorage.removeItem('plant_pulse_admin_token'); throw new Error('Access denied. Admin role required.'); }
+      localStorage.setItem('plant_pulse_admin_user', JSON.stringify(me));
       router.push('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -47,7 +47,7 @@ export default function AdminLogin() {
               </defs>
             </svg>
           </div>
-          <span className={styles.brand}>Xylem Admin</span>
+          <span className={styles.brand}>Plant-Pulse Admin</span>
         </div>
 
         <h1 className={styles.title}>Sign in</h1>
@@ -58,7 +58,7 @@ export default function AdminLogin() {
 
           <div className={styles.group}>
             <label className={styles.label}>Email address</label>
-            <input className="input" type="email" placeholder="admin@xylem.ai" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+            <input className="input" type="email" placeholder="admin@plant-pulse.ai" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
           </div>
 
           <div className={styles.group}>

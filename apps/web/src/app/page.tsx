@@ -128,13 +128,13 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className="container">
           <div className={styles.footerInner}>
-            <span className={styles.footerLogo}>Xylem</span>
+            <span className={styles.footerLogo}>Plant-Pulse</span>
             <div className={styles.footerLinks}>
               <Link href="/scan">Scan</Link>
               <Link href="/history">History</Link>
               <Link href="/auth/login">Sign in</Link>
             </div>
-            <span className={styles.footerCopy}>© 2025 Xylem</span>
+            <span className={styles.footerCopy}>© 2025 Plant-Pulse</span>
           </div>
         </div>
       </footer>

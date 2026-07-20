@@ -15,7 +15,7 @@ export default function UsersPage() {
   const [toggling, setToggling] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!localStorage.getItem('xylem_admin_token')) { router.push('/login'); return; }
+    if (!localStorage.getItem('plant_pulse_admin_token')) { router.push('/login'); return; }
     (async () => {
       try {
         const data = await getUsers(1, 100) as { items: User[] } | User[];

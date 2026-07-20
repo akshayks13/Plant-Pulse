@@ -30,7 +30,7 @@ const MOCK_DIAGNOSES = {
 
 const MOCK_USERS = {
   items: [
-    { id: 'u1', email: 'admin@xylem.ai', full_name: 'Xylem Admin', role: 'ADMIN', is_active: true, created_at: '2025-01-01T00:00:00.000Z', total_diagnoses: 0 },
+    { id: 'u1', email: 'admin@plant-pulse.ai', full_name: 'Plant-Pulse Admin', role: 'ADMIN', is_active: true, created_at: '2025-01-01T00:00:00.000Z', total_diagnoses: 0 },
     { id: 'u2', email: 'farmer.joe@gmail.com', full_name: 'Farmer Joe', role: 'FARMER', is_active: true, created_at: '2025-02-12T14:30:00.000Z', total_diagnoses: 124 },
     { id: 'u3', email: 'flora.gardens@yahoo.com', full_name: 'Flora Gardens', role: 'FARMER', is_active: true, created_at: '2025-03-05T09:15:00.000Z', total_diagnoses: 87 },
     { id: 'u4', email: 'agri.tech@hotmail.com', full_name: 'Agri Tech Group', role: 'FARMER', is_active: true, created_at: '2025-04-20T16:45:00.000Z', total_diagnoses: 42 }
@@ -43,7 +43,7 @@ const MOCK_LOGS = {
     { id: 'l1', level: 'INFO', message: 'Database initialized successfully', source: 'database', created_at: new Date().toISOString() },
     { id: 'l2', level: 'INFO', message: 'New user registered: farmer.joe@gmail.com', source: 'auth', created_at: new Date(Date.now() - 600000).toISOString() },
     { id: 'l3', level: 'WARNING', message: 'TFLite runtime optional dependency missing, fallback active', source: 'ml_service', created_at: new Date(Date.now() - 1200000).toISOString() },
-    { id: 'l4', level: 'INFO', message: 'User logged in: admin@xylem.ai', source: 'auth', created_at: new Date(Date.now() - 1800000).toISOString() }
+    { id: 'l4', level: 'INFO', message: 'User logged in: admin@plant-pulse.ai', source: 'auth', created_at: new Date(Date.now() - 1800000).toISOString() }
   ]
 };
 
@@ -51,7 +51,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 function getToken() {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('xylem_admin_token');
+  return localStorage.getItem('plant_pulse_admin_token');
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -66,7 +66,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       },
     });
     if (res.status === 401) {
-      localStorage.removeItem('xylem_admin_token');
+      localStorage.removeItem('plant_pulse_admin_token');
       window.location.href = '/login';
       throw new Error('Unauthorized');
     }
@@ -83,7 +83,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     if (path.startsWith('/admin/users')) return MOCK_USERS as unknown as T;
     if (path.startsWith('/admin/logs')) return MOCK_LOGS as unknown as T;
     if (path.startsWith('/auth/me')) {
-      return { id: 'u1', email: 'admin@xylem.ai', full_name: 'Xylem Admin', role: 'ADMIN', is_active: true } as unknown as T;
+      return { id: 'u1', email: 'admin@plant-pulse.ai', full_name: 'Plant-Pulse Admin', role: 'ADMIN', is_active: true } as unknown as T;
     }
     throw err;
   }
@@ -105,10 +105,10 @@ export async function adminLogin(email: string, password: string) {
   } catch (err) {
     console.warn("Backend login failed/unconnected, using mock auth session:", err);
     // Simple mock validation (any password matches for dev/mock mode)
-    if (email.toLowerCase() === 'admin@xylem.ai') {
+    if (email.toLowerCase() === 'admin@plant-pulse.ai') {
       return { access_token: 'mock-admin-token-12345' };
     }
-    throw new Error('Invalid mock admin credentials. Use admin@xylem.ai');
+    throw new Error('Invalid mock admin credentials. Use admin@plant-pulse.ai');
   }
 }
 

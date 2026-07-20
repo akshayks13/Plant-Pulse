@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
     await init_db()
     # Seed admin user
     await _seed_admin()
-    logger.info("Xylem API ready 🌿")
+    logger.info("Plant-Pulse API ready 🌿")
     yield
     logger.info("Shutting down.")
 
@@ -31,17 +31,17 @@ async def _seed_admin():
     from .services.auth import hash_password
 
     async with AsyncSessionLocal() as db:
-        result = await db.execute(select(User).where(User.email == "admin@xylem.ai"))
+        result = await db.execute(select(User).where(User.email == "admin@plant-pulse.ai"))
         if not result.scalar_one_or_none():
             admin = User(
-                email="admin@xylem.ai",
-                full_name="Xylem Admin",
+                email="admin@plant-pulse.ai",
+                full_name="Plant-Pulse Admin",
                 hashed_password=hash_password("admin123"),
                 role="ADMIN",
             )
             db.add(admin)
             await db.commit()
-            logger.info("Default admin created: admin@xylem.ai / admin123")
+            logger.info("Default admin created: admin@plant-pulse.ai / admin123")
 
 
 app = FastAPI(
@@ -80,4 +80,4 @@ async def health():
 
 @app.get("/")
 async def root():
-    return {"message": "Xylem API 🌿", "docs": "/docs"}
+    return {"message": "Plant-Pulse API 🌿", "docs": "/docs"}

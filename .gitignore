@@ -5,7 +5,7 @@ apps/backend/.venv/
 apps/backend/venv/
 apps/backend/env/
 apps/backend/.env
-apps/backend/xylem.db
+apps/backend/plant_pulse.db
 apps/backend/uploads/
 apps/backend/model/*.tflite
 apps/backend/model/*.h5

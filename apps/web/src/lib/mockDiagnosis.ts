@@ -4,7 +4,7 @@
  * When NEXT_PUBLIC_USE_MOCK=true (or backend is unavailable),
  * the frontend uses this instead of hitting the FastAPI backend.
  * 
- * Scans are stored in localStorage under "xylem_scans".
+ * Scans are stored in localStorage under "plant_pulse_scans".
  */
 
 import { getDiseaseInfo } from './diseaseKb';
@@ -70,7 +70,7 @@ export async function mockPredict(file: File, cropType?: string): Promise<MockSc
   // Persist to localStorage
   const existing = getLocalScans();
   existing.unshift(scan);
-  localStorage.setItem('xylem_scans', JSON.stringify(existing.slice(0, 100)));
+  localStorage.setItem('plant_pulse_scans', JSON.stringify(existing.slice(0, 100)));
 
   return scan;
 }
@@ -78,7 +78,7 @@ export async function mockPredict(file: File, cropType?: string): Promise<MockSc
 export function getLocalScans(): MockScan[] {
   if (typeof window === 'undefined') return [];
   try {
-    return JSON.parse(localStorage.getItem('xylem_scans') || '[]');
+    return JSON.parse(localStorage.getItem('plant_pulse_scans') || '[]');
   } catch {
     return [];
   }

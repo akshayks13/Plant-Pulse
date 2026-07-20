@@ -13,11 +13,11 @@ const NAV = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('xylem_admin_user') || 'null') : null;
+  const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('plant_pulse_admin_user') || 'null') : null;
 
   function logout() {
-    localStorage.removeItem('xylem_admin_token');
-    localStorage.removeItem('xylem_admin_user');
+    localStorage.removeItem('plant_pulse_admin_token');
+    localStorage.removeItem('plant_pulse_admin_user');
     router.push('/login');
   }
 
@@ -35,7 +35,7 @@ export default function Sidebar() {
           </svg>
         </div>
         <div>
-          <div className={styles.brandName}>Xylem</div>
+          <div className={styles.brandName}>Plant-Pulse</div>
           <div className={styles.brandTag}>Admin Panel</div>
         </div>
       </div>

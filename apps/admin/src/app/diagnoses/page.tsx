@@ -30,7 +30,7 @@ export default function DiagnosesPage() {
   const PAGE_SIZE = 20;
 
   useEffect(() => {
-    if (!localStorage.getItem('xylem_admin_token')) { router.push('/login'); return; }
+    if (!localStorage.getItem('plant_pulse_admin_token')) { router.push('/login'); return; }
     (async () => {
       setLoading(true);
       try {

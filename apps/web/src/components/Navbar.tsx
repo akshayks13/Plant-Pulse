@@ -17,14 +17,14 @@ export default function Navbar() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('xylem_user');
+      const raw = localStorage.getItem('plant_pulse_user');
       setUser(raw ? JSON.parse(raw) : null);
     } catch { setUser(null); }
   }, [pathname]);
 
   function logout() {
-    localStorage.removeItem('xylem_token');
-    localStorage.removeItem('xylem_user');
+    localStorage.removeItem('plant_pulse_token');
+    localStorage.removeItem('plant_pulse_user');
     window.location.href = '/';
   }
 
@@ -41,7 +41,7 @@ export default function Navbar() {
               </linearGradient>
             </defs>
           </svg>
-          <span className={styles.logoText}>Xylem</span>
+          <span className={styles.logoText}>Plant-Pulse</span>
         </Link>
 
         {/* Nav links */}

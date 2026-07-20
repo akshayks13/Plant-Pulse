@@ -16,7 +16,7 @@ export default function SystemPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (!localStorage.getItem('xylem_admin_token')) { router.push('/login'); return; }
+    if (!localStorage.getItem('plant_pulse_admin_token')) { router.push('/login'); return; }
     (async () => {
       setLoading(true);
       try {

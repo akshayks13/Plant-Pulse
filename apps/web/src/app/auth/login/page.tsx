@@ -7,8 +7,8 @@ import styles from './login.module.css';
 // Simple local auth — stores credentials in localStorage
 function saveUser(name: string, email: string) {
   const user = { full_name: name, email };
-  localStorage.setItem('xylem_token', 'local-' + btoa(email));
-  localStorage.setItem('xylem_user', JSON.stringify(user));
+  localStorage.setItem('plant_pulse_token', 'local-' + btoa(email));
+  localStorage.setItem('plant_pulse_user', JSON.stringify(user));
 }
 
 export default function LoginPage() {
@@ -24,7 +24,7 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 600));
 
     // Check against locally registered accounts
-    const accounts = JSON.parse(localStorage.getItem('xylem_accounts') || '{}');
+    const accounts = JSON.parse(localStorage.getItem('plant_pulse_accounts') || '{}');
     const account = accounts[email.toLowerCase()];
 
     if (!account || account.password !== password) {
@@ -42,7 +42,7 @@ export default function LoginPage() {
         <Link href="/" className={styles.back}>← Back to home</Link>
         <div className={styles.top}>
           <h1 className={styles.title}>Welcome back</h1>
-          <p className={styles.sub}>Sign in to your Xylem account.</p>
+          <p className={styles.sub}>Sign in to your Plant-Pulse account.</p>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <div className={styles.error}>{error}</div>}

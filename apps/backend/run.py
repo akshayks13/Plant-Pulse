@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Start the Xylem backend server.
+Start the Plant-Pulse backend server.
 Usage: python run.py [--port 8000] [--reload]
 """
 import sys

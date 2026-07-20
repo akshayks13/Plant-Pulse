@@ -23,19 +23,19 @@ export default function RegisterPage() {
     }
 
     // Store account locally
-    const accounts = JSON.parse(localStorage.getItem('xylem_accounts') || '{}');
+    const accounts = JSON.parse(localStorage.getItem('plant_pulse_accounts') || '{}');
     const key = email.toLowerCase();
     if (accounts[key]) {
       setError('Email already registered. Sign in instead.');
       setLoading(false); return;
     }
     accounts[key] = { name: name.trim(), password };
-    localStorage.setItem('xylem_accounts', JSON.stringify(accounts));
+    localStorage.setItem('plant_pulse_accounts', JSON.stringify(accounts));
 
     // Auto-login
     const user = { full_name: name.trim(), email: key };
-    localStorage.setItem('xylem_token', 'local-' + btoa(key));
-    localStorage.setItem('xylem_user', JSON.stringify(user));
+    localStorage.setItem('plant_pulse_token', 'local-' + btoa(key));
+    localStorage.setItem('plant_pulse_user', JSON.stringify(user));
     router.push('/scan');
   }
 

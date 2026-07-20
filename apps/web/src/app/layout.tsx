@@ -3,7 +3,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
-  title: 'Xylem — AI Plant Disease Detection',
+  title: 'Plant-Pulse — AI Plant Disease Detection',
   description: 'Upload a plant image and get instant AI-powered disease diagnosis with treatment recommendations.',
   keywords: ['plant disease', 'AI diagnosis', 'plant health', 'disease detection'],
 };

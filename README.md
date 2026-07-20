@@ -47,6 +47,8 @@ cp .env.example .env
 python run.py
 ```
 
+> **Default admin credentials:** `admin@plant-pulse.ai` / `admin123`
+
 ### 2. Frontend Applications
 
 In separate terminals, configure and run the frontend apps:

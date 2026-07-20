@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('xylem_admin_token');
+    const token = localStorage.getItem('plant_pulse_admin_token');
     if (!token) { router.push('/login'); return; }
     (async () => {
       try { setStats(await getStats() as Stats); }
@@ -45,7 +45,7 @@ export default function Dashboard() {
         <div className={styles.header}>
           <div>
             <h1 className={styles.title}>Dashboard</h1>
-            <p className={styles.sub}>Real-time overview of Xylem platform.</p>
+            <p className={styles.sub}>Real-time overview of Plant-Pulse platform.</p>
           </div>
           <div className={`${styles.healthBadge} ${stats?.system_health === 'healthy' ? styles.healthOk : styles.healthBad}`}>
             <span className={styles.healthDot} />

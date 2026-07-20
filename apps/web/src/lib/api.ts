@@ -2,7 +2,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('xylem_token');
+  return localStorage.getItem('plant_pulse_token');
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
