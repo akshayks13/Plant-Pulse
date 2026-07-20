@@ -1,4 +1,4 @@
-# Xylem 🌿
+# Plant-Pulse 🌿
 
 **AI-powered plant disease detection platform** — upload a plant photo, get instant disease diagnosis with symptoms and treatment plans.
 
