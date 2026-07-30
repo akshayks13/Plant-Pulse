@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { register, login, getMe } from '@/lib/api';
 import styles from '../login/login.module.css';
 
 export default function RegisterPage() {
@@ -14,29 +15,29 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(''); setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      setLoading(false); return;
+    setError('');
+    setLoading(true);
+    try {
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters.');
+        setLoading(false);
+        return;
+      }
+      await register(email.trim(), password, name.trim());
+      const { access_token } = await login(email.trim(), password);
+      localStorage.setItem('plant_pulse_token', access_token);
+      const me = await getMe();
+      localStorage.setItem('plant_pulse_user', JSON.stringify({
+        id: me.id,
+        full_name: me.full_name,
+        email: me.email,
+        role: me.role,
+      }));
+      router.push('/scan');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Registration failed.');
+      setLoading(false);
     }
-
-    // Store account locally
-    const accounts = JSON.parse(localStorage.getItem('plant_pulse_accounts') || '{}');
-    const key = email.toLowerCase();
-    if (accounts[key]) {
-      setError('Email already registered. Sign in instead.');
-      setLoading(false); return;
-    }
-    accounts[key] = { name: name.trim(), password };
-    localStorage.setItem('plant_pulse_accounts', JSON.stringify(accounts));
-
-    // Auto-login
-    const user = { full_name: name.trim(), email: key };
-    localStorage.setItem('plant_pulse_token', 'local-' + btoa(key));
-    localStorage.setItem('plant_pulse_user', JSON.stringify(user));
-    router.push('/scan');
   }
 
   return (

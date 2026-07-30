@@ -1,6 +1,5 @@
 .root {
-  min-height: 100vh;
-  padding-top: 80px;
+  min-height: calc(100vh - 72px);
   position: relative;
 }
 
@@ -19,8 +18,8 @@
 .inner {
   position: relative;
   z-index: 1;
-  padding-top: 48px;
-  padding-bottom: 80px;
+  padding-top: 40px;
+  padding-bottom: 64px;
 }
 
 /* Header */

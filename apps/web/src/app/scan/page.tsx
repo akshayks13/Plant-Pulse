@@ -1,7 +1,8 @@
 'use client';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { predictDisease, isAuthenticated } from '@/lib/api';
 import { mockPredict } from '@/lib/mockDiagnosis';
 import styles from './scan.module.css';
 
@@ -18,6 +19,12 @@ export default function ScanPage() {
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'scanning' | 'done'>('idle');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.replace('/auth/login');
+    }
+  }, [router]);
 
   function acceptFile(f: File) {
     setError('');
@@ -39,12 +46,21 @@ export default function ScanPage() {
 
   async function handleScan() {
     if (!file) return;
+    if (!isAuthenticated()) {
+      router.push('/auth/login');
+      return;
+    }
     setLoading(true); setPhase('scanning'); setError('');
+    const crop = cropType && cropType !== 'Auto-detect'
+      ? cropType.toLowerCase().replace(' ', '_')
+      : undefined;
     try {
-      const result = await mockPredict(
-        file,
-        cropType && cropType !== 'Auto-detect' ? cropType.toLowerCase().replace(' ', '_') : undefined
-      );
+      let result;
+      try {
+        result = await predictDisease(file, crop);
+      } catch {
+        result = await mockPredict(file, crop);
+      }
       setPhase('done');
       setTimeout(() => router.push(`/results/${result.id}`), 700);
     } catch (err: unknown) {
@@ -70,7 +86,6 @@ export default function ScanPage() {
 
         <div className={styles.layout}>
 
-          {/* ── Upload zone ── */}
           <div className={styles.uploadCol}>
             <div
               className={`${styles.dropzone} ${dragging ? styles.over : ''} ${preview ? styles.hasFile : ''}`}
@@ -113,7 +128,7 @@ export default function ScanPage() {
                       </div>
                     </div>
                   )}
-                  <Image src={preview} alt="Plant" fill style={{ objectFit: 'cover' }} />
+                  <Image src={preview} alt="Plant" fill style={{ objectFit: 'cover' }} unoptimized />
                   {!loading && (
                     <button className={styles.clearBtn} onClick={e => { e.stopPropagation(); clear(); }}>✕</button>
                   )}
@@ -125,7 +140,6 @@ export default function ScanPage() {
             {file && <p className={styles.fileInfo}>{file.name} · {(file.size / 1024).toFixed(0)} KB</p>}
           </div>
 
-          {/* ── Options & CTA ── */}
           <div className={styles.optionsCol}>
             <div className={styles.optionsCard}>
               <h3 className={styles.optionsTitle}>Plant type</h3>

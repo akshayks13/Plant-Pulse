@@ -1,9 +1,9 @@
 .root {
-  min-height: 100vh;
+  min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100px 24px 60px;
+  padding: 40px 24px;
   position: relative;
 }
 

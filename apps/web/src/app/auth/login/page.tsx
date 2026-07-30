@@ -2,14 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { login, getMe } from '@/lib/api';
 import styles from './login.module.css';
-
-// Simple local auth — stores credentials in localStorage
-function saveUser(name: string, email: string) {
-  const user = { full_name: name, email };
-  localStorage.setItem('plant_pulse_token', 'local-' + btoa(email));
-  localStorage.setItem('plant_pulse_user', JSON.stringify(user));
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,19 +14,23 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(''); setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-
-    // Check against locally registered accounts
-    const accounts = JSON.parse(localStorage.getItem('plant_pulse_accounts') || '{}');
-    const account = accounts[email.toLowerCase()];
-
-    if (!account || account.password !== password) {
-      setError('Invalid email or password.');
-      setLoading(false); return;
+    setError('');
+    setLoading(true);
+    try {
+      const { access_token } = await login(email.trim(), password);
+      localStorage.setItem('plant_pulse_token', access_token);
+      const me = await getMe();
+      localStorage.setItem('plant_pulse_user', JSON.stringify({
+        id: me.id,
+        full_name: me.full_name,
+        email: me.email,
+        role: me.role,
+      }));
+      router.push('/scan');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed.');
+      setLoading(false);
     }
-    saveUser(account.name, email);
-    router.push('/scan');
   }
 
   return (
@@ -55,6 +53,9 @@ export default function LoginPage() {
             <label className={styles.label}>Password</label>
             <input className={styles.input} type="password" placeholder="••••••••"
               value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password" />
+          </div>
+          <div className={styles.forgotRow}>
+            <Link href="/auth/forgot-password" className={styles.forgotLink}>Forgot password?</Link>
           </div>
           <button type="submit" className={styles.submit} disabled={loading}>
             {loading ? 'Signing in…' : 'Sign in'}

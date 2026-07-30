@@ -1,11 +1,11 @@
-.root { min-height: 100vh; padding-top: 80px; position: relative; }
+.root { min-height: calc(100vh - 72px); position: relative; }
 .glow {
   position: fixed; top: -20vh; left: 50%; transform: translateX(-50%);
   width: 50vw; height: 50vh;
   background: radial-gradient(ellipse, rgba(0,232,122,0.06) 0%, transparent 65%);
   pointer-events: none; z-index: 0;
 }
-.inner { position: relative; z-index: 1; padding-top: 32px; padding-bottom: 80px; }
+.inner { position: relative; z-index: 1; padding-top: 32px; padding-bottom: 64px; }
 
 /* ── Centered states ── */
 .centered {

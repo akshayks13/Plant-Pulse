@@ -7,7 +7,7 @@ from loguru import logger
 
 from .config import get_settings
 from .database import init_db
-from .routes import auth, diagnosis, admin
+from .routes import auth, diagnosis, admin, community
 
 settings = get_settings()
 
@@ -66,6 +66,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(diagnosis.router)
 app.include_router(admin.router)
+app.include_router(community.router)
 
 # Static file serving for uploads
 upload_dir = os.path.abspath(settings.upload_dir)

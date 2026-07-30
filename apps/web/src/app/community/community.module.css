@@ -1,0 +1,179 @@
+.root { min-height: calc(100vh - 72px); position: relative; }
+.glow {
+  position: fixed; top: -20vh; left: 50%; transform: translateX(-50%);
+  width: 50vw; height: 50vh;
+  background: radial-gradient(ellipse, rgba(0,232,122,0.06) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+.inner { position: relative; z-index: 1; padding-top: 40px; padding-bottom: 64px; max-width: 720px; }
+
+.header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 28px;
+}
+.title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(28px,4vw,40px); font-weight: 900;
+  color: #f0f7f2; letter-spacing: -1.5px; margin-bottom: 4px;
+}
+.sub { font-size: 14px; color: rgba(240,247,242,0.4); }
+
+.newBtn {
+  padding: 10px 18px; border-radius: 10px;
+  background: #00e87a; color: #060d0a;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,232,122,0.2);
+}
+.newBtn:hover { background: #00f285; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.filterBtn {
+  padding: 7px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(240,247,242,0.45);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.filterBtn:hover { border-color: rgba(0,232,122,0.25); color: rgba(240,247,242,0.7); }
+.filterActive {
+  background: rgba(0,232,122,0.12);
+  border-color: rgba(0,232,122,0.35);
+  color: #00e87a;
+}
+
+.composer {
+  background: rgba(11,22,16,0.8);
+  border: 1px solid rgba(0,232,122,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+}
+.input, .textarea, .select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px; color: #f0f7f2;
+  outline: none; font-family: 'Inter', sans-serif; width: 100%;
+}
+.textarea { resize: vertical; min-height: 90px; }
+.input:focus, .textarea:focus, .select:focus {
+  border-color: rgba(0,232,122,0.4);
+  background: rgba(0,232,122,0.04);
+}
+.composerRow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.select { width: auto; min-width: 120px; }
+.fileLabel {
+  padding: 9px 14px; border-radius: 10px;
+  border: 1px dashed rgba(0,232,122,0.25);
+  color: rgba(240,247,242,0.5); font-size: 12px; cursor: pointer;
+}
+.submitBtn {
+  margin-left: auto; padding: 10px 18px; border-radius: 10px;
+  background: #00e87a; color: #060d0a; border: none; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px;
+}
+.submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error {
+  padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+  background: rgba(255,74,107,0.07); border: 1px solid rgba(255,74,107,0.18);
+  font-size: 13px; color: #ff4a6b;
+}
+.center { display: flex; justify-content: center; padding: 80px 0; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid rgba(0,232,122,0.2);
+  border-top-color: #00e87a; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 80px 0; text-align: center;
+}
+.emptyIcon { font-size: 40px; }
+.empty h3 {
+  font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
+  color: rgba(240,247,242,0.7);
+}
+.empty p { font-size: 14px; color: rgba(240,247,242,0.35); }
+.emptyBtn {
+  margin-top: 8px; padding: 10px 24px; border-radius: 10px;
+  background: #00e87a; color: #060d0a;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+}
+
+.feed { display: flex; flex-direction: column; gap: 16px; }
+.post {
+  background: rgba(11,22,16,0.7);
+  border: 1px solid rgba(0,232,122,0.1);
+  border-radius: 16px; padding: 20px;
+  animation: fadeUp 0.4s ease both;
+}
+.postTop { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,232,122,0.15); color: #00e87a;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px;
+  flex-shrink: 0;
+}
+.meta { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.author { font-size: 13px; font-weight: 600; color: #f0f7f2; }
+.when { font-size: 11px; color: rgba(240,247,242,0.3); }
+.cat { color: rgba(0,232,122,0.7); text-transform: capitalize; }
+.deleteBtn {
+  background: none; border: none; color: rgba(255,74,107,0.6);
+  font-size: 12px; cursor: pointer;
+}
+.deleteBtn:hover { color: #ff4a6b; }
+.postTitle {
+  font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
+  color: #f0f7f2; margin-bottom: 8px;
+}
+.postBody {
+  font-size: 14px; line-height: 1.6; color: rgba(240,247,242,0.65);
+  white-space: pre-wrap; margin-bottom: 12px;
+}
+.postImage {
+  position: relative; width: 100%; aspect-ratio: 16/9;
+  border-radius: 12px; overflow: hidden; margin-bottom: 14px;
+  background: rgba(255,255,255,0.03);
+}
+.actions { display: flex; gap: 10px; }
+.actionBtn {
+  padding: 7px 12px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(240,247,242,0.5); font-size: 12px; cursor: pointer;
+}
+.actionBtn:hover { border-color: rgba(0,232,122,0.25); color: #f0f7f2; }
+.liked { color: #ff4a6b; border-color: rgba(255,74,107,0.3); background: rgba(255,74,107,0.08); }
+
+.comments {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.comment {
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 13px; color: rgba(240,247,242,0.6);
+}
+.comment strong { color: #f0f7f2; font-size: 12px; }
+.commentForm { display: flex; gap: 8px; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .header { flex-direction: column; }
+  .composerRow { flex-direction: column; align-items: stretch; }
+  .submitBtn { margin-left: 0; }
+}

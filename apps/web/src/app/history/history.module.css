@@ -1,11 +1,11 @@
-.root { min-height: 100vh; padding-top: 80px; position: relative; }
+.root { min-height: calc(100vh - 72px); position: relative; }
 .glow {
   position: fixed; top: -20vh; left: 50%; transform: translateX(-50%);
   width: 50vw; height: 50vh;
   background: radial-gradient(ellipse, rgba(0,232,122,0.06) 0%, transparent 65%);
   pointer-events: none; z-index: 0;
 }
-.inner { position: relative; z-index: 1; padding-top: 48px; padding-bottom: 80px; }
+.inner { position: relative; z-index: 1; padding-top: 40px; padding-bottom: 64px; }
 
 /* Header */
 .header { margin-bottom: 36px; }
@@ -15,6 +15,31 @@
   color: #f0f7f2; letter-spacing: -1.5px; margin-bottom: 4px;
 }
 .sub { font-size: 14px; color: rgba(240,247,242,0.4); }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.filterBtn {
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(240,247,242,0.45);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.filterBtn:hover { border-color: rgba(0,232,122,0.25); color: rgba(240,247,242,0.7); }
+.filterActive {
+  background: rgba(0,232,122,0.12);
+  border-color: rgba(0,232,122,0.35);
+  color: #00e87a;
+}
 
 /* States */
 .center { display: flex; justify-content: center; padding: 80px 0; }

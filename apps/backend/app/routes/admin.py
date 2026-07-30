@@ -4,7 +4,7 @@ from sqlalchemy import select, desc, func
 from pydantic import BaseModel
 
 from ..database import get_db
-from ..models import User, Diagnosis, SystemLog
+from ..models import User, Diagnosis, SystemLog, CommunityPost, CommunityComment
 from ..services.auth import get_admin_user
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -175,3 +175,78 @@ async def get_logs(
             "created_at": str(l.created_at),
         } for l in items]
     }
+
+
+@router.get("/community/posts")
+async def admin_list_community_posts(
+    page: int = 1,
+    size: int = 20,
+    _: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    offset = (page - 1) * size
+    total = (await db.execute(select(func.count()).select_from(CommunityPost))).scalar_one()
+    result = await db.execute(
+        select(CommunityPost, User)
+        .join(User, CommunityPost.user_id == User.id)
+        .order_by(desc(CommunityPost.created_at))
+        .offset(offset)
+        .limit(size)
+    )
+    rows = result.all()
+    items = []
+    for post, user in rows:
+        items.append({
+            "id": post.id,
+            "title": post.title,
+            "content": post.content,
+            "image_url": post.image_url,
+            "category": post.category,
+            "likes_count": post.likes_count or 0,
+            "comments_count": post.comments_count or 0,
+            "created_at": str(post.created_at),
+            "author": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "email": user.email,
+            },
+        })
+    return {"items": items, "total": total, "page": page, "size": size}
+
+
+@router.delete("/community/posts/{post_id}")
+async def admin_delete_post(
+    post_id: str,
+    _: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(CommunityPost).where(CommunityPost.id == post_id))
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    await db.delete(post)
+    await db.commit()
+    return {"message": "Post deleted"}
+
+
+@router.delete("/community/comments/{comment_id}")
+async def admin_delete_comment(
+    comment_id: str,
+    _: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(CommunityComment).where(CommunityComment.id == comment_id))
+    comment = result.scalar_one_or_none()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    post_result = await db.execute(
+        select(CommunityPost).where(CommunityPost.id == comment.post_id)
+    )
+    post = post_result.scalar_one_or_none()
+    if post:
+        post.comments_count = max(0, (post.comments_count or 0) - 1)
+
+    await db.delete(comment)
+    await db.commit()
+    return {"message": "Comment deleted"}

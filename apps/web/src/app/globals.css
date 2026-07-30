@@ -56,6 +56,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.siteBody {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.siteMain {
+  flex: 1;
+  padding-top: 72px;
+  width: 100%;
+}
+
 /* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }

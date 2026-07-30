@@ -2,20 +2,46 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { getDiagnosis, mediaUrl, type Diagnosis } from '@/lib/api';
 import { getLocalScan, type MockScan } from '@/lib/mockDiagnosis';
 import { getDiseaseInfo, formatDiseaseName } from '@/lib/diseaseKb';
 import styles from './results.module.css';
 
+type ScanData = Diagnosis | MockScan;
+
 export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [data, setData] = useState<MockScan | null>(null);
+  const [data, setData] = useState<ScanData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'chemical' | 'organic' | 'prevention'>('chemical');
 
   useEffect(() => {
-    const scan = getLocalScan(id);
-    if (scan) setData(scan);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const diag = await getDiagnosis(id);
+        if (!cancelled) setData(diag);
+      } catch {
+        const local = getLocalScan(id);
+        if (!cancelled) setData(local || null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className={styles.centered}>
+        <div className={styles.emptyState}>
+          <p>Loading result…</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!data) return (
     <div className={styles.centered}>
@@ -33,6 +59,7 @@ export default function ResultsPage() {
   const confPct = Math.round(data.confidence * 100);
   const circumference = 2 * Math.PI * 42;
   const dashOffset = circumference * (1 - confPct / 100);
+  const img = mediaUrl(data.image_url);
 
   const severityColors: Record<string, string> = {
     low: '#00e87a', moderate: '#f5c542', high: '#ff8c42', critical: '#ff4a6b',
@@ -50,7 +77,6 @@ export default function ResultsPage() {
       <div className={styles.glow} />
       <div className={`container ${styles.inner}`}>
 
-        {/* Top nav */}
         <div className={styles.topNav}>
           <button className={styles.backBtn} onClick={() => router.back()}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -65,18 +91,15 @@ export default function ResultsPage() {
 
         <div className={styles.grid}>
 
-          {/* ── Left col ── */}
           <div className={styles.left}>
-            {/* Image */}
             <div className={styles.imgCard}>
-              {data.image_url ? (
-                <Image src={data.image_url} alt="Plant scan" fill style={{ objectFit: 'cover' }} />
+              {img ? (
+                <Image src={img} alt="Plant scan" fill style={{ objectFit: 'cover' }} unoptimized />
               ) : (
                 <span className={styles.imgPlaceholder}>🌿</span>
               )}
             </div>
 
-            {/* Confidence ring */}
             <div className={styles.metaCard}>
               <svg width="96" height="96" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="none"/>
@@ -125,9 +148,7 @@ export default function ResultsPage() {
             </button>
           </div>
 
-          {/* ── Right col ── */}
           <div className={styles.right}>
-            {/* Header */}
             <div className={styles.diseaseHeader}>
               <span className={styles.plantChip}>{plant}</span>
               <h1 className={styles.diseaseName}>
@@ -138,7 +159,6 @@ export default function ResultsPage() {
               {kb && <p className={styles.pathogenSub}><em>{kb.pathogen}</em></p>}
             </div>
 
-            {/* Symptoms */}
             {kb && kb.symptoms.length > 0 && (
               <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Symptoms</h2>
@@ -153,7 +173,6 @@ export default function ResultsPage() {
               </div>
             )}
 
-            {/* Treatments */}
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Treatment plan</h2>
               <div className={styles.tabs}>

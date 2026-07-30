@@ -112,6 +112,7 @@ async def get_diagnosis(
     diag = result.scalar_one_or_none()
     if not diag:
         raise HTTPException(status_code=404, detail="Diagnosis not found")
-    if diag.user_id != current_user.id and current_user.role != "ADMIN":
+    role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
+    if diag.user_id != current_user.id and role != "ADMIN":
         raise HTTPException(status_code=403, detail="Not authorized")
     return _diag_out(diag)

@@ -47,6 +47,25 @@ const MOCK_LOGS = {
   ]
 };
 
+const MOCK_COMMUNITY = {
+  items: [
+    {
+      id: 'c1',
+      title: 'Early blight tips for tomatoes',
+      content: 'Rotate crops and remove infected leaves early.',
+      image_url: null,
+      category: 'tip',
+      likes_count: 12,
+      comments_count: 3,
+      created_at: new Date().toISOString(),
+      author: { id: 'u2', full_name: 'Farmer Joe', email: 'farmer.joe@gmail.com' },
+    },
+  ],
+  total: 1,
+  page: 1,
+  size: 20,
+};
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 function getToken() {
@@ -74,14 +93,19 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       const e = await res.json().catch(() => ({ detail: 'Failed' }));
       throw new Error(e.detail || 'Request failed');
     }
-    return res.json();
+    if (res.status === 204) return {} as T;
+    const text = await res.text();
+    return (text ? JSON.parse(text) : {}) as T;
   } catch (err) {
-    // Fallback Mock Data if API fails/unconnected
+    // Fallback Mock Data if API fails/unconnected (GET only)
+    const method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET') throw err;
     console.warn(`API call failed to ${path}, using mock fallback:`, err);
     if (path.startsWith('/admin/stats')) return MOCK_STATS as unknown as T;
     if (path.startsWith('/admin/diagnoses')) return MOCK_DIAGNOSES as unknown as T;
     if (path.startsWith('/admin/users')) return MOCK_USERS as unknown as T;
     if (path.startsWith('/admin/logs')) return MOCK_LOGS as unknown as T;
+    if (path.startsWith('/admin/community/posts')) return MOCK_COMMUNITY as unknown as T;
     if (path.startsWith('/auth/me')) {
       return { id: 'u1', email: 'admin@plant-pulse.ai', full_name: 'Plant-Pulse Admin', role: 'ADMIN', is_active: true } as unknown as T;
     }
@@ -130,4 +154,16 @@ export async function updateUser(userId: string, data: object) {
 export async function getLogs(page = 1, size = 50, level?: string) {
   const q = level ? `&level=${level}` : '';
   return request(`/admin/logs?page=${page}&size=${size}${q}`);
+}
+
+export async function getCommunityPosts(page = 1, size = 20) {
+  return request(`/admin/community/posts?page=${page}&size=${size}`);
+}
+
+export async function deleteCommunityPost(postId: string) {
+  return request(`/admin/community/posts/${postId}`, { method: 'DELETE' });
+}
+
+export async function deleteCommunityComment(commentId: string) {
+  return request(`/admin/community/comments/${commentId}`, { method: 'DELETE' });
 }
