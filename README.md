@@ -91,9 +91,9 @@ No real email is sent; OTP is printed to logs only.
 cd apps/backend
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 cp .env.example .env
-python run.py
+python3 run.py
 # or: uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 

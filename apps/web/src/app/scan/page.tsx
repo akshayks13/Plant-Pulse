@@ -6,15 +6,12 @@ import { predictDisease, isAuthenticated } from '@/lib/api';
 import { mockPredict } from '@/lib/mockDiagnosis';
 import styles from './scan.module.css';
 
-const CROPS = ['Auto-detect','Tomato','Potato','Pepper','Rose','Aloe Vera','Money Plant','Snake Plant','Strawberry','Apple'];
-
 export default function ScanPage() {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [cropType, setCropType] = useState('');
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'scanning' | 'done'>('idle');
@@ -51,15 +48,12 @@ export default function ScanPage() {
       return;
     }
     setLoading(true); setPhase('scanning'); setError('');
-    const crop = cropType && cropType !== 'Auto-detect'
-      ? cropType.toLowerCase().replace(' ', '_')
-      : undefined;
     try {
       let result;
       try {
-        result = await predictDisease(file, crop);
+        result = await predictDisease(file);
       } catch {
-        result = await mockPredict(file, crop);
+        result = await mockPredict(file);
       }
       setPhase('done');
       setTimeout(() => router.push(`/results/${result.id}`), 700);
@@ -81,7 +75,7 @@ export default function ScanPage() {
 
         <div className={styles.header}>
           <h1 className={styles.title}>Scan a plant</h1>
-          <p className={styles.sub}>Upload a clear photo of the affected leaf or plant for instant AI diagnosis.</p>
+          <p className={styles.sub}>Upload a clear photo — the AI auto-detects plant type and disease.</p>
         </div>
 
         <div className={styles.layout}>
@@ -141,20 +135,6 @@ export default function ScanPage() {
           </div>
 
           <div className={styles.optionsCol}>
-            <div className={styles.optionsCard}>
-              <h3 className={styles.optionsTitle}>Plant type</h3>
-              <p className={styles.optionsDesc}>Helps narrow down the diagnosis.</p>
-              <div className={styles.cropList}>
-                {CROPS.map(c => (
-                  <button
-                    key={c}
-                    className={`${styles.cropBtn} ${cropType === c ? styles.cropActive : ''}`}
-                    onClick={() => setCropType(c)}
-                  >{c}</button>
-                ))}
-              </div>
-            </div>
-
             <div className={styles.tipsCard}>
               <h3 className={styles.optionsTitle}>Tips for accuracy</h3>
               <ul className={styles.tipsList}>
