@@ -9,7 +9,8 @@
 | `apps/web` | User-facing Next.js app | http://localhost:3000 | 3000 |
 | `apps/admin` | Admin dashboard | http://localhost:3001 | 3001 |
 | `apps/backend` | FastAPI API + SQLite | http://localhost:8000 | 8000 |
-| API docs | Swagger UI | http://localhost:8000/docs | — |
+| `apps/retrieval` | Treatment / RAG API + Postgres (pgvector, Docker) | http://localhost:8001 | 8001 |
+| API docs | Swagger UI | http://localhost:8000/docs · http://localhost:8001/docs | — |
 
 Both frontends connect to the same backend via `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 
@@ -81,7 +82,8 @@ No real email is sent; OTP is printed to logs only.
 - **Web / Admin**: Next.js (App Router) + TypeScript + CSS modules  
 - **Backend**: FastAPI + SQLAlchemy + aiosqlite + JWT  
 - **AI**: TFLite/Keras when model present; deterministic mock if model missing  
-- **KB**: Client-side disease knowledge base (symptoms + treatments)  
+- **KB (client)**: Client-side disease knowledge base (symptoms + treatments)  
+- **Retrieval service**: FastAPI + Postgres 17 with `pgvector` (Docker) + `sentence-transformers` (`BAAI/bge-small-en-v1.5`); optional Claude API for explanations and Serper for product search  
 
 ## Getting started
 
@@ -123,6 +125,35 @@ npm run dev -- -p 3001
 
 → http://localhost:3001  
 
+### 4. Retrieval (treatment) service
+
+Requires Docker. Runs on port **8001** next to the backend. Full guide:
+[apps/retrieval/README.md](apps/retrieval/README.md).
+
+```bash
+cd apps/retrieval
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+python -m pip install -r requirements.txt
+cp .env.example .env               # defaults work locally; API keys optional
+make up                            # start the pgvector Postgres container (plantpulse-db)
+make build                         # schema -> seed -> chunks + embeddings -> external docs
+make api                           # http://localhost:8001  (docs at /docs)
+```
+
+Smoke test:
+
+```bash
+curl -s localhost:8001/health
+curl -s -X POST localhost:8001/diagnose -H 'content-type: application/json' \
+  -d '{"class_label":"Tomato_Late_blight","confidence":0.91}' | jq
+python test_pipeline.py            # end-to-end checks against the live DB
+```
+
+What it returns and how to read `source_tier` on a dose:
+[apps/retrieval/USER_GUIDE.md](apps/retrieval/USER_GUIDE.md). Endpoint
+reference: [apps/retrieval/README_API.md](apps/retrieval/README_API.md).
+
 ## Environment
 
 Both frontends:
@@ -140,6 +171,14 @@ UPLOAD_DIR=./uploads
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
 
+Retrieval service (see `apps/retrieval/.env.example`):
+
+```env
+DATABASE_URL=postgresql://plantpulse:devonly@127.0.0.1:5432/plantpulse
+ANTHROPIC_API_KEY=        # optional: LLM explanations
+SERPER_API_KEY=           # optional: live product search
+```
+
 ## Quick test checklist
 
 1. Start backend on `:8000`  
@@ -148,9 +187,11 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 4. Profile → edit name  
 5. Admin → login with `admin@plant-pulse.ai` / `admin123` → users, diagnoses, community  
 6. Forgot password → copy OTP from backend logs → reset  
+7. Retrieval → `make up && make build && make api` in `apps/retrieval` → `POST /diagnose` on `:8001` returns treatments with `source_tier`  
 
 ## Notes
 
 - Scan requires a logged-in user.  
 - If the API is unreachable, **scan** may fall back to a local mock; **admin** may show mock stats. With the backend running, both use live data.  
 - Default admin is seeded on first backend start.  
+- The retrieval service is standalone today: the backend does not call it yet. Its `/diagnose` endpoint accepts the backend's class names (e.g. `Tomato___Late_blight`) directly; classes outside the 38-class knowledge base return 404.  

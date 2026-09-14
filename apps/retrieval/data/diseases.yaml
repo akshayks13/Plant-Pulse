@@ -1,0 +1,1192 @@
+diseases:
+- disease_id: D_CORN_GLS
+  crop_id: corn
+  pathogen_id: P_CERCOSPORA_ZEAE
+  common_name: Gray leaf spot (Cercospora leaf spot)
+  curability: manageable
+  severity_default: 4
+  symptoms: Long, narrow, rectangular tan-to-gray lesions running parallel to the leaf veins, with sharply
+    defined edges. Starts on lower leaves and moves upward. Lesions coalesce and blight whole leaves.
+  favorable_conditions: Prolonged leaf wetness, humidity above 90%, 25-30 C, continuous corn with residue
+    left on the surface.
+  spread_mechanism: Conidia produced on residue, splashed and wind-blown to lower leaves.
+  look_alikes:
+  - D_CORN_NLB
+  treatments:
+  - control_class: cultural
+    title: Residue and rotation management
+    instructions: Rotate away from corn for at least one season and bury residue. Inoculum is residue-borne,
+      so this is the highest-impact control.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_AZOXYSTROBIN
+    title: QoI strobilurin foliar spray
+    instructions: Applied around tasseling if disease reaches the ear leaf. Alternate with a FRAC 3 product;
+      do not make back-to-back QoI applications.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_PROPICONAZOLE
+    title: Triazole foliar spray
+    instructions: Rotation partner for the strobilurin.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_CORN_NLB
+  crop_id: corn
+  pathogen_id: P_EXSEROHILUM_TURCICUM
+  common_name: Northern leaf blight
+  curability: manageable
+  severity_default: 4
+  symptoms: Large cigar-shaped or elliptical gray-green to tan lesions, 3-15 cm long, with tapered ends.
+    Unlike gray leaf spot the lesions cross veins rather than being boxed in by them.
+  favorable_conditions: Moderate temperatures 18-27 C with heavy dew or extended wet periods.
+  spread_mechanism: Conidia from infected debris, dispersed by wind and rain.
+  look_alikes:
+  - D_CORN_GLS
+  treatments:
+  - control_class: cultural
+    title: Resistant hybrids and rotation
+    instructions: Hybrids carrying Ht resistance genes are the primary control. Rotate and incorporate
+      residue.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_AZOXYSTROBIN
+    title: Strobilurin foliar spray
+    instructions: Most useful when applied between tasseling and early silking on susceptible hybrids.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    priority: 3
+    region: IN
+    title: Mancozeb protectant fungicide
+    instructions: Mix 2 g/L (TNAU range 2-4 g/L) and apply as a foliar spray when symptoms appear. Mancozeb
+      is a protectant, so use it to limit spread rather than as a guaranteed cure.
+    dose_value: 2.0
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    efficacy_note: TNAU gives mancozeb 2-4 g/L for maize leaf blight.
+    evidence: extension_guideline
+    label_registered: true
+    verified: true
+    source_tier: label
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/crop_protection/maize_disease_new/maize_2.html
+    retrieved_on: '2026-09-04'
+- disease_id: D_CORN_RUST
+  crop_id: corn
+  pathogen_id: P_PUCCINIA_SORGHI
+  common_name: Common rust
+  curability: manageable
+  severity_default: 2
+  symptoms: Small cinnamon-brown powdery pustules scattered on both upper and lower leaf surfaces, which
+    rupture the epidermis. Rubbing a lesion leaves rusty spores on the finger. Pustules darken to brown-black
+    as the season ends.
+  favorable_conditions: Cool 16-23 C with high humidity and at least six hours of leaf wetness.
+  spread_mechanism: Wind-blown urediniospores arriving from warmer regions; no local overwintering.
+  treatments:
+  - control_class: cultural
+    title: Usually no action needed
+    instructions: On field corn this rarely reaches economic thresholds. Confirm severity before recommending
+      any spray.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_TEBUCONAZOLE
+    title: Tebuconazole fungicide
+    instructions: Mix 1 ml of tebuconazole per litre of water and apply as a foliar spray only in severe
+      or susceptible cases. Rust on field corn often needs no spray, so do not treat chemical control
+      as routine.
+    priority: 2
+    evidence: extension_guideline
+    dose_value: 1.0
+    dose_unit: ml/L
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    efficacy_note: TNAU lists tebuconazole 1 ml/L for maize common rust (sprays at 35 and 50 DAS).
+    label_registered: true
+    verified: true
+    source_tier: label
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/crop_protection/maize_disease_new/maize_4.html
+    retrieved_on: '2026-09-04'
+- disease_id: D_TOMATO_EARLY_BLIGHT
+  crop_id: tomato
+  pathogen_id: P_ALTERNARIA_SOLANI
+  common_name: Early blight
+  curability: manageable
+  severity_default: 3
+  symptoms: Dark brown spots with concentric rings giving a target or bullseye pattern, surrounded by
+    a yellow halo. Begins on the oldest lowest leaves and moves upward. Heavy defoliation exposes fruit
+    to sunscald.
+  favorable_conditions: Warm 24-29 C, alternating wet and dry periods, plants stressed by poor nutrition
+    or heavy fruit load.
+  spread_mechanism: Conidia splashed from soil and debris onto lower foliage.
+  look_alikes:
+  - D_TOMATO_TARGET_SPOT
+  - D_TOMATO_SEPTORIA
+  treatments:
+  - control_class: cultural
+    title: Mulch and remove lower leaves
+    instructions: Mulch the soil surface to stop rain splash, prune the lowest 30 cm of foliage, water
+      at the base and never overhead, and stake for airflow.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant contact fungicide
+    instructions: Use a mancozeb 75% WP fungicide. Mix 2 g with 1 litre of clean water and stir until
+      evenly mixed. Spray tomato foliage evenly for full coverage. This is a protectant, so start early
+      rather than waiting for severe disease. TNAU recommends two sprays at a weekly interval.
+    priority: 2
+    evidence: extension_guideline
+    verified: true
+    dose_value: 2.0
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: 7
+    max_applications: 2
+    phi_days: null
+    label_registered: true
+    efficacy_note: Protectant fungicide; rotate with a different mode of action.
+    source_name: TNAU Agritech Portal
+    source_url: https://www.agritech.tnau.ac.in/crop_protection/pdf/2022/CPPS-PSR%20March%202022.pdf
+    retrieved_on: '2026-09-04'
+    source_tier: label
+  - control_class: chemical
+    ai_id: AI_CHLOROTHALONIL
+    title: Alternative protectant
+    instructions: Rotation partner for mancozeb. Verify local registration status before recommending.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_DIFENOCONAZOLE
+    title: Systemic triazole
+    instructions: Has some curative activity on recent infections. Alternate with a multi-site to slow
+      resistance.
+    priority: 4
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_BACILLUS_SUBTILIS
+    title: Biofungicide
+    instructions: Suppressive rather than curative. Suitable for indoor and organic growers on a preventive
+      schedule.
+    priority: 5
+    evidence: peer_reviewed
+  diy:
+  - diy_id: DIY_TOM_EB_BAKING
+    title: Potassium bicarbonate spray
+    ingredients:
+    - item: potassium bicarbonate
+      quantity: null
+      unit: g
+      home_available: true
+    - item: liquid soap as surfactant
+      quantity: null
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Dissolve fully, add the soap last, spray to run-off on both leaf surfaces in the evening. Reapply
+      after rain.
+    prep_time_hours: 0.25
+    efficacy: preventive
+    feasibility_score: 5
+    safety_notes: Test on two leaves and wait 48 h before spraying the whole plant. Never spray in direct
+      sun.
+    evidence: anecdotal
+  - diy_id: DIY_TOM_EB_NEEM
+    title: Neem oil emulsion
+    ingredients:
+    - item: cold-pressed neem oil
+      quantity: null
+      unit: ml
+      home_available: true
+    - item: mild liquid soap
+      quantity: null
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Emulsify the oil in warm water with the soap and spray immediately; the emulsion separates
+      within hours.
+    prep_time_hours: 0.25
+    efficacy: preventive
+    feasibility_score: 5
+    safety_notes: Do not apply within two weeks of a sulfur spray or in temperatures above 32 C.
+    evidence: anecdotal
+- disease_id: D_TOMATO_LATE_BLIGHT
+  crop_id: tomato
+  pathogen_id: P_PHYTOPHTHORA_INFESTANS
+  common_name: Late blight
+  curability: manageable
+  severity_default: 5
+  symptoms: Large irregular water-soaked greasy grey-green patches on leaves that turn brown and papery,
+    often with a pale halo. In humid conditions a fine white mould appears on the leaf underside. Firm
+    brown greasy lesions on green fruit. A plant can collapse in under a week.
+  favorable_conditions: Cool 10-24 C with sustained high humidity or leaf wetness above 90%.
+  spread_mechanism: Airborne sporangia travel long distances; infected tubers and cull piles carry it
+    between seasons.
+  look_alikes:
+  - D_POTATO_LATE_BLIGHT
+  treatments:
+  - control_class: cultural
+    title: Remove and destroy infected plants immediately
+    instructions: This spreads faster than any treatment can contain. Bag and dispose of infected plants;
+      do not compost. Notify neighbouring growers.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant contact fungicide
+    instructions: Use mancozeb as a protectant for tomato late blight. Mix 2.5 g with 1 litre of clean
+      water, stir well, and spray foliage thoroughly, beginning before the disease becomes severe in cool,
+      wet weather. Late blight is an oomycete - do not substitute azoxystrobin or other FRAC 3/11 fungicides.
+      Follow the product label for repeat interval and PHI.
+    priority: 2
+    evidence: extension_guideline
+    verified: true
+    dose_value: 2.5
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: 5
+    max_applications: null
+    phi_days: null
+    label_registered: true
+    efficacy_note: Multi-site protectant for an oomycete disease; do not rely on single-site chemistry
+      alone.
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/horticulture/pdf/tech_bulletin/national/IPM-Schedule-for-vegetables.pdf
+    retrieved_on: '2026-09-04'
+    source_tier: label
+  - control_class: chemical
+    ai_id: AI_CYMOXANIL
+    title: Oomycete-specific with short curative window
+    instructions: Effective only within roughly a day or two of infection and only as a pre-mix with a
+      protectant.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_DIMETHOMORPH
+    title: Oomycete-specific systemic
+    instructions: Rotation partner. Note that ordinary triazoles and strobilurins have poor activity on
+      oomycetes.
+    priority: 4
+    evidence: extension_guideline
+  diy: []
+- disease_id: D_TOMATO_SEPTORIA
+  crop_id: tomato
+  pathogen_id: P_SEPTORIA_LYCOPERSICI
+  common_name: Septoria leaf spot
+  curability: manageable
+  severity_default: 3
+  symptoms: Many small circular spots 2-4 mm across with grey or tan centres and dark borders. Tiny black
+    fruiting bodies are visible in the centres under a hand lens. Far more numerous and smaller than early
+    blight spots, and without concentric rings.
+  favorable_conditions: Warm wet weather, 20-25 C, dense canopy with poor airflow.
+  spread_mechanism: Splash dispersal from debris and infected lower leaves.
+  look_alikes:
+  - D_TOMATO_EARLY_BLIGHT
+  - D_TOMATO_BACTERIAL_SPOT
+  treatments:
+  - control_class: cultural
+    title: Sanitation and airflow
+    instructions: Remove affected lower leaves at first sign, mulch, avoid overhead irrigation, and clear
+      all debris at end of season.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CHLOROTHALONIL
+    title: Protectant contact fungicide
+    instructions: Repeating protectant coverage through the wet period.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Mancozeb protectant fungicide (research-suggested rate)
+    instructions: A peer-reviewed Indian field study reported spraying tomato with mancozeb at 0.2% against
+      Septoria leaf spot. This is a research-suggested rate, not a registered dose - do not present it
+      as an India-registered home-use recommendation.
+    priority: 3
+    evidence: peer_reviewed
+    verified: false
+    dose_value: 0.2
+    dose_unit: '%'
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    label_registered: false
+    efficacy_note: A field study reported 0.2% mancozeb effective against Septoria leaf spot (research-suggested,
+      not a registered rate).
+    source_name: Indian Phytopathology
+    source_url: https://epubs.icar.org.in/index.php/IPPJ/article/view/11038
+    retrieved_on: '2026-09-04'
+    source_tier: research
+- disease_id: D_TOMATO_LEAF_MOLD
+  crop_id: tomato
+  pathogen_id: P_PASSALORA_FULVA
+  common_name: Leaf mold
+  curability: manageable
+  severity_default: 3
+  symptoms: Pale green to yellow blotches with indistinct margins on the upper leaf surface, and directly
+    beneath each blotch an olive-green to greyish-brown velvety mould on the underside. The underside
+    sporulation is diagnostic.
+  favorable_conditions: Relative humidity above 85% with temperatures 22-24 C. Almost exclusively a greenhouse
+    and polyhouse problem.
+  spread_mechanism: Airborne conidia; survives on structures, stakes and debris between crops.
+  treatments:
+  - control_class: cultural
+    title: Lower the humidity
+    instructions: This is the control that actually works indoors. Increase ventilation, space plants
+      wider, prune lower foliage, avoid evening watering, and heat plus vent to prevent condensation.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: physical
+    title: Structure sanitation
+    instructions: Disinfect stakes, trellises and greenhouse surfaces between crops; conidia persist on
+      them.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CHLOROTHALONIL
+    title: Protectant fungicide
+    instructions: Secondary to humidity management. Verify indoor/greenhouse registration before recommending.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_TOMATO_TARGET_SPOT
+  crop_id: tomato
+  pathogen_id: P_CORYNESPORA_CASSIICOLA
+  common_name: Target spot
+  curability: manageable
+  severity_default: 3
+  symptoms: Small brown lesions that expand into light brown spots with faint concentric rings and a subtle
+    yellow halo. Also lesions on stems and sunken pitted spots on fruit, which early blight rarely produces.
+  favorable_conditions: Warm humid conditions with extended leaf wetness.
+  spread_mechanism: Conidia spread by wind and splash; wide alternate host range.
+  look_alikes:
+  - D_TOMATO_EARLY_BLIGHT
+  treatments:
+  - control_class: cultural
+    title: Canopy and debris management
+    instructions: Improve airflow, remove infected debris, avoid overhead irrigation.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CHLOROTHALONIL
+    title: Protectant fungicide
+    instructions: Repeating protectant programme; rotate with a different FRAC group.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_AZOXYSTROBIN
+    title: Strobilurin
+    instructions: Documented resistance in this pathogen in some regions. Do not use alone or repeatedly.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_TOMATO_BACTERIAL_SPOT
+  crop_id: tomato
+  pathogen_id: P_XANTHOMONAS_TOMATO
+  common_name: Bacterial spot
+  curability: manageable
+  severity_default: 4
+  symptoms: Small dark water-soaked spots that become angular and brown-black, often with a narrow yellow
+    margin, and which may drop out leaving a shot-hole. Raised scabby lesions on fruit. Bacterial spots
+    look greasy and angular; fungal spots look dry and round.
+  favorable_conditions: Warm 24-30 C with driving rain, overhead irrigation or high humidity; spreads
+    through wounds from handling.
+  spread_mechanism: Contaminated seed and transplants; splash and mechanical transfer on hands and tools.
+  look_alikes:
+  - D_TOMATO_SEPTORIA
+  treatments:
+  - control_class: cultural
+    title: Clean seed and no-touch discipline
+    instructions: Start from certified or hot-water-treated seed. Never work among wet plants. Remove
+      and destroy infected plants at first detection.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper bactericide
+    instructions: Use copper oxychloride at 2 g per litre of clean water as a suppressive spray only.
+      Copper does not cure an established bacterial infection - it slows spread. Use clean seed or transplants,
+      remove badly affected material, and avoid splashing water from infected plants. No fungicide acts
+      on this bacterium.
+    priority: 2
+    evidence: extension_guideline
+    verified: true
+    dose_value: 2.0
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    label_registered: true
+    efficacy_note: Suppressive only, not curative; copper-tolerant strains are widespread.
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/horticulture/pdf/tech_bulletin/national/IPM-Schedule-for-vegetables.pdf
+    retrieved_on: '2026-09-04'
+    source_tier: label
+- disease_id: D_TOMATO_TYLCV
+  crop_id: tomato
+  pathogen_id: P_TYLCV
+  common_name: Tomato yellow leaf curl virus
+  curability: incurable
+  severity_default: 5
+  symptoms: Severe upward cupping and curling of leaves, marked yellowing of leaf margins, drastically
+    reduced leaf size, stunted bushy growth and flower drop. Plants infected early set almost no fruit.
+  favorable_conditions: High whitefly populations, warm dry weather.
+  spread_mechanism: Transmitted persistently by the silverleaf whitefly. Not seed-borne, not mechanically
+    transmitted.
+  treatments:
+  - control_class: cultural
+    title: There is no cure - remove the plant
+    instructions: An infected plant cannot recover and acts as a reservoir for whiteflies to spread the
+      virus. Bag and remove it. Do not sell a chemical against the virus itself.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: physical
+    title: Whitefly exclusion and monitoring
+    instructions: Insect-proof mesh on vents, yellow sticky traps, reflective mulch, and inspection of
+      leaf undersides. This is the entire preventive programme.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_AZADIRACHTIN
+    title: Neem-based whitefly suppression
+    instructions: Reduces vector pressure on nearby healthy plants. Has no effect on an already infected
+      plant.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: cultural
+    title: Resistant varieties
+    instructions: Ty-gene tolerant cultivars are the only durable answer for a repeat problem.
+    priority: 4
+    evidence: extension_guideline
+- disease_id: D_TOMATO_MOSAIC_VIRUS
+  crop_id: tomato
+  pathogen_id: P_TOMV
+  common_name: Tomato mosaic virus
+  curability: incurable
+  severity_default: 4
+  symptoms: Light and dark green mottled mosaic patterning on leaves, sometimes with fern-like narrowing
+    or distortion of young leaves, and internal browning of fruit. Symptoms are often mistaken for nutrient
+    deficiency or herbicide drift.
+  favorable_conditions: Any conditions. Spread depends on handling, not weather.
+  spread_mechanism: Mechanical only - hands, tools, clothing, seed and plant debris. The virus is exceptionally
+    stable and survives for years on dry surfaces.
+  treatments:
+  - control_class: cultural
+    title: There is no cure - remove and sanitise
+    instructions: Remove infected plants. Wash hands with soap and disinfect tools between plants. Anyone
+      handling tobacco must wash first, as the virus survives in cured tobacco.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: cultural
+    title: Seed and resistant varieties
+    instructions: Use certified seed and Tm-2a resistant cultivars on replant.
+    priority: 2
+    evidence: extension_guideline
+- disease_id: D_TOMATO_SPIDER_MITES
+  crop_id: tomato
+  pathogen_id: P_TETRANYCHUS_URTICAE
+  common_name: Two-spotted spider mite infestation
+  curability: curable
+  severity_default: 3
+  symptoms: Fine pale stippling or speckling across the upper leaf surface, leaves turning bronze then
+    dry and brittle, and fine webbing on the leaf underside and between stems in heavy infestations. Tiny
+    moving specks are visible on the underside with a hand lens.
+  favorable_conditions: Hot dry conditions with low humidity and dusty foliage. Indoor and greenhouse
+    plants are especially prone.
+  spread_mechanism: Crawling, wind dispersal, and transfer on clothing and infested plants.
+  treatments:
+  - control_class: physical
+    title: Water spray and humidity
+    instructions: A forceful water spray to the leaf underside every two to three days physically removes
+      mites and raises humidity, which suppresses them. Cheapest effective first step indoors.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_PREDATORY_MITES
+    title: Predatory mites
+    instructions: Phytoseiulus persimilis or Amblyseius californicus give durable control in enclosed
+      spaces and cannot develop resistance.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_HORT_OIL
+    title: Horticultural or neem oil
+    instructions: Contact action; requires thorough coverage of leaf undersides and repeat applications
+      to catch newly hatched mites.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_ABAMECTIN
+    title: Acaricide
+    instructions: Rotate IRAC groups every generation. This is a mite, not a fungus - a fungicide will
+      not touch it, and some fungicides actually flare mite populations by killing their natural enemies.
+    priority: 4
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_SPIROMESIFEN
+    title: Acaricide rotation partner
+    instructions: Different IRAC group; strong on eggs and juveniles.
+    priority: 5
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_FENAZAQUIN
+    title: AI_FENAZAQUIN treatment
+    priority: 4
+    region: IN
+    verified: true
+    dose_value: 2.5
+    dose_unit: ml/L
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: 7
+    label_registered: true
+    evidence: extension_guideline
+    efficacy_note: Acaricide, IRAC group 21A. Rotate mite-control modes of action every generation.
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/crop_protection/tomato/tomato_5.html
+    retrieved_on: '2026-09-04'
+    instructions: Use fenazaquin 10 EC for two-spotted spider mites. Mix 2.5 ml with 1 litre of clean
+      water and spray evenly, concentrating on leaves where mites are present. This is an acaricide, not
+      a fungicide - a fungicide will not touch mites. Do not repeat the same chemistry continuously; rotate
+      IRAC groups.
+    source_tier: label
+  diy:
+  - diy_id: DIY_MITE_SOAP
+    title: Insecticidal soap spray
+    ingredients:
+    - item: pure liquid soap (not detergent)
+      quantity: null
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Mix and spray the leaf underside to run-off. Repeat every 3-5 days for at least three rounds
+      to break the life cycle.
+    prep_time_hours: 0.1
+    efficacy: mild_curative
+    feasibility_score: 5
+    safety_notes: Detergents and dish soaps with degreasers will burn foliage. Spot-test first.
+    evidence: extension_guideline
+- disease_id: D_POTATO_EARLY_BLIGHT
+  crop_id: potato
+  pathogen_id: P_ALTERNARIA_SOLANI
+  common_name: Early blight
+  curability: manageable
+  severity_default: 3
+  symptoms: Dark brown angular lesions with concentric rings, often bounded by leaf veins, with a yellow
+    halo. Starts on the oldest lower leaves.
+  favorable_conditions: Warm weather with alternating wet and dry cycles; nitrogen-stressed or senescing
+    plants are far more susceptible.
+  spread_mechanism: Conidia from soil and debris, splashed onto lower foliage.
+  look_alikes:
+  - D_POTATO_LATE_BLIGHT
+  treatments:
+  - control_class: cultural
+    title: Nutrition and residue
+    instructions: Maintain adequate nitrogen through tuber bulking; deficient plants senesce early and
+      are colonised readily. Remove debris and rotate.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant contact fungicide
+    instructions: Use mancozeb for potato early blight. Mix 2 g with 1 litre of clean water, stir well,
+      and spray foliage thoroughly. TNAU recommends sprays at 45, 60 and 75 days after planting (about
+      15-day intervals). Follow the product label for the harvest waiting period.
+    priority: 2
+    evidence: extension_guideline
+    verified: true
+    dose_value: 2.0
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: 15
+    max_applications: 3
+    phi_days: null
+    label_registered: true
+    efficacy_note: Protectant fungicide.
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_vegetables_potato.html
+    retrieved_on: '2026-09-04'
+    source_tier: label
+  - control_class: chemical
+    ai_id: AI_AZOXYSTROBIN
+    title: Strobilurin
+    instructions: Resistance is documented in A. solani. Alternate with a multi-site, never apply consecutively.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_POTATO_LATE_BLIGHT
+  crop_id: potato
+  pathogen_id: P_PHYTOPHTHORA_INFESTANS
+  common_name: Late blight
+  curability: manageable
+  severity_default: 5
+  symptoms: Water-soaked grey-green lesions expanding rapidly to brown-black, with a white fuzzy sporulating
+    ring on the leaf underside in humid conditions. Stems develop dark lesions. Tubers show reddish-brown
+    granular rot beneath the skin.
+  favorable_conditions: Cool 10-20 C with prolonged high humidity, fog or rain.
+  spread_mechanism: Airborne sporangia over long distances; infected seed tubers and cull piles carry
+    it over.
+  look_alikes:
+  - D_POTATO_EARLY_BLIGHT
+  - D_TOMATO_LATE_BLIGHT
+  treatments:
+  - control_class: cultural
+    title: Destroy infected foliage and cull piles
+    instructions: Remove volunteers and cull piles. Hill soil well over tubers to block spore washdown.
+      Kill the haulm before harvest if blight is present.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant contact fungicide
+    instructions: Use mancozeb as a protectant for potato late blight. Mix 2 g with 1 litre of clean water,
+      stir, and cover foliage well. Late blight is an oomycete - do not substitute FRAC 3 or FRAC 11 fungicides.
+      Use a metalaxyl-containing pre-mix only when the exact registered product is confirmed.
+    priority: 2
+    evidence: extension_guideline
+    verified: true
+    dose_value: 2.0
+    dose_unit: g/L
+    dose_basis: foliar spray
+    interval_days: 15
+    max_applications: 3
+    phi_days: null
+    label_registered: true
+    efficacy_note: Multi-site protectant; late blight is an oomycete.
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_vegetables_potato.html
+    retrieved_on: '2026-09-04'
+    source_tier: label
+  - control_class: chemical
+    ai_id: AI_DIMETHOMORPH
+    title: Oomycete-specific systemic
+    instructions: Use in alternation with a multi-site protectant.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_METALAXYL
+    title: Phenylamide
+    instructions: Only as a pre-mix and only where local strains are not resistant. Phenylamide resistance
+      is common.
+    priority: 4
+    evidence: extension_guideline
+- disease_id: D_PEPPER_BACTERIAL_SPOT
+  crop_id: pepper_bell
+  pathogen_id: P_XANTHOMONAS_PEPPER
+  common_name: Bacterial spot
+  curability: manageable
+  severity_default: 4
+  symptoms: Small water-soaked spots on leaf undersides becoming brown and angular with a yellow halo,
+    often with a shot-hole appearance. Raised scabby corky lesions on fruit. Severe defoliation follows.
+  favorable_conditions: Warm 24-30 C with rain, overhead irrigation or high humidity.
+  spread_mechanism: Contaminated seed and transplants; splash and handling.
+  treatments:
+  - control_class: cultural
+    title: Clean seed
+    sanitation: null
+    resistant varieties: null
+    instructions: Certified or hot-water-treated seed, three-year rotation, and never handling wet plants.
+      Bacterial-spot-resistant pepper cultivars exist and are the durable answer.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper acetate seed treatment (research-suggested, preventive only)
+    instructions: This is a preventive seed treatment only and does nothing for an existing bacterial-spot
+      infection on a diseased plant. A peer-reviewed study reported 0.2% copper acetate as a seed treatment
+      for pepper bacterial spot - a research-suggested rate, not a registered foliar dose.
+    priority: 5
+    evidence: peer_reviewed
+    dose_value: 0.2
+    dose_unit: '%'
+    dose_basis: seed treatment
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    efficacy_note: Preventive seed treatment only; not useful against an existing plant infection.
+    label_registered: false
+    verified: false
+    source_tier: research
+    source_name: Erciyes University (peer-reviewed pepper bacterial spot study)
+    source_url: https://avesis.erciyes.edu.tr/yayin/b0fb904d-c12c-4729-a3b5-2ec86fa7bcb7/identification-of-xanthomonas-spp-disease-agent-s-and-the-effect-of-chemical-seed-treatments-to-control-bacterial-spot-of-pepper
+    retrieved_on: '2026-09-04'
+- disease_id: D_STRAWBERRY_LEAF_SCORCH
+  crop_id: strawberry
+  pathogen_id: P_DIPLOCARPON_EARLIANUM
+  common_name: Leaf scorch
+  curability: manageable
+  severity_default: 3
+  symptoms: Numerous small irregular dark purple spots without the pale centre seen in common leaf spot.
+    Spots merge until the leaf looks scorched or burnt, with the margins curling upward.
+  favorable_conditions: Warm wet weather with extended leaf wetness and dense crowded plantings.
+  spread_mechanism: Conidia splashed from infected leaf debris in the crown.
+  treatments:
+  - control_class: cultural
+    title: Renovation and spacing
+    instructions: Remove and destroy old infected foliage after harvest, thin runners for airflow, and
+      irrigate at the base rather than overhead.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CAPTAN
+    title: Protectant fungicide
+    instructions: Protectant applications through the wet season.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Rotation partner with systemic activity.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_ORANGE_HLB
+  crop_id: orange
+  pathogen_id: P_CLAS
+  common_name: Huanglongbing (citrus greening)
+  curability: incurable
+  severity_default: 5
+  symptoms: Blotchy asymmetric yellow mottling that does not mirror across the midrib - this asymmetry
+    distinguishes it from a nutrient deficiency, which is symmetric. Yellow shoots, corky enlarged veins,
+    small lopsided fruit that stay green at the bottom, bitter juice and heavy premature fruit drop.
+  favorable_conditions: Presence of the Asian citrus psyllid. The tree declines regardless of weather
+    once infected.
+  spread_mechanism: Transmitted by the Asian citrus psyllid and by grafting infected budwood. Systemic
+    and permanent.
+  treatments:
+  - control_class: cultural
+    title: Report it - do not attempt home treatment
+    instructions: There is no cure and no chemical will save an infected tree. HLB is regulated in many
+      jurisdictions. Report a suspected case to the local agriculture department or horticulture officer
+      and follow their instructions on removal.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: cultural
+    title: Certified disease-free planting material
+    instructions: Only plant nursery stock certified free of the pathogen. Grafting is a major transmission
+      route.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_IMIDACLOPRID
+    title: Psyllid vector suppression
+    instructions: Area-wide vector management protects uninfected trees only. It does not treat an infected
+      tree, and pollinator restrictions apply.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_GRAPE_BLACK_ROT
+  crop_id: grape
+  pathogen_id: P_GUIGNARDIA_BIDWELLII
+  common_name: Black rot
+  curability: manageable
+  severity_default: 4
+  symptoms: Circular tan leaf lesions with a dark border and a ring of tiny black pycnidia inside the
+    spot. Berries develop a pale spot that rots the whole fruit within days, turning it into a hard black
+    shrivelled mummy that clings to the cluster.
+  favorable_conditions: Warm 20-27 C with rain; infection needs several hours of wetness.
+  spread_mechanism: Ascospores and conidia released from overwintered mummies and cane lesions during
+    spring rain.
+  treatments:
+  - control_class: cultural
+    title: Remove mummies
+    instructions: Every mummified berry left on the vine or ground is next season's inoculum. Removing
+      them in winter is the single highest-value action.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide
+    instructions: Critical window runs from shoot growth through several weeks after bloom, when berries
+      are susceptible.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Systemic with post-infection activity within a short window.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_GRAPE_ESCA
+  crop_id: grape
+  pathogen_id: P_ESCA_COMPLEX
+  common_name: Esca (black measles)
+  curability: incurable
+  severity_default: 5
+  symptoms: Tiger-stripe pattern on leaves - interveinal yellow or red chlorotic bands that dry to brown
+    between green veins. Small dark spots on berries. In the apoplectic form an entire vine wilts and
+    dies within days in hot weather. Cut trunk wood shows dark streaking and a spongy white rot.
+  favorable_conditions: Large pruning wounds made in wet weather; older vines are far more affected.
+  spread_mechanism: Spores enter through pruning wounds and colonise permanent trunk wood over years.
+  treatments:
+  - control_class: cultural
+    title: No chemical cure exists - manage wounds
+    instructions: The pathogens live in the trunk where no foliar spray reaches. Prune late in the dormant
+      season during dry weather, make small cuts, and seal or treat large wounds. Remove and burn dead
+      vines.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_TRICHODERMA
+    title: Pruning wound protectant
+    instructions: Applied to fresh cuts to competitively exclude trunk pathogens. Preventive only, on
+      healthy wood.
+    priority: 2
+    evidence: peer_reviewed
+  - control_class: physical
+    title: Trunk renewal surgery
+    instructions: Cutting back to clean wood and retraining a new trunk can prolong a valuable vine. Skilled
+      work, not a home remedy.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_GRAPE_LEAF_BLIGHT
+  crop_id: grape
+  pathogen_id: P_PSEUDOCERCOSPORA_VITIS
+  common_name: Leaf blight (Isariopsis leaf spot)
+  curability: manageable
+  severity_default: 3
+  symptoms: Irregular dark brown to black angular spots on leaves, often merging into large blighted areas,
+    with a sooty growth visible on the underside. Heavy infection causes premature leaf drop, weakening
+    the vine for next season.
+  favorable_conditions: Warm humid weather late in the season with a dense shaded canopy.
+  spread_mechanism: Conidia from overwintered fallen leaves and canes.
+  treatments:
+  - control_class: cultural
+    title: Canopy management and leaf removal
+    instructions: Open the canopy for airflow and light penetration, and clear fallen leaves at the end
+      of the season.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide
+    instructions: Late-season protectant coverage; often controlled incidentally by the black rot programme.
+    priority: 2
+    evidence: extension_guideline
+- disease_id: D_APPLE_SCAB
+  crop_id: apple
+  pathogen_id: P_VENTURIA_INAEQUALIS
+  common_name: Apple scab
+  curability: manageable
+  severity_default: 4
+  symptoms: Olive-green velvety spots with feathery indistinct margins on leaves, which darken and turn
+    the leaf yellow before it drops. Corky brown scabby lesions on fruit that crack as the fruit expands.
+  favorable_conditions: Cool wet spring weather. Infection is driven by hours of leaf wetness at a given
+    temperature (the Mills periods).
+  spread_mechanism: Ascospores discharged from fallen leaves during spring rain, then secondary conidia
+    through the season.
+  treatments:
+  - control_class: cultural
+    title: Destroy fallen leaves
+    instructions: Rake and remove or shred fallen leaves in autumn. Removing the overwintering leaf litter
+      directly reduces the spring ascospore load.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CAPTAN
+    title: Protectant fungicide
+    instructions: Applied on a schedule through the primary infection period from green tip to petal fall.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Post-infection activity within a short window after a wetting event. DMI resistance
+      is documented in some regions.
+    priority: 3
+    evidence: extension_guideline
+  - control_class: cultural
+    title: Scab-resistant cultivars
+    instructions: Vf-gene cultivars such as Liberty or Enterprise remove the need for a spray programme
+      entirely on a new planting.
+    priority: 4
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    priority: 3
+    region: IN
+    title: Mancozeb protectant fungicide
+    instructions: Use mancozeb at 0.25% as a foliar spray at the bearing stage, as specified by TNAU.
+      It is a protectant intended to prevent or limit scab rather than cure it.
+    dose_value: 0.25
+    dose_unit: '%'
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    efficacy_note: TNAU recommends mancozeb 0.25% for apple scab.
+    evidence: extension_guideline
+    label_registered: true
+    verified: true
+    source_tier: label
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/crop_protection/apple_1.html
+    retrieved_on: '2026-09-04'
+- disease_id: D_APPLE_BLACK_ROT
+  crop_id: apple
+  pathogen_id: P_BOTRYOSPHAERIA_OBTUSA
+  common_name: Black rot (frogeye leaf spot)
+  curability: manageable
+  severity_default: 3
+  symptoms: Round leaf spots with purple margins and tan centres, giving the frogeye appearance. On fruit,
+    a firm brown rot with concentric rings, usually starting at the calyx end. Sunken cankers with rough
+    cracked bark on limbs.
+  favorable_conditions: Warm humid weather; infection enters through wounds and dead or winter-injured
+    wood.
+  spread_mechanism: Spores from cankers and mummified fruit dispersed by rain.
+  treatments:
+  - control_class: cultural
+    title: Prune out cankers and dead wood
+    instructions: The fungus lives in dead wood. Remove cankered limbs and mummified fruit and destroy
+      them; sanitation matters more here than spraying.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_CAPTAN
+    title: Protectant fungicide
+    instructions: Usually covered by the scab programme; supplementary cover sprays in wet summers.
+    priority: 2
+    evidence: extension_guideline
+- disease_id: D_APPLE_CEDAR_RUST
+  crop_id: apple
+  pathogen_id: P_GYMNOSPORANGIUM_JV
+  common_name: Cedar apple rust
+  curability: manageable
+  severity_default: 3
+  symptoms: Bright yellow-orange spots on the upper leaf surface, often with a red border, developing
+    small black dots in the centre. Beneath the spot, tube- like or hairy fringed structures protrude
+    from the leaf underside - these are diagnostic and appear in no other apple disease.
+  favorable_conditions: Spring rain, with a juniper or eastern red cedar host within a few hundred metres.
+  spread_mechanism: Requires two hosts. Spores move from gelatinous orange galls on juniper to apple in
+    spring, and back to juniper later.
+  treatments:
+  - control_class: cultural
+    title: Remove nearby junipers
+    instructions: The fungus cannot complete its life cycle without a juniper host. Removing junipers
+      within a few hundred metres, or removing the orange galls before they swell in spring, ends the
+      problem permanently.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Applied during the spring spore release window from pink bud through to a few weeks
+      after petal fall. Later sprays are wasted.
+    priority: 2
+    evidence: extension_guideline
+- disease_id: D_PEACH_BACTERIAL_SPOT
+  crop_id: peach
+  pathogen_id: P_XANTHOMONAS_PRUNI
+  common_name: Bacterial spot
+  curability: manageable
+  severity_default: 4
+  symptoms: Small angular purple-black leaf spots bounded by veins, whose centres often fall out to leave
+    a ragged shot-hole. Heavy defoliation. Sunken pitted or cracked lesions on fruit skin.
+  favorable_conditions: Warm wet windy weather; sandy exposed sites and wind-driven sand injury make it
+    much worse.
+  spread_mechanism: Overwinters in twig cankers and buds; spread by wind-driven rain.
+  treatments:
+  - control_class: cultural
+    title: Site
+    windbreaks and tolerant cultivars: null
+    instructions: Cultivar tolerance varies enormously and is the main lever. Windbreaks reduce the leaf
+      abrasion that lets bacteria in. Avoid excessive nitrogen.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Dormant copper application
+    instructions: Copper is used mainly in the dormant or delayed-dormant window; peach foliage is copper-sensitive
+      and in-season applications risk phytotoxicity.
+    priority: 2
+    evidence: extension_guideline
+- disease_id: D_CHERRY_POWDERY_MILDEW
+  crop_id: cherry
+  pathogen_id: P_PODOSPHAERA_CLANDESTINA
+  common_name: Powdery mildew
+  curability: curable
+  severity_default: 3
+  symptoms: White powdery patches on leaves, first on the underside and on succulent new shoots, with
+    leaf curling and distortion. White fuzz on fruit and pedicels near harvest.
+  favorable_conditions: Warm dry days with humid nights. Unlike most foliar fungi it does not need free
+    water on the leaf, and rain actually suppresses it.
+  spread_mechanism: Airborne conidia; overwinters as chasmothecia on bark and in bud scales.
+  treatments:
+  - control_class: cultural
+    title: Prune for light and airflow
+    instructions: Open the canopy, avoid excessive nitrogen that pushes soft susceptible growth, and remove
+      infected suckers and watersprouts.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_SULFUR
+    title: Sulfur
+    instructions: Effective and inexpensive. Do not apply above roughly 30 C or within two weeks of an
+      oil spray - both cause severe phytotoxicity.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Systemic; rotate FRAC groups, as powdery mildews develop resistance readily.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_SQUASH_POWDERY_MILDEW
+  crop_id: squash
+  pathogen_id: P_PODOSPHAERA_XANTHII
+  common_name: Powdery mildew
+  curability: curable
+  severity_default: 3
+  symptoms: White talcum-like circular patches on the upper leaf surface that spread to cover the whole
+    leaf, which then yellows, browns and dies. Stems and petioles are affected; fruit usually is not,
+    but loses quality from the loss of canopy. The white growth wipes off with a finger - this rules out
+    a lookalike leaf marking such as silver variegation.
+  favorable_conditions: Moderate 20-27 C with high humidity but dry leaf surfaces, and shaded crowded
+    canopies.
+  spread_mechanism: Windborne conidia; needs no free water to germinate.
+  treatments:
+  - control_class: cultural
+    title: Spacing
+    resistant varieties and leaf removal: null
+    instructions: Space plants for airflow, plant in full sun, choose resistant cultivars, and remove
+      the worst affected lower leaves early.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_POTASSIUM_BICARB
+    title: Potassium bicarbonate
+    instructions: One of the few genuinely eradicant options - it collapses existing colonies on contact,
+      not just prevents new ones.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_SULFUR
+    title: Wettable sulfur protectant fungicide (research-suggested rate)
+    instructions: The 0.2% wettable sulfur rate comes from a TNAU cucurbit page for watermelon, not a
+      squash-specific registration - treat it as a research-suggested rate, not a verified squash dose.
+      Do not apply sulfur in excessive heat because of phytotoxicity risk.
+    priority: 4
+    evidence: peer_reviewed
+    dose_value: 0.2
+    dose_unit: '%'
+    dose_basis: foliar spray
+    interval_days: null
+    max_applications: null
+    phi_days: null
+    efficacy_note: 0.2% wettable sulfur from a TNAU watermelon/cucurbit page; squash-specific verification
+      absent.
+    label_registered: false
+    verified: false
+    source_tier: research
+    source_name: TNAU Agritech Portal
+    source_url: https://agritech.tnau.ac.in/crop_protection/water_melon_6.html
+    retrieved_on: '2026-09-04'
+  - control_class: biological
+    ai_id: AI_BACILLUS_SUBTILIS
+    title: Biofungicide
+    instructions: Preventive and suppressive; useful in a rotation to reduce resistance pressure on the
+      synthetics.
+    priority: 4
+    evidence: peer_reviewed
+  - control_class: chemical
+    ai_id: AI_MYCLOBUTANIL
+    title: Triazole
+    instructions: Resistance to single-site fungicides is well documented in this pathogen. Rotate FRAC
+      groups every application.
+    priority: 5
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_SQUASH_PM_BICARB
+    title: Potassium bicarbonate spray
+    ingredients:
+    - item: potassium bicarbonate
+      quantity: null
+      unit: g
+      home_available: true
+    - item: horticultural or neem oil
+      quantity: null
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Dissolve the bicarbonate fully, add the oil as a spreader, and spray both leaf surfaces to
+      run-off in the early morning or evening. Repeat weekly.
+    prep_time_hours: 0.25
+    efficacy: mild_curative
+    feasibility_score: 5
+    safety_notes: Do not combine with sulfur. Spot-test on a few leaves first; some cultivars burn.
+    evidence: extension_guideline
+  - diy_id: DIY_SQUASH_PM_MILK
+    title: Diluted milk spray
+    ingredients:
+    - item: milk
+      quantity: 1
+      unit: part
+      home_available: true
+    - item: water
+      quantity: 9
+      unit: part
+      home_available: true
+    steps: Mix and spray both leaf surfaces on a sunny morning; the effect appears to depend on light
+      exposure. Repeat weekly.
+    prep_time_hours: 0.1
+    efficacy: preventive
+    feasibility_score: 5
+    safety_notes: Higher concentrations can leave an odorous surface film and encourage saprophytic growth.
+    evidence: peer_reviewed
+healthy_classes:
+- disease_id: H_APPLE
+  crop_id: apple
+  common_name: Healthy apple foliage
+- disease_id: H_BLUEBERRY
+  crop_id: blueberry
+  common_name: Healthy blueberry foliage
+- disease_id: H_CHERRY
+  crop_id: cherry
+  common_name: Healthy cherry foliage
+- disease_id: H_CORN
+  crop_id: corn
+  common_name: Healthy corn foliage
+- disease_id: H_GRAPE
+  crop_id: grape
+  common_name: Healthy grape foliage
+- disease_id: H_PEACH
+  crop_id: peach
+  common_name: Healthy peach foliage
+- disease_id: H_PEPPER_BELL
+  crop_id: pepper_bell
+  common_name: Healthy bell pepper foliage
+- disease_id: H_POTATO
+  crop_id: potato
+  common_name: Healthy potato foliage
+- disease_id: H_RASPBERRY
+  crop_id: raspberry
+  common_name: Healthy raspberry foliage
+- disease_id: H_SOYBEAN
+  crop_id: soybean
+  common_name: Healthy soybean foliage
+- disease_id: H_STRAWBERRY
+  crop_id: strawberry
+  common_name: Healthy strawberry foliage
+- disease_id: H_TOMATO
+  crop_id: tomato
+  common_name: Healthy tomato foliage

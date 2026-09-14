@@ -1,0 +1,175 @@
+# PlantPulse knowledge base seed.
+#
+# CURATION RULE: every numeric dose, interval and PHI is left null with
+# verified: false. Fill them ONLY from a CIB&RC label claim or a named
+# extension publication, then set verified: true and record source_url.
+# validate_kb.py fails the build if a dose exists without a source.
+
+crops:
+  - {crop_id: apple,       common_name: Apple,        scientific_name: Malus domestica,     indoor_suitable: false}
+  - {crop_id: blueberry,   common_name: Blueberry,    scientific_name: Vaccinium corymbosum, indoor_suitable: false}
+  - {crop_id: cherry,      common_name: Cherry,       scientific_name: Prunus avium/cerasus, indoor_suitable: false}
+  - {crop_id: corn,        common_name: Corn (maize), scientific_name: Zea mays,            indoor_suitable: false}
+  - {crop_id: grape,       common_name: Grape,        scientific_name: Vitis vinifera,      indoor_suitable: false}
+  - {crop_id: orange,      common_name: Orange,       scientific_name: Citrus sinensis,     indoor_suitable: true}
+  - {crop_id: peach,       common_name: Peach,        scientific_name: Prunus persica,      indoor_suitable: false}
+  - {crop_id: pepper_bell, common_name: Bell pepper,  scientific_name: Capsicum annuum,     indoor_suitable: true}
+  - {crop_id: potato,      common_name: Potato,       scientific_name: Solanum tuberosum,   indoor_suitable: true}
+  - {crop_id: raspberry,   common_name: Raspberry,    scientific_name: Rubus idaeus,        indoor_suitable: false}
+  - {crop_id: soybean,     common_name: Soybean,      scientific_name: Glycine max,         indoor_suitable: false}
+  - {crop_id: squash,      common_name: Squash,       scientific_name: Cucurbita spp.,      indoor_suitable: true}
+  - {crop_id: strawberry,  common_name: Strawberry,   scientific_name: Fragaria x ananassa, indoor_suitable: true}
+  - {crop_id: tomato,      common_name: Tomato,       scientific_name: Solanum lycopersicum, indoor_suitable: true}
+
+pathogens:
+  - pathogen_id: P_CERCOSPORA_ZEAE
+    scientific_name: Cercospora zeae-maydis
+    type: fungal
+    survival: Infected corn residue left on the soil surface
+  - pathogen_id: P_EXSEROHILUM_TURCICUM
+    scientific_name: Exserohilum turcicum
+    synonyms: [Setosphaeria turcica, Helminthosporium turcicum]
+    type: fungal
+    survival: Corn debris; conidia dispersed by wind and rain splash
+  - pathogen_id: P_PUCCINIA_SORGHI
+    scientific_name: Puccinia sorghi
+    type: fungal
+    survival: Does not overwinter in temperate zones; urediniospores blow in from warmer regions
+  - pathogen_id: P_ALTERNARIA_SOLANI
+    scientific_name: Alternaria solani
+    synonyms: [Alternaria linariae]
+    type: fungal
+    survival: Soil, crop debris, volunteer solanaceous plants
+  - pathogen_id: P_PHYTOPHTHORA_INFESTANS
+    scientific_name: Phytophthora infestans
+    type: oomycete
+    survival: Infected tubers, cull piles, living host tissue
+    notes: >-
+      An oomycete, not a true fungus. Most single-site fungicides that work on
+      Ascomycetes do nothing here; needs oomycete-specific chemistry
+      (phenylamides, carbamates, QiI) or a multi-site protectant.
+  - pathogen_id: P_SEPTORIA_LYCOPERSICI
+    scientific_name: Septoria lycopersici
+    type: fungal
+    survival: Crop debris and solanaceous weeds
+  - pathogen_id: P_PASSALORA_FULVA
+    scientific_name: Passalora fulva
+    synonyms: [Fulvia fulva, Cladosporium fulvum]
+    type: fungal
+    survival: Conidia on debris and greenhouse structures
+    notes: Overwhelmingly a greenhouse / high-humidity disease; highly relevant to indoor growers.
+  - pathogen_id: P_CORYNESPORA_CASSIICOLA
+    scientific_name: Corynespora cassiicola
+    type: fungal
+    survival: Crop debris and a wide alternate host range
+  - pathogen_id: P_XANTHOMONAS_TOMATO
+    scientific_name: Xanthomonas spp.
+    synonyms: [X. vesicatoria, X. euvesicatoria, X. perforans, X. gardneri]
+    type: bacterial
+    survival: Contaminated seed, transplants, crop debris
+  - pathogen_id: P_XANTHOMONAS_PEPPER
+    scientific_name: Xanthomonas euvesicatoria
+    type: bacterial
+    survival: Contaminated seed and volunteer plants
+  - pathogen_id: P_XANTHOMONAS_PRUNI
+    scientific_name: Xanthomonas arboricola pv. pruni
+    type: bacterial
+    survival: Twig cankers, buds
+  - pathogen_id: P_TYLCV
+    scientific_name: Tomato yellow leaf curl virus
+    type: viral
+    vector_organism: Bemisia tabaci (silverleaf whitefly)
+    survival: Persists in the vector and in perennial hosts; not seed-transmitted
+  - pathogen_id: P_TOMV
+    scientific_name: Tomato mosaic virus
+    type: viral
+    survival: Extremely stable; survives in seed, debris, on tools, hands and smoking tobacco
+    notes: Mechanically transmitted, no insect vector. Sanitation is the entire control programme.
+  - pathogen_id: P_TETRANYCHUS_URTICAE
+    scientific_name: Tetranychus urticae
+    type: arthropod_pest
+    survival: Overwinters as diapausing females in debris and structures
+    notes: >-
+      An arachnid, not a pathogen. Requires an acaricide with an IRAC code.
+      Resistance develops fast; rotate IRAC groups, never repeat one.
+  - pathogen_id: P_DIPLOCARPON_EARLIANUM
+    scientific_name: Diplocarpon earlianum
+    type: fungal
+    survival: Infected leaf debris in the crown
+  - pathogen_id: P_CLAS
+    scientific_name: Candidatus Liberibacter asiaticus
+    type: bacterial
+    vector_organism: Diaphorina citri (Asian citrus psyllid)
+    survival: Phloem-limited; systemic and permanent in the tree
+    notes: >-
+      Huanglongbing. Regulated / notifiable in many jurisdictions including
+      parts of India. No cure exists. Suspected cases should be reported to the
+      local agriculture department, not treated at home.
+  - pathogen_id: P_PSEUDOCERCOSPORA_VITIS
+    scientific_name: Pseudocercospora vitis
+    synonyms: [Isariopsis clavispora, Isariopsis leaf spot]
+    type: fungal
+    survival: Fallen leaves and canes
+  - pathogen_id: P_ESCA_COMPLEX
+    scientific_name: Phaeomoniella chlamydospora and Phaeoacremonium minimum with Fomitiporia mediterranea
+    type: fungal
+    survival: Colonises permanent woody trunk tissue through pruning wounds
+    notes: A trunk disease complex, not a foliar disease. Leaf symptoms are the visible end of internal wood decay.
+  - pathogen_id: P_GUIGNARDIA_BIDWELLII
+    scientific_name: Guignardia bidwellii
+    synonyms: [Phyllosticta ampelicida]
+    type: fungal
+    survival: Mummified berries and cane lesions
+  - pathogen_id: P_VENTURIA_INAEQUALIS
+    scientific_name: Venturia inaequalis
+    type: fungal
+    survival: Fallen leaves; ascospores released in spring rain
+  - pathogen_id: P_GYMNOSPORANGIUM_JV
+    scientific_name: Gymnosporangium juniperi-virginianae
+    type: fungal
+    survival: Requires an alternate juniper/cedar host to complete its life cycle
+    notes: Removing nearby junipers within a few hundred metres breaks the cycle permanently.
+  - pathogen_id: P_BOTRYOSPHAERIA_OBTUSA
+    scientific_name: Botryosphaeria obtusa
+    synonyms: [Diplodia seriata]
+    type: fungal
+    survival: Cankers on dead wood and mummified fruit
+  - pathogen_id: P_PODOSPHAERA_CLANDESTINA
+    scientific_name: Podosphaera clandestina
+    type: fungal
+    survival: Chasmothecia on bark and bud scales
+  - pathogen_id: P_PODOSPHAERA_XANTHII
+    scientific_name: Podosphaera xanthii
+    synonyms: [Sphaerotheca fuliginea, Erysiphe cichoracearum]
+    type: fungal
+    survival: Chasmothecia on debris; conidia airborne
+    notes: >-
+      Unlike most foliar fungi, powdery mildews germinate without free water and
+      are favoured by dry leaves with high ambient humidity.
+
+active_ingredients:
+  - {ai_id: AI_MANCOZEB,        name: Mancozeb,               chemical_group: Dithiocarbamate,  frac_code: M03, is_multisite: true,  organic_approved: false, mode_of_action: Multi-site contact protectant, hazard_notes: Skin and eye irritant; wear gloves and mask when mixing}
+  - {ai_id: AI_CHLOROTHALONIL,  name: Chlorothalonil,         chemical_group: Chloronitrile,    frac_code: M05, is_multisite: true,  organic_approved: false, mode_of_action: Multi-site contact protectant, hazard_notes: Restricted or banned in some jurisdictions; check local status before recommending}
+  - {ai_id: AI_COPPER,          name: Copper hydroxide / copper oxychloride, chemical_group: Inorganic copper, frac_code: M01, is_multisite: true, organic_approved: true, mode_of_action: Multi-site; the only widely available foliar bactericide, hazard_notes: Phytotoxic in cool wet weather and cumulative in soil}
+  - {ai_id: AI_SULFUR,          name: Sulfur,                 chemical_group: Inorganic,        frac_code: M02, is_multisite: true,  organic_approved: true,  mode_of_action: Multi-site contact, strong on powdery mildews, hazard_notes: Phytotoxic above ~30 C; never within 2 weeks of an oil spray}
+  - {ai_id: AI_CAPTAN,          name: Captan,                 chemical_group: Phthalimide,      frac_code: M04, is_multisite: true,  organic_approved: false, mode_of_action: Multi-site contact protectant}
+  - {ai_id: AI_AZOXYSTROBIN,    name: Azoxystrobin,           chemical_group: Strobilurin (QoI), frac_code: '11', organic_approved: false, mode_of_action: Complex III respiration inhibitor, hazard_notes: High resistance risk; never apply twice in a row}
+  - {ai_id: AI_DIFENOCONAZOLE,  name: Difenoconazole,         chemical_group: Triazole (DMI),   frac_code: '3',  organic_approved: false, mode_of_action: Sterol biosynthesis inhibitor}
+  - {ai_id: AI_MYCLOBUTANIL,    name: Myclobutanil,           chemical_group: Triazole (DMI),   frac_code: '3',  organic_approved: false, mode_of_action: Sterol biosynthesis inhibitor}
+  - {ai_id: AI_TEBUCONAZOLE,    name: Tebuconazole,           chemical_group: Triazole (DMI),   frac_code: '3',  organic_approved: false, mode_of_action: Sterol biosynthesis inhibitor}
+  - {ai_id: AI_PROPICONAZOLE,   name: Propiconazole,          chemical_group: Triazole (DMI),   frac_code: '3',  organic_approved: false, mode_of_action: Sterol biosynthesis inhibitor}
+  - {ai_id: AI_METALAXYL,       name: Metalaxyl-M (mefenoxam), chemical_group: Phenylamide,     frac_code: '4',  organic_approved: false, mode_of_action: RNA polymerase inhibitor, oomycete-specific, hazard_notes: Widespread resistance in P. infestans; use only in pre-mix with a multi-site}
+  - {ai_id: AI_CYMOXANIL,       name: Cymoxanil,              chemical_group: Cyanoacetamide-oxime, frac_code: '27', organic_approved: false, mode_of_action: Oomycete-specific, short curative window}
+  - {ai_id: AI_DIMETHOMORPH,    name: Dimethomorph,           chemical_group: Carboxylic acid amide, frac_code: '40', organic_approved: false, mode_of_action: Cellulose synthase inhibitor, oomycete-specific}
+  - {ai_id: AI_POTASSIUM_BICARB, name: Potassium bicarbonate, chemical_group: Inorganic salt,   frac_code: NC,   organic_approved: true,  mode_of_action: Disrupts fungal cell osmotic balance on contact; eradicant on powdery mildew}
+  - {ai_id: AI_HORT_OIL,        name: Horticultural / neem oil, chemical_group: Botanical oil,  irac_code: UN,   organic_approved: true,  mode_of_action: Smothers mites and eggs, mild antifungal film, hazard_notes: Do not apply in direct sun or above 32 C}
+  - {ai_id: AI_AZADIRACHTIN,    name: Azadirachtin,           chemical_group: Botanical,        irac_code: UN,   organic_approved: true,  mode_of_action: Insect growth regulator and antifeedant}
+  - {ai_id: AI_ABAMECTIN,       name: Abamectin,              chemical_group: Avermectin,       irac_code: '6',  organic_approved: false, mode_of_action: Glutamate-gated chloride channel allosteric modulator, hazard_notes: Highly toxic to bees and aquatic life}
+  - {ai_id: AI_SPIROMESIFEN,    name: Spiromesifen,           chemical_group: Tetronic acid,    irac_code: '23', organic_approved: false, mode_of_action: Lipid synthesis inhibitor; strong on mite eggs and juveniles}
+  - {ai_id: AI_IMIDACLOPRID,    name: Imidacloprid,           chemical_group: Neonicotinoid,    irac_code: '4A', organic_approved: false, mode_of_action: Systemic nicotinic acetylcholine receptor agonist, hazard_notes: Severe pollinator toxicity; restricted in several regions. Vector control only, never a cure}
+  - {ai_id: AI_BACILLUS_SUBTILIS, name: Bacillus subtilis QST713, chemical_group: Microbial biofungicide, frac_code: BM02, organic_approved: true, mode_of_action: Lipopeptide antibiosis plus induced host resistance}
+  - {ai_id: AI_TRICHODERMA,     name: Trichoderma harzianum / viride, chemical_group: Microbial biofungicide, frac_code: BM02, organic_approved: true, mode_of_action: Mycoparasitism and rhizosphere competition; soil-borne targets}
+  - {ai_id: AI_PSEUDOMONAS,     name: Pseudomonas fluorescens, chemical_group: Microbial biofungicide, frac_code: BM02, organic_approved: true, mode_of_action: Siderophore competition and induced systemic resistance}
+  - {ai_id: AI_PREDATORY_MITES, name: "Phytoseiulus persimilis / Amblyseius californicus", chemical_group: Macrobial biocontrol agent, organic_approved: true, mode_of_action: Predation on all mobile spider mite stages, hazard_notes: "Incompatible with residual acaricides; release only after residues have degraded"}
+  - {ai_id: AI_FENAZAQUIN, name: Fenazaquin, chemical_group: Quinazoline, irac_code: '21A', organic_approved: false, mode_of_action: "Mitochondrial complex I electron transport inhibitor (acaricide)", hazard_notes: "Rotate IRAC groups every generation; toxic to fish"}
+  - {ai_id: AI_CARBENDAZIM, name: Carbendazim, chemical_group: "Benzimidazole (MBC)", frac_code: '1', organic_approved: false, mode_of_action: "Beta-tubulin assembly inhibitor, single-site", hazard_notes: "Widespread resistance; rotate and do not rely on it alone"}

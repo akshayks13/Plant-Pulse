@@ -1,0 +1,53 @@
+# External extension literature for the retrieval corpus.
+#
+# Fill this in by hand: 1-3 SHORT passages per disease (a paragraph each, not a
+# whole article), always with the real source_url. ingest_documents.py chunks
+# and embeds them into kb_chunk. They are NOT deleted by `make docs`.
+#
+# Keys: disease_id -> list of {section, title, content, source_name, source_url}
+# section must be one of: identification | cause | treatment | prevention | diy | healthy
+# source_name must NOT be 'curated_kb' (that name is reserved for generated text).
+
+D_TOMATO_LATE_BLIGHT:
+  - section: treatment
+    title: Cornell Vegetables - late blight management
+    source_name: Cornell University Vegetable Program
+    source_url: https://www.vegetables.cornell.edu/pest-management/disease-factsheets/late-blight/
+    content: >-
+      Late blight on tomato and potato: if symptoms are noticed in localized areas,
+      take swift action to remove those plants and their surrounding healthy
+      neighbors via disking or flaming. For approved fungicides, consult the
+      Cornell Integrated Crop and Pest Management Guidelines for Vegetable Crops
+      available at cce.cornell.edu.
+
+  - section: identification
+    title: Cornell Vegetables - late blight symptoms
+    source_name: Cornell University Vegetable Program
+    source_url: https://www.vegetables.cornell.edu/pest-management/disease-factsheets/late-blight/
+    content: >-
+      Late blight affects both tomato and potato. Both plants display similar
+      symptoms which consist of dark lesions surrounded by white sporulation or
+      "fuzz" under humid/damp conditions but may appear just as dry dark lesions
+      under dry conditions.
+
+  - section: cause
+    title: UC IPM - conditions that favour late blight
+    source_name: UC Statewide IPM Program
+    source_url: https://ipm.ucanr.edu/home-and-landscape/late-blight/
+    content: >-
+      Late blight can develop and spread rapidly if inoculum is present and
+      conditions are conducive. High humidity and average temperatures in the
+      range of 50 to 78 F (10 to 26 C) favor the disease. Air circulation to
+      facilitate the drying of foliage each day is important. Overhead sprinklers
+      can favor late blight.
+
+  - section: prevention
+    title: UC IPM - late blight in the home garden
+    source_name: UC Statewide IPM Program
+    source_url: https://ipm.ucanr.edu/home-and-landscape/late-blight/
+    content: >-
+      Use certified plants and tubers. When late blight has developed on foliage
+      and fruit or tubers are at risk of infection, make sure that vines have been
+      completely dead for 2 to 3 weeks before harvest as the pathogen does not
+      survive very long in dead foliage. Avoid sprinkler irrigation. Destroy all
+      tomato, potato, eggplant, and pepper debris after harvest.

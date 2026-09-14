@@ -10,6 +10,10 @@ apps/backend/uploads/
 apps/backend/model/*.tflite
 apps/backend/model/*.h5
 apps/backend/model/*.keras
+apps/retrieval/.venv/
+apps/retrieval/venv/
+apps/retrieval/.env
+apps/retrieval/cache/
 
 # Node
 node_modules/

@@ -1,0 +1,164 @@
+# Care guidance for the 12 healthy classes.
+#
+# When the CNN returns a healthy class, the site should NOT show a treatment or
+# a shopping card. It should reassure the user and give general care plus the
+# earliest warning signs of the disease that crop is most likely to get next -
+# turning a "nothing wrong" result into something still useful.
+#
+# watch_for links to a real disease_id so the frontend can deep-link
+# "here's what early <disease> looks like" straight into that disease's page.
+
+healthy_care:
+
+  - crop_id: tomato
+    care: >-
+      Give at least 6-8 hours of direct light, water at the base in the morning
+      so foliage dries by night, and never wet the leaves. Space or stake plants
+      for airflow. Feed with a balanced fertiliser while fruiting. Remove the
+      lowest leaves once the plant is established to keep foliage off the soil.
+    watch_for: D_TOMATO_EARLY_BLIGHT
+    watch_note: >-
+      The first sign of trouble on tomato is usually dark target-patterned spots
+      on the oldest, lowest leaves. Catching and removing them early is far
+      easier than treating a spread infection.
+
+  - crop_id: potato
+    care: >-
+      Full sun, loose free-draining soil, and steady moisture during tuber
+      formation. Hill soil up around the stems as they grow to protect developing
+      tubers from light and from spores washing down. Avoid overhead watering
+      late in the day.
+    watch_for: D_POTATO_LATE_BLIGHT
+    watch_note: >-
+      In cool, damp spells watch for water-soaked grey-green patches with a
+      faint white mould on the leaf underside. Late blight moves fast, so early
+      removal of affected foliage matters.
+
+  - crop_id: pepper_bell
+    care: >-
+      Warm position with 6+ hours of sun, consistent moisture, and a balanced
+      feed. Peppers dislike cold drafts and waterlogging. Water at the base and
+      keep foliage dry to limit bacterial and fungal spotting.
+    watch_for: D_PEPPER_BACTERIAL_SPOT
+    watch_note: >-
+      Small water-soaked spots on leaf undersides that turn angular and brown
+      are the first sign of bacterial spot. Never handle plants while wet, as
+      that is how it spreads.
+
+  - crop_id: corn
+    care: >-
+      Full sun and rich soil with plenty of nitrogen. Plant in blocks rather
+      than single rows for good pollination. Keep evenly moist through tasseling
+      and ear fill.
+    watch_for: D_CORN_NLB
+    watch_note: >-
+      Long cigar-shaped grey-green lesions on the leaves signal northern leaf
+      blight. Rotating away from corn and clearing old residue prevents most of it.
+
+  - crop_id: grape
+    care: >-
+      Full sun and an open, well-pruned canopy are the whole game with grapes -
+      airflow and light penetration prevent most fungal problems. Train on a
+      trellis, prune in the dormant season, and clear fallen leaves and any
+      shrivelled mummified berries.
+    watch_for: D_GRAPE_BLACK_ROT
+    watch_note: >-
+      Tan leaf spots with a dark border and a ring of tiny black dots are the
+      first sign of black rot. Every mummified berry left on the vine is next
+      year's infection source.
+
+  - crop_id: apple
+    care: >-
+      Full sun, annual dormant pruning for an open canopy, and autumn removal of
+      fallen leaves. Most apple disease overwinters in leaf litter, so raking is
+      one of the highest-value habits. Choose scab-resistant cultivars where you can.
+    watch_for: D_APPLE_SCAB
+    watch_note: >-
+      Olive-green velvety blotches with feathery edges on spring leaves are the
+      start of apple scab. Removing last year's fallen leaves cuts the spring
+      spore load directly.
+
+  - crop_id: cherry
+    care: >-
+      Full sun and an open canopy. Prune in dry weather to avoid infection
+      through cuts. Avoid excess nitrogen, which pushes soft growth that mildew
+      loves.
+    watch_for: D_CHERRY_POWDERY_MILDEW
+    watch_note: >-
+      White powdery patches on new shoots and leaf undersides are the first sign
+      of powdery mildew. Unlike most fungi it thrives in dry conditions with
+      humid nights.
+
+  - crop_id: peach
+    care: >-
+      Full sun, shelter from wind, and good drainage. Avoid overhead irrigation.
+      Windbreaks reduce the leaf abrasion that lets bacterial spot in on exposed
+      sites.
+    watch_for: D_PEACH_BACTERIAL_SPOT
+    watch_note: >-
+      Small angular purple-black leaf spots that fall out into shot-holes are
+      the first sign of bacterial spot, worst on windy, sandy sites.
+
+  - crop_id: strawberry
+    care: >-
+      Full sun, good spacing, and base watering. Thin runners to keep the bed
+      open, and clear old foliage after harvest. Mulch to keep fruit and leaves
+      off wet soil.
+    watch_for: D_STRAWBERRY_LEAF_SCORCH
+    watch_note: >-
+      Many small dark purple spots that merge until the leaf looks scorched are
+      the sign of leaf scorch. Removing old infected foliage after harvest
+      breaks the cycle.
+
+  - crop_id: squash
+    care: >-
+      Full sun, wide spacing, and rich moist soil. Water at the base. Squash are
+      heavy feeders and vigorous, so give them room - crowding is what invites
+      powdery mildew.
+    watch_for: D_SQUASH_POWDERY_MILDEW
+    watch_note: >-
+      White talcum-like patches on the upper leaf surface that wipe off with a
+      finger are the first sign of powdery mildew. Spacing and full sun prevent
+      most of it.
+
+  - crop_id: orange
+    care: >-
+      Bright light, well-draining soil, and deep but infrequent watering. Feed
+      with a citrus-specific fertiliser containing micronutrients. Inspect new
+      growth for the sap-sucking psyllid that spreads citrus greening.
+    watch_for: D_ORANGE_HLB
+    watch_note: >-
+      Blotchy yellow mottling that is asymmetric across the leaf midrib - unlike
+      a symmetric nutrient deficiency - is the warning sign of citrus greening,
+      which has no cure. Report suspected cases rather than treating them.
+
+  - crop_id: blueberry
+    care: >-
+      Acidic soil (pH 4.5-5.5) is essential - this is the single most common
+      reason blueberries struggle. Full sun, steady moisture, and mulch to keep
+      roots cool and the soil acidic.
+    watch_for: null
+    watch_note: >-
+      Your dataset has no blueberry disease class, so there is no specific
+      early-warning link. Yellowing between leaf veins usually points to soil
+      that is not acidic enough rather than a disease.
+
+  - crop_id: raspberry
+    care: >-
+      Full sun, an open trellised canopy, and removal of old fruited canes each
+      year. Good airflow through the row prevents most cane and leaf problems.
+    watch_for: null
+    watch_note: >-
+      Your dataset has no raspberry disease class, so there is no specific
+      early-warning link. Keeping the row open and cutting out spent canes is
+      the main preventive habit.
+
+  - crop_id: soybean
+    care: >-
+      Full sun and moderate, even moisture. As a legume it fixes its own
+      nitrogen, so avoid heavy nitrogen feeding. Rotate to break disease cycles.
+    watch_for: null
+    watch_note: >-
+      Your dataset has no soybean disease class, so there is no specific
+      early-warning link. Rotation and clean residue management prevent most
+      foliar problems.
