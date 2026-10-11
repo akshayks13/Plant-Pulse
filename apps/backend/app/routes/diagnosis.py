@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, func
@@ -6,6 +9,7 @@ from pydantic import BaseModel
 from ..database import get_db
 from ..models import Diagnosis, SystemLog
 from ..services.auth import get_current_user
+from ..services.kb_service import get_remedy
 from ..services.ml_service import get_ml_service
 from ..services.storage import save_image
 from ..models import User
@@ -23,12 +27,19 @@ class DiagnosisOut(BaseModel):
     crop_type: str | None
     created_at: str
     user_id: str
+    remedy: dict | None = None
 
     class Config:
         from_attributes = True
 
 
-def _diag_out(d: Diagnosis) -> DiagnosisOut:
+def _diag_out(d: Diagnosis, include_remedy: bool = True) -> DiagnosisOut:
+    remedy = None
+    if include_remedy and d.remedy:
+        try:
+            remedy = json.loads(d.remedy)
+        except ValueError:
+            remedy = None
     return DiagnosisOut(
         id=d.id,
         disease_name=d.disease_name,
@@ -39,6 +50,7 @@ def _diag_out(d: Diagnosis) -> DiagnosisOut:
         crop_type=d.crop_type,
         created_at=str(d.created_at),
         user_id=d.user_id,
+        remedy=remedy,
     )
 
 
@@ -52,7 +64,11 @@ async def predict(
     file_path, public_url = await save_image(file)
 
     ml = get_ml_service()
-    result = ml.predict(file_path)
+    # CPU-bound inference: keep it off the event loop
+    result = await asyncio.to_thread(ml.predict, file_path)
+
+    # Ask the knowledge base for the remedy; None if the service is down or has no entry
+    remedy = await get_remedy(result["disease_name"], result["confidence"], result.get("runner_up"))
 
     diag = Diagnosis(
         user_id=current_user.id,
@@ -62,6 +78,7 @@ async def predict(
         is_healthy=result["is_healthy"],
         image_url=public_url,
         crop_type=crop_type,
+        remedy=json.dumps(remedy) if remedy else None,
     )
     db.add(diag)
 
@@ -99,7 +116,7 @@ async def history(
         select(func.count()).where(Diagnosis.user_id == current_user.id).select_from(Diagnosis)
     )
     total = total_result.scalar_one()
-    return {"items": [_diag_out(d) for d in items], "total": total, "page": page, "size": size}
+    return {"items": [_diag_out(d, include_remedy=False) for d in items], "total": total, "page": page, "size": size}
 
 
 @router.get("/{diagnosis_id}")

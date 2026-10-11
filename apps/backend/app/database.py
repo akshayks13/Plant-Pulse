@@ -26,6 +26,11 @@ async def _migrate_sqlite():
         if "otp_created_at" not in cols:
             await conn.execute(text("ALTER TABLE users ADD COLUMN otp_created_at DATETIME"))
 
+        result = await conn.execute(text("PRAGMA table_info(diagnoses)"))
+        cols = {row[1] for row in result.fetchall()}
+        if "remedy" not in cols:
+            await conn.execute(text("ALTER TABLE diagnoses ADD COLUMN remedy TEXT"))
+
 
 async def init_db():
     async with engine.begin() as conn:

@@ -1,3 +1,5 @@
+import type { Remedy } from './remedy';
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export function getApiBase() {
@@ -118,6 +120,7 @@ export type Diagnosis = {
   crop_type: string | null;
   created_at: string;
   user_id?: string;
+  remedy?: Remedy | null;
 };
 
 export async function predictDisease(file: File, cropType?: string) {

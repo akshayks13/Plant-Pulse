@@ -70,7 +70,7 @@ def normalize_label(label):
     Leaf_mold). Normalising both sides lets them still match the class_label table.
     """
     label = label.lower().replace(",", "").replace(" ", "_")
-    return re.sub(r"_+", "_", label)
+    return re.sub(r"_+", "_", label).strip("_")   # 'Corn_(maize)___Common_rust_' has a trailing _
 
 
 def resolve_label(class_label):

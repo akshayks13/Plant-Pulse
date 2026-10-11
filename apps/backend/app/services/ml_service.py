@@ -2,9 +2,10 @@
 ML Service for plant disease prediction.
 
 Priority:
-1. TFLite model (fastest, preferred)
-2. Keras/H5 model  
-3. Deterministic mock (for development / when no model present)
+1. PyTorch DenseNet-121 checkpoint (.pt / .pth) - the trained PlantVillage model
+2. TFLite model
+3. Keras/H5 model
+4. Deterministic mock (for development / when no model present)
 """
 import os
 import hashlib
@@ -52,6 +53,13 @@ DISEASE_CLASSES = [
 ]
 
 SEVERITY_MAP = {
+    "Haunglongbing": "critical",
+    "mosaic_virus": "critical",
+    "Esca": "high",
+    "Northern_Leaf_Blight": "high",
+    "Powdery_mildew": "moderate",
+    "Cercospora": "moderate",
+    "Leaf_blight": "moderate",
     "Late_blight": "critical",
     "Bacterial_Wilt": "critical",
     "Yellow_Leaf_Curl_Virus": "critical",
@@ -79,16 +87,50 @@ def _get_severity(disease_name: str) -> str:
     return "moderate"
 
 
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+
 class MLService:
     def __init__(self):
         self.interpreter = None
         self.keras_model = None
+        self.torch_model = None
+        self.class_names: list[str] = DISEASE_CLASSES
         self.input_size = (224, 224)
         self._load_model()
+
+    def _load_torch_model(self, model_path: Path) -> bool:
+        """Load the DenseNet-121 checkpoint written by the training notebook."""
+        try:
+            import torch
+            from torchvision.models import densenet121
+
+            # weights_only: the checkpoint is plain tensors + lists, never needs arbitrary unpickling
+            ckpt = torch.load(str(model_path), map_location="cpu", weights_only=True)
+            class_names = list(ckpt["class_names"])
+            model = densenet121(weights=None)
+            model.classifier = torch.nn.Linear(model.classifier.in_features, len(class_names))
+            model.load_state_dict(ckpt["model_state_dict"])
+            model.eval()
+        except Exception as e:
+            logger.warning(f"Could not load PyTorch model {model_path}: {e}")
+            return False
+
+        size = int(ckpt.get("image_size", 192))
+        self.torch_model = model
+        self.class_names = class_names
+        self.input_size = (size, size)
+        logger.info(f"PyTorch {ckpt.get('model_name', 'densenet121')} loaded: {model_path} "
+                    f"({len(class_names)} classes, {size}px, val_acc={ckpt.get('val_acc')})")
+        return True
 
     def _load_model(self):
         model_path = Path(settings.model_path)
         if model_path.exists():
+            if model_path.suffix in (".pt", ".pth"):
+                if self._load_torch_model(model_path):
+                    return
             try:
                 if model_path.suffix == ".tflite":
                     import tflite_runtime.interpreter as tflite
@@ -143,20 +185,38 @@ class MLService:
         confidence = rng.uniform(0.72, 0.98)
         return disease, round(confidence, 4)
 
+    def _predict_torch(self, image_path: str) -> list[float]:
+        import torch
+
+        img = Image.open(image_path).convert("RGB").resize(self.input_size)
+        arr = (np.asarray(img, dtype=np.float32) / 255.0 - IMAGENET_MEAN) / IMAGENET_STD
+        x = torch.from_numpy(arr.transpose(2, 0, 1)).unsqueeze(0)  # HWC -> NCHW
+        with torch.no_grad():
+            return torch.softmax(self.torch_model(x), dim=1)[0].tolist()
+
     def predict(self, image_path: str) -> dict:
+        runner_up = None
         try:
-            if self.interpreter is not None:
-                arr = self._preprocess(image_path)
-                probs = self._predict_tflite(arr)
-                idx = int(np.argmax(probs))
-                disease = DISEASE_CLASSES[idx] if idx < len(DISEASE_CLASSES) else DISEASE_CLASSES[0]
-                confidence = round(float(probs[idx]), 4)
+            if self.torch_model is not None:
+                probs = self._predict_torch(image_path)
+            elif self.interpreter is not None:
+                probs = self._predict_tflite(self._preprocess(image_path))
             elif self.keras_model is not None:
-                arr = self._preprocess(image_path)
-                probs = self._predict_keras(arr)
-                idx = int(np.argmax(probs))
-                disease = DISEASE_CLASSES[idx] if idx < len(DISEASE_CLASSES) else DISEASE_CLASSES[0]
+                probs = self._predict_keras(self._preprocess(image_path))
+            else:
+                probs = None
+
+            if probs is not None:
+                order = np.argsort(probs)[::-1]
+                idx = int(order[0])
+                disease = self.class_names[idx] if idx < len(self.class_names) else self.class_names[0]
                 confidence = round(float(probs[idx]), 4)
+                if len(order) > 1 and int(order[1]) < len(self.class_names):
+                    second = int(order[1])
+                    runner_up = {
+                        "class_label": self.class_names[second],
+                        "confidence": round(float(probs[second]), 4),
+                    }
             else:
                 disease, confidence = self._mock_predict(image_path)
         except Exception as e:
@@ -171,6 +231,7 @@ class MLService:
             "confidence": confidence,
             "severity": severity,
             "is_healthy": is_healthy,
+            "runner_up": runner_up,
         }
 
 

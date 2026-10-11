@@ -15,7 +15,7 @@ services:
       POSTGRES_INITDB_ARGS: "--data-checksums"
     ports:
       # Bound to localhost only. Do not publish 5432 to 0.0.0.0.
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Read-only mount so `make schema` / `make psql` can reach the SQL files

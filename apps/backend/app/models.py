@@ -44,6 +44,7 @@ class Diagnosis(Base):
     image_url = Column(String)
     is_healthy = Column(Boolean, default=False)
     crop_type = Column(String, nullable=True)
+    remedy = Column(Text, nullable=True)  # JSON: KB treatment result from the retrieval service
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="diagnoses")

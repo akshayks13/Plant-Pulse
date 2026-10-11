@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     debug: bool = True
     cors_origins: str = "http://localhost:3000,http://localhost:3001"
-    model_path: str = "./model/plant_disease_model.tflite"
+    model_path: str = "./model/densenet121_plant_disease.pt"
+    # Treatment / RAG service (apps/retrieval). Remedy is skipped if it is unreachable.
+    retrieval_api_url: str = "http://localhost:8001"
+    retrieval_timeout_seconds: float = 30.0
     app_name: str = "Plant-Pulse API"
 
     @property

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { getDiagnosis, mediaUrl, type Diagnosis } from '@/lib/api';
 import { getLocalScan, type MockScan } from '@/lib/mockDiagnosis';
 import { getDiseaseInfo, formatDiseaseName } from '@/lib/diseaseKb';
+import { remedyToTabs } from '@/lib/remedy';
 import styles from './results.module.css';
 
 type ScanData = Diagnosis | MockScan;
@@ -66,11 +67,20 @@ export default function ResultsPage() {
   };
   const sevColor = severityColors[data.severity] || '#f5c542';
 
-  const treatments = {
-    chemical: kb?.treatments.chemical || [],
-    organic: kb?.treatments.organic || [],
-    prevention: kb?.treatments.prevention || [],
-  };
+  // Prefer the remedy from the retrieval service; fall back to the bundled client KB.
+  const remedy = 'remedy' in data ? data.remedy ?? null : null;
+  // Unsure: the KB deliberately withholds treatment (low confidence / look-alike / not a leaf).
+  const isUnsure = remedy?.result_type === 'unsure';
+  const unsureText = remedy?.unsure_reason === 'out_of_distribution'
+    ? "This doesn't look like a clear photo of a single leaf. Please retake it: one leaf, filling the frame, in daylight, on a plain background."
+    : "We couldn't tell this disease apart reliably, so we're not suggesting a treatment yet. Compare your leaf with the options below, or retake the photo in better light.";
+  const treatments = remedy
+    ? remedyToTabs(remedy)
+    : {
+        chemical: kb?.treatments.chemical || [],
+        organic: kb?.treatments.organic || [],
+        prevention: kb?.treatments.prevention || [],
+      };
 
   return (
     <div className={styles.root}>
@@ -150,7 +160,7 @@ export default function ResultsPage() {
 
           <div className={styles.right}>
             <div className={styles.diseaseHeader}>
-              <span className={styles.plantChip}>{plant}</span>
+              <span className={styles.plantChip}>{isUnsure ? `${plant} · best guess` : plant}</span>
               <h1 className={styles.diseaseName}>
                 {data.is_healthy ? (
                   <><span className={styles.healthyAccent}>Healthy</span> plant 🌿</>
@@ -173,6 +183,38 @@ export default function ResultsPage() {
               </div>
             )}
 
+            {isUnsure && remedy && (
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>We are not sure yet</h2>
+                <p>{unsureText}</p>
+                {remedy.unsure_reason !== 'out_of_distribution' && remedy.candidates && remedy.candidates.length > 1 && (
+                  <ul className={styles.symptomList}>
+                    {remedy.candidates.slice(0, 3).map(c => (
+                      <li key={c.disease_id} className={styles.symptom}>
+                        <span className={styles.symDot} />
+                        <span>
+                          <strong>{c.crop} — {c.common_name}</strong>
+                          {c.symptoms ? `: ${c.symptoms}` : ''}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {!isUnsure && remedy && (remedy.message || remedy.explanation || remedy.care) && (
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>About this diagnosis</h2>
+                {remedy.message && <p>{remedy.message}</p>}
+                {remedy.explanation?.summary && <p>{remedy.explanation.summary}</p>}
+                {remedy.explanation?.why_it_happened && <p>{remedy.explanation.why_it_happened}</p>}
+                {remedy.care?.care_notes && <p>{remedy.care.care_notes}</p>}
+                {remedy.care?.watch_for && <p>{remedy.care.watch_for}</p>}
+              </div>
+            )}
+
+            {!isUnsure && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Treatment plan</h2>
               <div className={styles.tabs}>
@@ -201,6 +243,9 @@ export default function ResultsPage() {
                 )}
               </div>
             </div>
+            )}
+
+            {remedy?.disclaimer && <p className={styles.noData}>{remedy.disclaimer}</p>}
 
             <div className={styles.footer}>
               <button className={styles.outlineBtn} onClick={() => router.push('/history')}>View all scans</button>

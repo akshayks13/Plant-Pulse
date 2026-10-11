@@ -18,6 +18,8 @@ async def lifespan(app: FastAPI):
     await init_db()
     # Seed admin user
     await _seed_admin()
+    from .services.ml_service import get_ml_service
+    get_ml_service()  # load the model now so the first scan is not slow
     logger.info("Plant-Pulse API ready 🌿")
     yield
     logger.info("Shutting down.")
