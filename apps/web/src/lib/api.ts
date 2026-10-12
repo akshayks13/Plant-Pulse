@@ -19,6 +19,22 @@ export function mediaUrl(path: string | null | undefined): string {
   return `${BASE_URL}${path}`;
 }
 
+/** Thrown when the API host itself cannot be reached (backend not running). */
+export class ApiUnreachableError extends Error {
+  constructor() {
+    super(`Cannot reach the Plant-Pulse API at ${BASE_URL}. Start the backend (apps/backend: python3 run.py) and try again.`);
+    this.name = 'ApiUnreachableError';
+  }
+}
+
+async function safeFetch(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch {
+    throw new ApiUnreachableError();
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -29,7 +45,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await safeFetch(`${BASE_URL}${path}`, {
     ...options,
     headers,
   });
@@ -108,33 +124,205 @@ export async function resetPassword(email: string, otp: string, new_password: st
   });
 }
 
+// ─── Diagnosis pipeline types ─────────────────────────────────────────────────
+// Mirrors apps/backend/app/routes/diagnosis.py (DiagnosisOut) and the retrieval
+// service's /diagnose payload (apps/retrieval/README_API.md).
+
+export type Candidate = { label: string; confidence: number };
+export type ResultType = 'normal' | 'unsure' | 'incurable' | 'healthy';
+export type RetrievalStatus = 'pending' | 'ok' | 'unsupported_class' | 'unavailable' | 'error';
+export type SourceTier = 'label' | 'research' | 'none';
+export type ModelSource = 'tflite' | 'keras' | 'mock';
+
+export type RetrievalDisease = {
+  disease_id: string;
+  common_name: string;
+  crop: string;
+  pathogen: string | null;
+  pathogen_type: string | null;
+  curability: 'curable' | 'manageable' | 'incurable' | string;
+  is_healthy_class: boolean;
+  symptoms: string | null;
+};
+
+export type RetrievalCandidate = {
+  disease_id: string;
+  common_name: string;
+  crop: string;
+  symptoms: string | null;
+  confidence: number | null;
+};
+
+export type Citation = {
+  chunk_id: number;
+  section: string;
+  title: string | null;
+  source_name: string | null;
+  source_url: string | null;
+};
+
+export type Explanation = {
+  summary: string;
+  why_it_happened: string;
+  treatment_steps: string[];
+  prevention: string[];
+  citations: Citation[];
+  generated_by: 'llm' | 'template';
+  note: string;
+};
+
+export type Treatment = {
+  treatment_id: number;
+  disease_id: string;
+  control_class: 'cultural' | 'physical' | 'biological' | 'chemical' | string;
+  title: string;
+  instructions: string;
+  priority: number;
+  active_ingredient: string | null;
+  frac_code: string | null;
+  irac_code: string | null;
+  organic_approved: boolean | null;
+  hazard_notes: string | null;
+  dose_value: number | null;
+  dose_unit: string | null;
+  dose_basis: string | null;
+  interval_days: number | null;
+  phi_days: number | null;
+  verified: boolean;
+  source_tier: SourceTier;
+  label_registered: boolean | null;
+  source_name: string | null;
+  source_url: string | null;
+};
+
+export type DiyIngredient = {
+  item: string;
+  quantity: number | null;
+  unit: string | null;
+  home_available: boolean;
+};
+
+export type DiyRemedy = {
+  diy_id: string;
+  title: string;
+  ingredients: DiyIngredient[];
+  steps: string;
+  prep_time_hours: number | null;
+  efficacy: 'preventive' | 'mild_curative' | string;
+  feasibility_score: number | null;
+  safety_notes: string | null;
+  evidence: string | null;
+  verified: boolean;
+  source_url: string | null;
+  honesty_note: string;
+};
+
+export type Product = {
+  name: string;
+  price: number | null;
+  currency: string | null;
+  price_text: string | null;
+  vendor: string | null;
+  url: string | null;
+  concentration: string | null;
+  verified_by: string;
+  retrieved_at: string;
+};
+
+export type RetrievalSummary = {
+  chunks_used: { chunk_id: number; section: string; score: number; source_name: string | null }[];
+  best_score: number;
+  note: string | null;
+};
+
+export type RetrievalResult = {
+  result_type: ResultType;
+  class_label: string;
+  confidence: number;
+  disease: RetrievalDisease;
+  candidates: RetrievalCandidate[];
+  explanation: Explanation | null;
+  treatments: Treatment[];
+  diy: DiyRemedy[];
+  products: Product[];
+  disclaimer: string;
+  // unsure
+  question?: string;
+  unsure_reason?: 'low_confidence' | 'look_alike_runner_up' | 'out_of_distribution';
+  message?: string;
+  // incurable
+  report_prompt?: string | null;
+  // normal
+  product_note?: string;
+  product_ingredient?: string;
+  products_searched_at?: string | null;
+  // healthy
+  care?: { care_notes: string | null; watch_for: string | null };
+  retrieval?: RetrievalSummary;
+};
+
 export type Diagnosis = {
   id: string;
+  user_id?: string;
+  created_at: string;
+  image_url: string | null;
+  crop_type: string | null;
+  // CNN step
   disease_name: string;
   confidence: number;
   severity: string;
-  image_url: string | null;
   is_healthy: boolean;
-  crop_type: string | null;
-  created_at: string;
-  user_id?: string;
+  model_source: ModelSource | string | null;
+  candidates: Candidate[];
+  runner_up: Candidate | null;
+  // Retrieval step
+  result_type: ResultType | null;
+  retrieval_status: RetrievalStatus;
+  retrieval_note: string | null;
+  retrieval_at: string | null;
+  confirmed_disease_id: string | null;
+  retrieval: RetrievalResult | null;
 };
 
-export async function predictDisease(file: File, cropType?: string) {
+/**
+ * Step 1 of the scan pipeline: upload the image and run the CNN.
+ * With `runRetrieval: false` the backend stops after classification so the UI
+ * can call `retrieveTreatment()` as an explicit second step.
+ */
+export async function predictDisease(
+  file: File,
+  opts: { cropType?: string; runRetrieval?: boolean } = {},
+) {
   const token = getToken();
   const form = new FormData();
   form.append('file', file);
-  if (cropType) form.append('crop_type', cropType);
-  const res = await fetch(`${BASE_URL}/diagnosis/predict`, {
+  if (opts.cropType) form.append('crop_type', opts.cropType);
+  form.append('run_retrieval', String(opts.runRetrieval ?? true));
+  const res = await safeFetch(`${BASE_URL}/diagnosis/predict`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: 'Prediction failed' }));
-    throw new Error(err.detail || 'Prediction failed');
+    throw new Error(typeof err.detail === 'string' ? err.detail : 'Prediction failed');
   }
   return res.json() as Promise<Diagnosis>;
+}
+
+/**
+ * Step 2 of the scan pipeline: send the CNN result to the retrieval service and
+ * store the treatment plan. Also used to retry after an outage, or to confirm
+ * one of the candidates from an "unsure" result.
+ */
+export async function retrieveTreatment(
+  id: string,
+  body: { question?: string; confirmed_disease_id?: string } = {},
+) {
+  return request<Diagnosis>(`/diagnosis/${id}/retrieve`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
 }
 
 export async function getDiagnosisHistory(page = 1, size = 20) {
@@ -145,6 +333,18 @@ export async function getDiagnosisHistory(page = 1, size = 20) {
 
 export async function getDiagnosis(id: string) {
   return request<Diagnosis>(`/diagnosis/${id}`);
+}
+
+export type ApiHealth = {
+  status: string;
+  cnn: { model_source: string; model_path: string; model_loaded: boolean };
+  retrieval: { url: string; reachable: boolean; status?: string; kb_chunks?: number; llm_configured?: boolean };
+};
+
+export async function getApiHealth() {
+  const res = await safeFetch(`${BASE_URL}/health`);
+  if (!res.ok) throw new Error('Health check failed');
+  return res.json() as Promise<ApiHealth>;
 }
 
 export type CommunityPost = {

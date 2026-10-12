@@ -3,20 +3,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getDiagnosisHistory, mediaUrl, isAuthenticated, type Diagnosis } from '@/lib/api';
-import { getLocalScans, type MockScan } from '@/lib/mockDiagnosis';
+import { getLocalScans, isMockMode } from '@/lib/mockDiagnosis';
+import { RESULT_META, RETRIEVAL_STATUS_META, prettyLabel, SEVERITY_COLOR as SEV_COLOR } from '@/lib/pipeline';
 import styles from './history.module.css';
-
-function formatName(n: string) {
-  return n.replace(/___/g, ' · ').replace(/_/g, ' ');
-}
-
-const SEV_COLOR: Record<string, string> = {
-  low: '#00e87a', moderate: '#f5c542', high: '#ff8c42', critical: '#ff4a6b',
-};
 
 const FILTERS = ['all', 'low', 'moderate', 'high', 'critical'] as const;
 
-type ScanItem = Diagnosis | MockScan;
+type ScanItem = Diagnosis;
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -35,12 +28,16 @@ export default function HistoryPage() {
       setLoading(true);
       setError('');
       try {
+        if (isMockMode()) {
+          if (!cancelled) setScans(getLocalScans());
+          return;
+        }
         const data = await getDiagnosisHistory(1, 100);
         if (!cancelled) setScans(data.items || []);
-      } catch {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setScans(getLocalScans());
-          setError('Showing offline history — backend unavailable.');
+          setScans([]);
+          setError(err instanceof Error ? err.message : 'Could not load history.');
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -127,8 +124,17 @@ export default function HistoryPage() {
                   </div>
                   <div className={styles.body}>
                     <p className={styles.name}>
-                      {s.is_healthy ? '✓ Healthy' : formatName(s.disease_name)}
+                      {s.is_healthy ? '✓ Healthy' : prettyLabel(s.disease_name)}
                     </p>
+                    {(() => {
+                      const ok = s.retrieval_status === 'ok' && s.result_type;
+                      const m = ok && s.result_type ? RESULT_META[s.result_type] : RETRIEVAL_STATUS_META[s.retrieval_status || 'pending'];
+                      return (
+                        <span className={styles.typeChip} style={{ color: m.color, borderColor: `${m.color}30`, background: `${m.color}10` }}>
+                          {m.label}
+                        </span>
+                      );
+                    })()}
                     <div className={styles.confRow}>
                       <div className={styles.confBar}>
                         <div className={styles.confFill} style={{ width: `${pct}%` }} />

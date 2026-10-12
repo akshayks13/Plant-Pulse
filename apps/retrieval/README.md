@@ -109,25 +109,37 @@ Never commit `.env`; it is git-ignored.
 ## 5. How it connects to the rest of Plant-Pulse
 
 ```
-apps/web  ->  apps/backend (/diagnosis/predict, port 8000)  ->  image model
+apps/web  ->  apps/backend (/diagnosis/predict, port 8000)  ->  image model (CNN)
                         |
-                        |  POST /diagnose {class_label, confidence}
+                        |  POST /diagnose {class_label, confidence, runner_up}
                         v
               apps/retrieval (port 8001)  ->  Postgres + pgvector (docker)
+                        |
+                        v
+              stored on the diagnosis row -> apps/web /results/{id}
 ```
 
-The backend's ML service names classes like `Tomato___Late_blight`; the
-knowledge base uses PlantVillage spelling like `Tomato_Late_blight`. The
-retrieval service normalises both (underscores, commas, case, and shortened
-names such as `Tomato___Spider_mites`), so backend labels can be sent as-is.
-Classes the knowledge base does not cover (Aloe Vera, Money Plant, Snake
-Plant, Rose, Tomato Leaf Miner) return `404 unknown class_label`; the caller
-should fall back to its own text for those.
+The backend (`apps/backend/app/services/retrieval_client.py`) calls this service
+for every scan, right after the CNN step, and stores the whole `/diagnose`
+response on the diagnosis (`retrieval_result`) together with a
+`retrieval_status`. The web results page renders it: `result_type` drives the
+layout, and every dose is shown with its `source_tier` badge exactly as the
+user guide prescribes. An *unsure* answer shows the candidates and the
+distinguishing question; when the user confirms one, the backend looks up its
+class label via `GET /disease/{id}` and re-runs `/diagnose` with it.
 
-Wiring the backend to call this service is not done yet; the frontend
-currently uses a client-side knowledge base. When wiring it, forward the
-`source_tier` of every dose to the UI unchanged (see USER_GUIDE.md, "Reading a
-dose").
+The backend's ML service names classes like `Tomato___Late_blight`; the
+knowledge base uses PlantVillage spelling like `Tomato_Late_blight`. This
+service normalises both, so backend labels are sent as-is. Classes the
+knowledge base does not cover (Aloe Vera, Money Plant, Snake Plant, Rose,
+Tomato Leaf Miner) return `404 unknown class_label`; the backend records
+`retrieval_status: unsupported_class` and the web app shows its built-in
+guidance for those.
+
+If this service is down, scans still succeed: the diagnosis is stored with
+`retrieval_status: unavailable` and the results page offers a Retry button
+(`POST /diagnosis/{id}/retrieve`). Set `RETRIEVAL_URL` in `apps/backend/.env`
+if it runs somewhere other than `http://localhost:8001`.
 
 ## 6. Files
 

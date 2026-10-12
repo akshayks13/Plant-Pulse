@@ -2,9 +2,24 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { predictDisease, isAuthenticated } from '@/lib/api';
-import { mockPredict } from '@/lib/mockDiagnosis';
+import { predictDisease, retrieveTreatment, isAuthenticated, type Diagnosis } from '@/lib/api';
+import { mockPredict, isMockMode } from '@/lib/mockDiagnosis';
+import { prettyLabel, modelSourceLabel, RESULT_META, RETRIEVAL_STATUS_META } from '@/lib/pipeline';
 import styles from './scan.module.css';
+
+/**
+ * Scan flow (each stage is a real round-trip, not a timer):
+ *   1. upload   → POST /diagnosis/predict (run_retrieval=false)  → CNN label + confidence
+ *   2. retrieve → POST /diagnosis/{id}/retrieve                  → treatment plan
+ *   3. done     → /results/{id}
+ */
+type Stage = 'idle' | 'classifying' | 'retrieving' | 'done';
+
+const STEPS: { key: Exclude<Stage, 'idle'> | 'upload'; title: string; sub: string }[] = [
+  { key: 'upload',      title: 'Upload image',        sub: 'Sent securely to the API' },
+  { key: 'classifying', title: 'CNN classification',  sub: 'Model names the disease + confidence' },
+  { key: 'retrieving',  title: 'Treatment retrieval', sub: 'Knowledge base builds the plan' },
+];
 
 export default function ScanPage() {
   const router = useRouter();
@@ -13,9 +28,12 @@ export default function ScanPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [phase, setPhase] = useState<'idle' | 'scanning' | 'done'>('idle');
+  const [stage, setStage] = useState<Stage>('idle');
+  const [cnn, setCnn] = useState<Diagnosis | null>(null);       // after step 1
+  const [final, setFinal] = useState<Diagnosis | null>(null);   // after step 2
   const [error, setError] = useState('');
+
+  const loading = stage === 'classifying' || stage === 'retrieving';
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -31,14 +49,13 @@ export default function ScanPage() {
     if (f.size > 10 * 1024 * 1024) { setError('Image must be under 10 MB.'); return; }
     setFile(f);
     setPreview(URL.createObjectURL(f));
-    setPhase('idle');
+    setStage('idle'); setCnn(null); setFinal(null);
   }
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault(); setDragging(false);
     const f = e.dataTransfer.files[0];
     if (f) acceptFile(f);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleScan() {
@@ -47,25 +64,57 @@ export default function ScanPage() {
       router.push('/auth/login');
       return;
     }
-    setLoading(true); setPhase('scanning'); setError('');
+    setError(''); setCnn(null); setFinal(null);
+
+    // ── Offline demo mode (explicit opt-in only) ─────────────────────────
+    if (isMockMode()) {
+      setStage('classifying');
+      const scan = await mockPredict(file);
+      setCnn(scan); setFinal(scan); setStage('done');
+      setTimeout(() => router.push(`/results/${scan.id}`), 700);
+      return;
+    }
+
+    // ── Step 1: upload + CNN ────────────────────────────────────────────
+    let step1: Diagnosis;
     try {
-      let result;
-      try {
-        result = await predictDisease(file);
-      } catch {
-        result = await mockPredict(file);
-      }
-      setPhase('done');
-      setTimeout(() => router.push(`/results/${result.id}`), 700);
+      setStage('classifying');
+      step1 = await predictDisease(file, { runRetrieval: false });
+      setCnn(step1);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Scan failed. Try again.');
-      setPhase('idle'); setLoading(false);
+      setStage('idle');
+      return;
     }
+
+    // ── Step 2: retrieval (treatment plan) ──────────────────────────────
+    // A retrieval outage is reported inside the diagnosis (retrieval_status),
+    // so we still go to the results page, which offers a retry.
+    let step2: Diagnosis = step1;
+    try {
+      setStage('retrieving');
+      step2 = await retrieveTreatment(step1.id);
+    } catch {
+      step2 = { ...step1, retrieval_status: 'unavailable', retrieval_note: 'Treatment service could not be reached.' };
+    }
+    setFinal(step2);
+    setStage('done');
+    setTimeout(() => router.push(`/results/${step2.id}`), 900);
   }
 
   function clear() {
-    setFile(null); setPreview(null); setPhase('idle'); setError('');
+    setFile(null); setPreview(null); setStage('idle'); setError(''); setCnn(null); setFinal(null);
     if (fileRef.current) fileRef.current.value = '';
+  }
+
+  function stepState(i: number): 'todo' | 'active' | 'done' | 'warn' {
+    const order: Stage[] = ['idle', 'classifying', 'retrieving', 'done'];
+    const cur = order.indexOf(stage);
+    // step 0 (upload) and 1 (classify) share the first request
+    if (i === 0) return cur >= 2 || stage === 'done' ? 'done' : cur === 1 ? 'active' : 'todo';
+    if (i === 1) return cur >= 2 ? 'done' : cur === 1 ? 'active' : 'todo';
+    if (stage === 'done') return final && final.retrieval_status === 'ok' ? 'done' : 'warn';
+    return stage === 'retrieving' ? 'active' : 'todo';
   }
 
   return (
@@ -75,7 +124,7 @@ export default function ScanPage() {
 
         <div className={styles.header}>
           <h1 className={styles.title}>Scan a plant</h1>
-          <p className={styles.sub}>Upload a clear photo — the AI auto-detects plant type and disease.</p>
+          <p className={styles.sub}>Upload a clear photo of one affected leaf — the CNN names the disease, then the knowledge base builds a treatment plan.</p>
         </div>
 
         <div className={styles.layout}>
@@ -104,16 +153,16 @@ export default function ScanPage() {
                 </div>
               ) : (
                 <div className={styles.preview}>
-                  {phase === 'scanning' && (
+                  {loading && (
                     <div className={styles.scanOverlay}>
                       <div className={styles.scanLine} />
                       <span className={styles.scanPill}>
                         <span className={styles.scanDot} />
-                        Analysing…
+                        {stage === 'classifying' ? 'Classifying with CNN…' : 'Retrieving treatment plan…'}
                       </span>
                     </div>
                   )}
-                  {phase === 'done' && (
+                  {stage === 'done' && (
                     <div className={styles.doneOverlay}>
                       <div className={styles.checkWrap}>
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -123,7 +172,7 @@ export default function ScanPage() {
                     </div>
                   )}
                   <Image src={preview} alt="Plant" fill style={{ objectFit: 'cover' }} unoptimized />
-                  {!loading && (
+                  {!loading && stage !== 'done' && (
                     <button className={styles.clearBtn} onClick={e => { e.stopPropagation(); clear(); }}>✕</button>
                   )}
                 </div>
@@ -135,19 +184,53 @@ export default function ScanPage() {
           </div>
 
           <div className={styles.optionsCol}>
+
+            {/* ── Pipeline card ─────────────────────────────────────── */}
+            <div className={styles.pipelineCard}>
+              <h3 className={styles.optionsTitle}>How your scan is processed</h3>
+              <ol className={styles.steps}>
+                {STEPS.map((s, i) => {
+                  const st = stepState(i);
+                  return (
+                    <li key={s.key} className={`${styles.step} ${styles[`step_${st}`]}`}>
+                      <span className={styles.stepIcon}>
+                        {st === 'done' ? '✓' : st === 'warn' ? '!' : st === 'active' ? <span className={styles.stepSpinner} /> : i + 1}
+                      </span>
+                      <div className={styles.stepBody}>
+                        <span className={styles.stepTitle}>{s.title}</span>
+                        <span className={styles.stepSub}>
+                          {i === 1 && cnn
+                            ? <>{prettyLabel(cnn.disease_name)} · <b>{Math.round(cnn.confidence * 100)}%</b> <em>({modelSourceLabel(cnn.model_source)})</em></>
+                            : i === 2 && final
+                              ? <span style={{ color: (final.result_type && final.retrieval_status === 'ok') ? RESULT_META[final.result_type].color : RETRIEVAL_STATUS_META[final.retrieval_status].color }}>
+                                  {final.retrieval_status === 'ok' && final.result_type
+                                    ? RESULT_META[final.result_type].label
+                                    : RETRIEVAL_STATUS_META[final.retrieval_status].label}
+                                </span>
+                              : s.sub}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+
             <div className={styles.tipsCard}>
               <h3 className={styles.optionsTitle}>Tips for accuracy</h3>
               <ul className={styles.tipsList}>
-                <li>Focus on the most affected leaf</li>
-                <li>Use bright, even natural lighting</li>
-                <li>Fill the frame with the plant</li>
+                <li>One leaf, filling the frame</li>
+                <li>Bright, even natural lighting</li>
+                <li>Plain background if possible</li>
                 <li>Avoid blur, shadows, or reflections</li>
               </ul>
             </div>
 
-            <button className={styles.scanBtn} onClick={handleScan} disabled={!file || loading}>
+            <button className={styles.scanBtn} onClick={handleScan} disabled={!file || loading || stage === 'done'}>
               {loading ? (
-                <><span className={styles.spinner} />Scanning…</>
+                <><span className={styles.spinner} />{stage === 'classifying' ? 'Classifying…' : 'Retrieving…'}</>
+              ) : stage === 'done' ? (
+                <>Opening results…</>
               ) : (
                 <>
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">

@@ -18,6 +18,19 @@ type Diagnosis = {
   is_healthy: boolean;
   user_id: string;
   user_email?: string;
+  model_source?: string | null;
+  result_type?: string | null;
+  retrieval_status?: string | null;
+};
+
+const RESULT_BADGE: Record<string, string> = {
+  normal: 'badge-active', healthy: 'badge-active', unsure: 'badge-warning', incurable: 'badge-critical',
+};
+const STATUS_BADGE: Record<string, string> = {
+  ok: 'badge-active', unsupported_class: 'badge-info', unavailable: 'badge-warning', error: 'badge-error', pending: 'badge-moderate',
+};
+const STATUS_LABEL: Record<string, string> = {
+  ok: 'ok', unsupported_class: 'built-in', unavailable: 'offline', error: 'error', pending: 'pending',
 };
 
 export default function DiagnosesPage() {
@@ -88,13 +101,14 @@ export default function DiagnosesPage() {
                 <th>User</th>
                 <th>Date</th>
                 <th>Status</th>
+                <th>Pipeline</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className={styles.loadCell}><div className="spinner" /></td></tr>
+                <tr><td colSpan={8} className={styles.loadCell}><div className="spinner" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className={styles.emptyCell}>No diagnoses found.</td></tr>
+                <tr><td colSpan={8} className={styles.emptyCell}>No diagnoses found.</td></tr>
               ) : filtered.map((d, i) => {
                 const imgUrl = getImageUrl(d.image_url);
                 return (
@@ -121,6 +135,14 @@ export default function DiagnosesPage() {
                     <td><span className={styles.userId}>{d.user_email || d.user_id?.slice(0, 8) + '…'}</span></td>
                     <td><span className={styles.date}>{new Date(d.created_at).toLocaleDateString()}</span></td>
                     <td><span className={`badge ${d.is_healthy ? 'badge-active' : 'badge-moderate'}`}>{d.is_healthy ? 'Healthy' : 'Disease'}</span></td>
+                    <td>
+                      <div className={styles.pipelineCell}>
+                        {d.result_type && d.retrieval_status === 'ok'
+                          ? <span className={`badge ${RESULT_BADGE[d.result_type] || 'badge-info'}`}>{d.result_type}</span>
+                          : <span className={`badge ${STATUS_BADGE[d.retrieval_status || 'pending'] || 'badge-info'}`}>{STATUS_LABEL[d.retrieval_status || 'pending'] || d.retrieval_status}</span>}
+                        <span className={styles.modelTag}>{d.model_source || 'cnn'}</span>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

@@ -15,12 +15,18 @@ class Settings(BaseSettings):
     model_path: str = "./model/plant_disease_model.tflite"
     app_name: str = "Plant-Pulse API"
 
+    # Treatment / RAG service (apps/retrieval). The backend forwards the CNN's
+    # class label + confidence here and stores the assembled answer.
+    retrieval_url: str = "http://localhost:8001"
+    retrieval_timeout_seconds: float = 45.0
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",")]
 
     class Config:
         env_file = ".env"
+        protected_namespaces = ()   # allow the "model_path" field name
 
 
 @lru_cache()

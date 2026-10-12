@@ -76,7 +76,22 @@ app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "service": settings.app_name}
+    """Liveness plus the state of the two pipeline stages behind /diagnosis/predict."""
+    from .services.ml_service import get_ml_service
+    from .services import retrieval_client
+
+    ml = get_ml_service()
+    retrieval = await retrieval_client.health()
+    return {
+        "status": "healthy",
+        "service": settings.app_name,
+        "cnn": {
+            "model_source": ml.model_source,
+            "model_path": settings.model_path,
+            "model_loaded": ml.model_source != "mock",
+        },
+        "retrieval": retrieval,
+    }
 
 
 @app.get("/")

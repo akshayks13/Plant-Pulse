@@ -46,6 +46,20 @@ class Diagnosis(Base):
     crop_type = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # ── CNN output ────────────────────────────────────────────────────────
+    model_source = Column(String, nullable=True)          # tflite | keras | mock
+    runner_up_label = Column(String, nullable=True)       # second-best class
+    runner_up_confidence = Column(Float, nullable=True)
+    top_predictions = Column(Text, nullable=True)         # JSON: [{label, confidence}, ...]
+
+    # ── Retrieval (treatment) service output ──────────────────────────────
+    result_type = Column(String, nullable=True)           # normal | unsure | incurable | healthy
+    retrieval_status = Column(String, default="pending")  # pending | ok | unsupported_class | unavailable | error
+    retrieval_note = Column(Text, nullable=True)          # human-readable reason when not ok
+    retrieval_result = Column(Text, nullable=True)        # JSON: full /diagnose response
+    retrieval_at = Column(DateTime, nullable=True)
+    confirmed_disease_id = Column(String, nullable=True)  # set when the user confirms an "unsure" candidate
+
     user = relationship("User", back_populates="diagnoses")
 
 

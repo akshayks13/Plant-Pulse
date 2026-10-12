@@ -1,13 +1,15 @@
 /**
  * mockDiagnosis.ts
- * 
- * When NEXT_PUBLIC_USE_MOCK=true (or backend is unavailable),
- * the frontend uses this instead of hitting the FastAPI backend.
- * 
+ *
+ * Opt-in offline demo mode. Only active when NEXT_PUBLIC_USE_MOCK=true; the
+ * app never silently falls back to it, so a broken backend shows a real error.
+ *
+ * Mock scans mirror the backend's Diagnosis shape (CNN step only - there is no
+ * retrieval payload, so the results page shows the built-in guidance path).
  * Scans are stored in localStorage under "plant_pulse_scans".
  */
 
-import { getDiseaseInfo } from './diseaseKb';
+import type { Diagnosis } from './api';
 
 const DISEASE_POOL = [
   { name: 'Tomato___Early_blight',      severity: 'moderate' as const },
@@ -27,17 +29,6 @@ const DISEASE_POOL = [
   { name: 'Strawberry___Leaf_scorch',   severity: 'moderate' as const },
 ];
 
-export type MockScan = {
-  id: string;
-  disease_name: string;
-  confidence: number;
-  severity: string;
-  image_url: string;
-  is_healthy: boolean;
-  crop_type: string | null;
-  created_at: string;
-};
-
 function uid() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -46,36 +37,46 @@ function seededChoice<T>(arr: T[], seed: number): T {
   return arr[seed % arr.length];
 }
 
-/** Simulate a diagnosis from an image file */
-export async function mockPredict(file: File, cropType?: string): Promise<MockScan> {
-  // Brief delay to simulate processing
-  await new Promise(r => setTimeout(r, 1800));
+/** Simulate the CNN step from an image file (mock mode only). */
+export async function mockPredict(file: File, cropType?: string): Promise<Diagnosis> {
+  await new Promise(r => setTimeout(r, 1200));
 
   const seed = file.size + file.name.length;
   const pick = seededChoice(DISEASE_POOL, seed);
+  const runner = seededChoice(DISEASE_POOL, seed + 3);
   const confidence = +(0.72 + (seed % 27) / 100).toFixed(3);
-  const imageUrl = URL.createObjectURL(file);
+  const runnerConf = +((1 - confidence) * 0.6).toFixed(3);
 
-  const scan: MockScan = {
+  const scan: Diagnosis = {
     id: uid(),
+    created_at: new Date().toISOString(),
+    image_url: URL.createObjectURL(file),
+    crop_type: cropType || null,
     disease_name: pick.name,
     confidence,
     severity: pick.severity,
-    image_url: imageUrl,
     is_healthy: pick.name.endsWith('healthy'),
-    crop_type: cropType || null,
-    created_at: new Date().toISOString(),
+    model_source: 'mock',
+    candidates: [
+      { label: pick.name, confidence },
+      { label: runner.name, confidence: runnerConf },
+    ],
+    runner_up: { label: runner.name, confidence: runnerConf },
+    result_type: null,
+    retrieval_status: 'unavailable',
+    retrieval_note: 'Offline demo mode (NEXT_PUBLIC_USE_MOCK=true): the treatment service is not called.',
+    retrieval_at: null,
+    confirmed_disease_id: null,
+    retrieval: null,
   };
 
-  // Persist to localStorage
   const existing = getLocalScans();
   existing.unshift(scan);
   localStorage.setItem('plant_pulse_scans', JSON.stringify(existing.slice(0, 100)));
-
   return scan;
 }
 
-export function getLocalScans(): MockScan[] {
+export function getLocalScans(): Diagnosis[] {
   if (typeof window === 'undefined') return [];
   try {
     return JSON.parse(localStorage.getItem('plant_pulse_scans') || '[]');
@@ -84,11 +85,11 @@ export function getLocalScans(): MockScan[] {
   }
 }
 
-export function getLocalScan(id: string): MockScan | null {
+export function getLocalScan(id: string): Diagnosis | null {
   return getLocalScans().find(s => s.id === id) || null;
 }
 
-/** Whether to use mock mode */
+/** Whether offline demo mode is on (explicit opt-in). */
 export function isMockMode(): boolean {
   return process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 }
