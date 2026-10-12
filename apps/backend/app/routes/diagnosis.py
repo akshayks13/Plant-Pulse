@@ -1,6 +1,7 @@
 """
 Diagnosis routes - the end-to-end scan flow.
 
+    GET  /diagnosis/models             the CNN models the user can choose from
     POST /diagnosis/predict            image -> CNN -> (optionally) retrieval -> stored diagnosis
     POST /diagnosis/{id}/retrieve      (re)run the retrieval step for a stored diagnosis
     GET  /diagnosis/history            the caller's past scans (light: no retrieval payload)
@@ -12,19 +13,21 @@ whole pipeline in one call by leaving run_retrieval at its default (true).
 """
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from loguru import logger
+from PIL import UnidentifiedImageError
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models import Diagnosis, SystemLog, User
-from ..services import retrieval_client
+from ..services import ml_service, retrieval_client
 from ..services.auth import get_current_user
-from ..services.ml_service import CNNPrediction, get_ml_service
 from ..services.storage import save_image
 
 router = APIRouter(prefix="/diagnosis", tags=["Diagnosis"])
@@ -113,16 +116,17 @@ def _diag_out(d: Diagnosis, include_retrieval: bool = True) -> DiagnosisOut:
     )
 
 
-def _apply_cnn(diag: Diagnosis, pred: CNNPrediction) -> None:
-    diag.disease_name = pred.label
-    diag.confidence = pred.confidence
-    diag.severity = pred.severity
-    diag.is_healthy = pred.is_healthy
-    diag.model_source = pred.model_source
-    diag.top_predictions = json.dumps([{"label": c.label, "confidence": c.confidence} for c in pred.candidates])
-    if pred.runner_up:
-        diag.runner_up_label = pred.runner_up.label
-        diag.runner_up_confidence = pred.runner_up.confidence
+def _apply_cnn(diag: Diagnosis, result: dict) -> None:
+    """Copy the CNN output (from ml_service.predict) onto the database row."""
+    diag.disease_name = result["label"]
+    diag.confidence = result["confidence"]
+    diag.severity = ml_service.get_severity(result["label"])
+    diag.is_healthy = ml_service.is_healthy(result["label"])
+    diag.model_source = result["model"]                     # which CNN made the prediction
+    diag.top_predictions = json.dumps(result["candidates"])
+    if len(result["candidates"]) > 1:                       # 2nd guess -> look-alike check
+        diag.runner_up_label = result["candidates"][1]["label"]
+        diag.runner_up_confidence = result["candidates"][1]["confidence"]
 
 
 async def _run_retrieval(
@@ -193,27 +197,50 @@ async def _get_owned(diagnosis_id: str, current_user: User, db: AsyncSession) ->
 
 # ── Routes ───────────────────────────────────────────────────────────────────
 
+@router.get("/models")
+async def list_models():
+    """The CNN models the user can pick on the scan page (registered before /{diagnosis_id})."""
+    return {"models": ml_service.list_models(), "default": ml_service.DEFAULT_MODEL}
+
+
 @router.post("/predict", response_model=DiagnosisOut)
 async def predict(
     file: UploadFile = File(...),
+    model: str = Form(ml_service.DEFAULT_MODEL),
     crop_type: str | None = Form(None),
     run_retrieval: bool = Form(True),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Step 1 (+2): store the image, run the CNN, optionally fetch the treatment plan."""
+    """Step 1 (+2): store the image, run the chosen CNN, optionally fetch the treatment plan."""
+    if model not in ml_service.MODELS:
+        raise HTTPException(status_code=400, detail=f"Unknown model '{model}'. Choose one of: {', '.join(ml_service.MODELS)}")
+
     file_path, public_url = await save_image(file)
 
     # ── CNN classification ────────────────────────────────────────────────
-    pred = get_ml_service().predict(file_path)
+    # The model runs in a worker thread so the server can answer other
+    # requests while PyTorch is busy.
+    try:
+        result = await run_in_threadpool(ml_service.predict, file_path, model)
+    except ml_service.ModelNotAvailable as e:
+        Path(file_path).unlink(missing_ok=True)
+        raise HTTPException(status_code=503, detail=str(e))
+    except (UnidentifiedImageError, OSError):
+        Path(file_path).unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail="Could not read this image. Please upload a clear JPG, PNG or WebP photo.")
+    except Exception:
+        logger.exception(f"CNN inference failed ({model}) for {file_path}")
+        Path(file_path).unlink(missing_ok=True)
+        raise HTTPException(status_code=500, detail="The model failed to analyse this image. Please try again.")
 
     diag = Diagnosis(user_id=current_user.id, image_url=public_url, crop_type=crop_type)
-    _apply_cnn(diag, pred)
+    _apply_cnn(diag, result)
     diag.retrieval_status = "pending"
     db.add(diag)
     db.add(SystemLog(
         level="INFO",
-        message=f"CNN ({pred.model_source}): {pred.label} ({pred.confidence:.0%})",
+        message=f"CNN ({result['model']}): {result['label']} ({result['confidence']:.0%})",
         source="diagnosis",
         user_id=current_user.id,
     ))

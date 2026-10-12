@@ -4,11 +4,11 @@
  * backend's Diagnosis (CNN step) or the retrieval service's payload.
  */
 import { useState } from 'react';
-import type { Candidate, Diagnosis, DiyRemedy, Explanation, RetrievalResult, Treatment } from '@/lib/api';
+import type { Candidate, Diagnosis, DiyRemedy, Explanation, ProductGroup, RetrievalResult, Treatment } from '@/lib/api';
 import type { DiseaseInfo } from '@/lib/diseaseKb';
 import {
   CONTROL_CLASS_COLOR, RESULT_META, RETRIEVAL_STATUS_META, TIER_META,
-  formatDose, modelSourceLabel, prettyLabel, sentences,
+  formatDose, prettyLabel, sentences,
 } from '@/lib/pipeline';
 import styles from './results.module.css';
 
@@ -21,22 +21,22 @@ export function PipelineStrip({ data }: { data: Diagnosis }) {
   const retrState = ok ? 'done' : data.retrieval_status === 'pending' ? 'todo' : 'warn';
 
   const nodes = [
-    { title: 'Image', sub: 'Uploaded & stored', state: 'done' as const, color: '#00e87a' },
+    { title: 'Photo', sub: 'Uploaded', state: 'done' as const, color: '#00e87a' },
     {
-      title: 'CNN classification',
-      sub: `${prettyLabel(data.disease_name)} · ${Math.round(data.confidence * 100)}% · ${modelSourceLabel(data.model_source)}`,
+      title: 'Identified as',
+      sub: `${prettyLabel(data.disease_name)} · ${Math.round(data.confidence * 100)}%`,
       state: 'done' as const, color: '#00e87a',
     },
     {
-      title: 'Treatment retrieval',
-      sub: ok && type ? `${status.label} · ${RESULT_META[type].label}` : (data.retrieval_note || status.label),
+      title: 'Treatment plan',
+      sub: ok && type ? `Ready · ${RESULT_META[type].label}` : status.label,
       state: retrState as 'done' | 'todo' | 'warn',
       color: ok && type ? RESULT_META[type].color : status.color,
     },
   ];
 
   return (
-    <div className={styles.strip} aria-label="Pipeline">
+    <div className={styles.strip} aria-label="Scan progress">
       {nodes.map((n, i) => (
         <div key={n.title} className={styles.node}>
           <span className={`${styles.nodeIcon} ${styles[`node_${n.state}`]}`} style={{ color: n.state === 'done' ? '#060d0a' : n.color, background: n.state === 'done' ? n.color : undefined, borderColor: n.color }}>
@@ -58,7 +58,7 @@ export function PipelineStrip({ data }: { data: Diagnosis }) {
 export function CandidatesCard({ candidates }: { candidates: Candidate[] }) {
   return (
     <div className={styles.candCard}>
-      <h3 className={styles.cardTitle}>Model candidates</h3>
+      <h3 className={styles.cardTitle}>Top matches</h3>
       <ul className={styles.candList}>
         {candidates.map((c, i) => {
           const pct = Math.round(c.confidence * 100);
@@ -71,7 +71,6 @@ export function CandidatesCard({ candidates }: { candidates: Candidate[] }) {
           );
         })}
       </ul>
-      <p className={styles.cardHint}>The runner-up is sent to the retriever for a look-alike check.</p>
     </div>
   );
 }
@@ -89,11 +88,15 @@ export function StatusBanner({ data, onRetry, busy }: { data: Diagnosis; onRetry
         <span className={styles.bannerIcon}>{st === 'unsupported_class' ? 'i' : '!'}</span>
         <div className={styles.bannerBody}>
           <p className={styles.bannerTitle}>
-            {st === 'unsupported_class' ? 'Showing built-in guidance'
-              : st === 'pending' ? 'Treatment plan not fetched yet'
-              : 'Treatment service unavailable'}
+            {st === 'unsupported_class' ? 'General guidance'
+              : st === 'pending' ? 'Treatment plan not loaded yet'
+              : 'Treatment plan unavailable'}
           </p>
-          <p className={styles.bannerText}>{data.retrieval_note || RETRIEVAL_STATUS_META[st].label}</p>
+          <p className={styles.bannerText}>
+            {st === 'unsupported_class' ? "We don't have a full treatment plan for this plant yet, so here is some general guidance."
+              : st === 'pending' ? 'Press Retry to load the treatment plan.'
+              : "We couldn't load the treatment plan right now. Please try again in a moment."}
+          </p>
         </div>
         {retriable && (
           <button className={styles.smallBtn} onClick={onRetry} disabled={busy}>
@@ -148,161 +151,416 @@ export function StatusBanner({ data, onRetry, busy }: { data: Diagnosis; onRetry
   return null;
 }
 
-// ── Explanation ──────────────────────────────────────────────────────────────
+// ── Small text helpers ───────────────────────────────────────────────────────
 
-export function ExplanationCard({ e }: { e: Explanation }) {
-  const [open, setOpen] = useState(false);
+// A sentence is a warning if it starts with "Do not / Never / Avoid", or is about
+// leaves that people eat. Warnings go in a "Be careful" box; everything else is a step.
+const CAUTION_WORDS = /^(do not|never|avoid)\b|eaten|chewed/i;
+
+function isCaution(sentence: string) {
+  return CAUTION_WORDS.test(sentence);
+}
+
+// "Prune dead twigs: Cut out dead shoots." -> { title: "Prune dead twigs", text: "Cut out dead shoots." }
+function splitTitle(line: string) {
+  const at = line.indexOf(': ');
+  if (at === -1 || at > 80) return { title: '', text: line };
+  return { title: line.slice(0, at), text: line.slice(at + 2) };
+}
+
+// The retriever writes "why it happened" with fixed phrases, so we turn them into labels.
+const WHY_LABELS = [
+  { phrase: 'develops under these conditions:', label: 'Conditions', icon: '🌦️' },
+  { phrase: 'It spreads as follows:', label: 'How it spreads', icon: '💨' },
+  { phrase: 'The pathogen survives between seasons in:', label: 'Where it survives', icon: '🍂' },
+  { phrase: 'It is transmitted by', label: 'Carried by', icon: '🪰' },
+];
+
+function labelWhySentence(sentence: string) {
+  for (const w of WHY_LABELS) {
+    const at = sentence.indexOf(w.phrase);
+    if (at !== -1) {
+      const text = sentence.slice(at + w.phrase.length).trim();
+      return { label: w.label, icon: w.icon, text: text.charAt(0).toUpperCase() + text.slice(1) };
+    }
+  }
+  return { label: 'Good to know', icon: 'ℹ️', text: sentence };
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function siteName(url: string) {
+  try {
+    return new URL(url).hostname.replace('www.', '');
+  } catch {
+    return url;
+  }
+}
+
+// ── Overview: what is it + why did it happen ─────────────────────────────────
+
+export function OverviewCard({ e }: { e: Explanation }) {
+  // Symptoms have their own section below, so we drop that sentence here.
+  const summary = sentences(e.summary).filter(s => !s.startsWith('Symptoms:'));
+  const why = sentences(e.why_it_happened).map(labelWhySentence);
+
   return (
-    <div className={styles.expCard}>
-      <p className={styles.expSummary}>{e.summary}</p>
-      {e.why_it_happened && (
-        <>
-          <button className={styles.expToggle} onClick={() => setOpen(v => !v)} aria-expanded={open}>
-            {open ? '▾' : '▸'} Why it happened
-          </button>
-          {open && <p className={styles.expWhy}>{e.why_it_happened}</p>}
-        </>
-      )}
-      <div className={styles.expFoot}>
-        <span className={styles.genChip} title={e.note}>
-          {e.generated_by === 'llm' ? 'Written by Claude from retrieved passages' : 'Assembled from the knowledge base'}
-        </span>
+    <div className={styles.overview}>
+      <div>
+        <h3 className={styles.blockTitle}>What is it?</h3>
+        {summary.map((s, i) => <p key={i} className={styles.overviewText}>{s}</p>)}
       </div>
+
+      {why.length > 0 && (
+        <div>
+          <h3 className={styles.blockTitle}>Why did it happen?</h3>
+          <div className={styles.factGrid}>
+            {why.map((w, i) => (
+              <div key={i} className={styles.fact}>
+                <span className={styles.factIcon}>{w.icon}</span>
+                <div>
+                  <p className={styles.factLabel}>{w.label}</p>
+                  <p className={styles.factText}>{w.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
 
-// ── Treatment card ───────────────────────────────────────────────────────────
+// ── Action plan: treatments grouped by what kind of step they are ────────────
 
-export function TreatmentCard({ t, index }: { t: Treatment; index: number }) {
+const PLAN_GROUPS = [
+  { title: 'Start here: care and hygiene', hint: 'Free steps that do the most good.', icon: '✂️', classes: ['cultural', 'physical'] },
+  { title: 'Sprays you can buy', hint: 'Use these if the disease keeps spreading.', icon: '🧪', classes: ['chemical'] },
+  { title: 'Biological options', hint: 'Friendly microbes and plant extracts.', icon: '🌱', classes: ['biological'] },
+];
+
+export function ActionPlan({ r, onShowProducts }: { r: RetrievalResult; onShowProducts: () => void }) {
+  const incurable = r.result_type === 'incurable';
+  const hasProducts = (r.product_groups || []).length > 0;
+
+  if (r.treatments.length === 0) {
+    return <p className={styles.noData}>No treatment steps are on file for this disease.</p>;
+  }
+
+  return (
+    <div className={styles.cardStack}>
+      {PLAN_GROUPS.map(group => {
+        const items = r.treatments.filter(t => group.classes.includes(t.control_class));
+        if (items.length === 0) return null;
+
+        const title = incurable && group.classes.includes('cultural') ? 'Remove and contain' : group.title;
+        return (
+          <section key={group.title} className={styles.planGroup}>
+            <div className={styles.planHead}>
+              <span className={styles.planIcon}>{group.icon}</span>
+              <div>
+                <h3 className={styles.planTitle}>{title}</h3>
+                <p className={styles.planHint}>{group.hint}</p>
+              </div>
+            </div>
+            {items.map((t, i) => (
+              <TreatmentCard
+                key={t.treatment_id}
+                t={t}
+                index={i}
+                onShowProducts={hasProducts && t.active_ingredient ? onShowProducts : undefined}
+              />
+            ))}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── One treatment step ───────────────────────────────────────────────────────
+
+export function TreatmentCard({ t, index, onShowProducts }: {
+  t: Treatment; index: number; onShowProducts?: () => void;
+}) {
   const tier = TIER_META[t.source_tier] || TIER_META.none;
   const dose = formatDose(t);
-  const cc = CONTROL_CLASS_COLOR[t.control_class] || '#8fab98';
-  const showDose = !!(t.active_ingredient || dose);
+
+  // Split the instructions into short "do this" bullets and "be careful" warnings.
+  const lines = sentences(t.instructions);
+  const steps = lines.filter(line => !isCaution(line));
+  const cautions = lines.filter(isCaution);
+  if (t.hazard_notes) cautions.push(t.hazard_notes);
 
   return (
     <article className={styles.tCard}>
       <div className={styles.tHead}>
         <span className={styles.tNum}>{index + 1}</span>
         <div className={styles.tHeadText}>
-          <div className={styles.tChips}>
-            <span className={styles.chip} style={{ color: cc, borderColor: `${cc}40`, background: `${cc}12` }}>{t.control_class}</span>
-            {t.organic_approved && <span className={styles.chip} style={{ color: '#00e87a', borderColor: '#00e87a40', background: '#00e87a12' }}>organic-approved</span>}
-            {t.frac_code && <span className={styles.chipMuted} title="Fungicide Resistance Action Committee group">FRAC {t.frac_code}</span>}
-            {t.irac_code && <span className={styles.chipMuted} title="Insecticide Resistance Action Committee group">IRAC {t.irac_code}</span>}
-          </div>
           <h4 className={styles.tTitle}>{t.title}</h4>
-          {t.active_ingredient && <p className={styles.tAi}>Active ingredient · <b>{t.active_ingredient}</b></p>}
+          {t.active_ingredient && (
+            <p className={styles.tAi}>Active ingredient · <b>{t.active_ingredient}</b></p>
+          )}
+          <div className={styles.tChips}>
+            {t.organic_approved && <span className={styles.chip} style={{ color: '#00e87a', borderColor: '#00e87a40', background: '#00e87a12' }}>organic-approved</span>}
+          </div>
         </div>
       </div>
 
-      {showDose && (
+      {t.active_ingredient && (
         <div className={styles.doseRow} style={{ borderColor: `${tier.color}35` }}>
-          <span className={styles.tierBadge} style={{ color: tier.color, background: `${tier.color}14` }} title={tier.hint}>
-            {tier.label}
-          </span>
-          {dose
-            ? <span className={styles.doseVal}>{dose}</span>
-            : <span className={styles.doseNone}>No number shown without a verified source — follow the product label.</span>}
-          {t.interval_days != null && <span className={styles.doseMeta}>every {t.interval_days} d</span>}
-          {t.phi_days != null && <span className={styles.doseMeta} title="Pre-harvest interval">PHI {t.phi_days} d</span>}
+          {/* A dose number is always shown with its badge (registered or research-suggested). */}
+          {dose ? (
+            <>
+              <span className={styles.tierBadge} style={{ color: tier.color, background: `${tier.color}14` }} title={tier.hint}>
+                {tier.label}
+              </span>
+              <span className={styles.doseVal}>{dose}</span>
+            </>
+          ) : (
+            <span className={styles.doseNone}><b>Dose:</b> follow the product label.</span>
+          )}
+          {t.interval_days != null && <span className={styles.doseMeta}>every {t.interval_days} days</span>}
+          {t.phi_days != null && <span className={styles.doseMeta}>wait {t.phi_days} days before harvest</span>}
         </div>
       )}
 
-      <p className={styles.tBody}>{t.instructions}</p>
-      {t.hazard_notes && <p className={styles.hazard}>⚠ {t.hazard_notes}</p>}
-      {(t.source_name || t.source_url) && (
-        <p className={styles.srcLine}>
-          Source · {t.source_url
-            ? <a href={t.source_url} target="_blank" rel="noreferrer">{t.source_name || t.source_url}</a>
-            : t.source_name}
-        </p>
+      {steps.length > 0 && (
+        <ul className={styles.tSteps}>
+          {steps.map((s, i) => <li key={i}>{s}</li>)}
+        </ul>
+      )}
+
+      {cautions.length > 0 && (
+        <div className={styles.caution}>
+          <p className={styles.cautionTitle}>⚠ Be careful</p>
+          <ul>
+            {cautions.map((c, i) => <li key={i}>{c}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {(onShowProducts || t.source_name || t.source_url) && (
+        <div className={styles.tFoot}>
+          {(t.source_name || t.source_url) && (
+            <span className={styles.srcLine}>
+              Source · {t.source_url
+                ? <a href={t.source_url} target="_blank" rel="noreferrer">{t.source_name || siteName(t.source_url)}</a>
+                : t.source_name}
+            </span>
+          )}
+          {onShowProducts && (
+            <button className={styles.linkBtn} onClick={onShowProducts}>See products with {t.active_ingredient} →</button>
+          )}
+        </div>
       )}
     </article>
   );
 }
 
-// ── DIY remedy card ──────────────────────────────────────────────────────────
+// ── Prevention ───────────────────────────────────────────────────────────────
+
+export function PreventionList({ items }: { items: string[] }) {
+  if (items.length === 0) {
+    return <p className={styles.noData}>No separate prevention notes; the action plan covers it.</p>;
+  }
+  return (
+    <div className={styles.preventGrid}>
+      {items.map((line, i) => {
+        const { title, text } = splitTitle(line);
+        return (
+          <div key={i} className={styles.preventCard}>
+            <span className={styles.preventIcon}>🛡️</span>
+            <div>
+              {title && <p className={styles.preventTitle}>{title}</p>}
+              <p className={styles.preventText}>{text}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Home remedy (DIY) card with step-by-step instructions ────────────────────
 
 export function DiyCard({ d }: { d: DiyRemedy }) {
-  const eff = d.efficacy === 'preventive'
-    ? { label: 'Preventive only', color: '#f5c542' }
-    : d.efficacy === 'mild_curative'
-      ? { label: 'Mildly curative', color: '#00e87a' }
-      : { label: d.efficacy.replace(/_/g, ' '), color: '#8fab98' };
+  let efficacy = { label: d.efficacy.replace(/_/g, ' '), color: '#8fab98' };
+  if (d.efficacy === 'preventive') efficacy = { label: 'Prevents spread', color: '#f5c542' };
+  if (d.efficacy === 'mild_curative') efficacy = { label: 'Mildly curative', color: '#00e87a' };
+
   const ingredients = Array.isArray(d.ingredients) ? d.ingredients : [];
+  const steps = sentences(d.steps);
+
+  let prepTime = '';
+  if (d.prep_time_hours != null) {
+    prepTime = d.prep_time_hours < 1 ? `${Math.round(d.prep_time_hours * 60)} min` : `${d.prep_time_hours} h`;
+  }
 
   return (
     <article className={styles.diyCard}>
       <div className={styles.diyHead}>
-        <h4 className={styles.tTitle}>{d.title}</h4>
-        <span className={styles.chip} style={{ color: eff.color, borderColor: `${eff.color}40`, background: `${eff.color}12` }}>{eff.label}</span>
-      </div>
-      <div className={styles.diyMeta}>
-        {d.feasibility_score != null && (
-          <span className={styles.feas} title={`Feasibility ${d.feasibility_score}/5`}>
-            Feasibility {[1,2,3,4,5].map(n => <i key={n} className={`${styles.feasDot} ${n <= (d.feasibility_score || 0) ? styles.feasDotOn : ''}`} />)}
-          </span>
-        )}
-        {d.prep_time_hours != null && <span>Prep ≈ {d.prep_time_hours < 1 ? `${Math.round(d.prep_time_hours * 60)} min` : `${d.prep_time_hours} h`}</span>}
-      </div>
-      {ingredients.length > 0 && (
-        <ul className={styles.diyIng}>
-          {ingredients.map((ing, i) => (
-            <li key={i} className={styles.diyIngItem}>
-              <span>{ing.item}</span>
-              <span className={styles.diyIngQty}>
-                {ing.quantity != null ? `${ing.quantity} ${ing.unit || ''}` : (ing.unit ? `(${ing.unit})` : '')}
-                {ing.home_available && <i className={styles.diyIngHome} title="Usually available at home">home</i>}
+        <div>
+          <h4 className={styles.diyTitle}>{d.title}</h4>
+          <div className={styles.diyMeta}>
+            {prepTime && <span>⏱ {prepTime} to make</span>}
+            {d.feasibility_score != null && (
+              <span className={styles.feas} title={`Ease ${d.feasibility_score}/5`}>
+                Ease {[1, 2, 3, 4, 5].map(n => (
+                  <i key={n} className={`${styles.feasDot} ${n <= (d.feasibility_score || 0) ? styles.feasDotOn : ''}`} />
+                ))}
               </span>
-            </li>
-          ))}
-        </ul>
+            )}
+          </div>
+        </div>
+        <span className={styles.chip} style={{ color: efficacy.color, borderColor: `${efficacy.color}40`, background: `${efficacy.color}12` }}>
+          {efficacy.label}
+        </span>
+      </div>
+
+      <div className={styles.diyBody}>
+        <div className={styles.diyNeed}>
+          <p className={styles.blockTitle}>You&apos;ll need</p>
+          <ul className={styles.needList}>
+            {ingredients.map((ing, i) => (
+              <li key={i} className={styles.needItem}>
+                <span className={styles.needQty}>{ing.quantity != null ? `${ing.quantity} ${ing.unit || ''}` : '—'}</span>
+                <span className={styles.needName}>{ing.item}</span>
+                {ing.home_available && <i className={styles.diyIngHome}>at home</i>}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <p className={styles.blockTitle}>Steps</p>
+          <ol className={styles.stepFlow}>
+            {steps.map((s, i) => (
+              <li key={i} className={styles.stepFlowItem}>
+                <span className={styles.stepFlowNum}>{i + 1}</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      {d.safety_notes && (
+        <div className={styles.caution}>
+          <p className={styles.cautionTitle}>⚠ Safety</p>
+          <ul>
+            {sentences(d.safety_notes).map((s, i) => <li key={i}>{s}</li>)}
+          </ul>
+        </div>
       )}
-      <p className={styles.tBody}>{d.steps}</p>
-      {d.safety_notes && <p className={styles.hazard}>⚠ {d.safety_notes}</p>}
       <p className={styles.diyHonesty}>{d.honesty_note}</p>
-      {d.source_url && <p className={styles.srcLine}>Source · <a href={d.source_url} target="_blank" rel="noreferrer">{d.source_url}</a></p>}
+      {d.source_url && (
+        <p className={styles.srcLine}>
+          Recipe source · <a href={d.source_url} target="_blank" rel="noreferrer">{siteName(d.source_url)}</a>
+        </p>
+      )}
     </article>
   );
 }
 
-// ── Products ─────────────────────────────────────────────────────────────────
+// ── Products to buy, grouped by active ingredient ────────────────────────────
 
 export function ProductsPanel({ r }: { r: RetrievalResult }) {
+  const groups = r.product_groups || [];
+
   return (
     <div className={styles.cardStack}>
-      {r.product_ingredient && (
-        <p className={styles.prodLead}>
-          Looking for a registered product containing <span className={styles.ingredientChip}>{r.product_ingredient}</span>
+      {groups.length > 0 ? (
+        <p className={styles.prodIntro}>
+          These products contain the active ingredients in your action plan. We found them by web search
+          {r.catalog_retrieved_on ? ` on ${formatDate(r.catalog_retrieved_on)}` : ''}. Prices change every day,
+          so use <b>Compare prices</b>{' '}to see today&apos;s offers.
         </p>
-      )}
-      {r.products.length > 0 ? (
-        <ul className={styles.prodList}>
-          {r.products.map((p, i) => (
-            <li key={i} className={styles.prodCard}>
-              <div className={styles.prodMain}>
-                <span className={styles.prodName}>{p.name}</span>
-                <span className={styles.prodMeta}>
-                  {p.vendor && <span>{p.vendor}</span>}
-                  {p.concentration && <span>· {p.concentration}</span>}
-                  <span>· verified by {p.verified_by}</span>
-                </span>
-              </div>
-              <div className={styles.prodSide}>
-                {p.price_text && <span className={styles.prodPrice}>{p.price_text}</span>}
-                {p.url && <a className={styles.smallBtn} href={p.url} target="_blank" rel="noreferrer">View</a>}
-              </div>
-            </li>
-          ))}
-        </ul>
       ) : (
-        <p className={styles.prodNote}>{r.product_note || 'No products were suggested for this result.'}</p>
+        <p className={styles.prodNote}>{r.product_note || 'No products are suggested for this result.'}</p>
       )}
-      {r.products_searched_at && (
-        <p className={styles.cardHint}>Prices are live snapshots from {new Date(r.products_searched_at).toLocaleString()} and may be stale. Confirm on the vendor page.</p>
+
+      {groups.map(g => <ProductGroupCard key={g.ingredient} g={g} />)}
+
+      {/* Live shop listings, only when the optional SERPER_API_KEY is set on the retrieval service */}
+      {r.products.length > 0 && (
+        <section className={styles.prodGroup}>
+          <h3 className={styles.prodGroupTitle}>Live listings for {r.product_ingredient}</h3>
+          <ul className={styles.prodList}>
+            {r.products.map((p, i) => (
+              <li key={i} className={styles.prodCard}>
+                <div className={styles.prodMain}>
+                  <span className={styles.prodName}>{p.name}</span>
+                  <span className={styles.prodMeta}>{p.vendor}{p.concentration ? ` · ${p.concentration}` : ''}</span>
+                </div>
+                <div className={styles.prodSide}>
+                  {p.price_text && <span className={styles.prodPrice}>{p.price_text}</span>}
+                  {p.url && <a className={styles.smallBtn} href={p.url} target="_blank" rel="noreferrer">View</a>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {groups.length > 0 && (
+        <div className={styles.labelReminder}>
+          <span>📋</span>
+          <p>Before you buy, check that the label lists your plant. Always follow the label&apos;s dose and its waiting period before harvest.</p>
+        </div>
       )}
     </div>
+  );
+}
+
+function ProductGroupCard({ g }: { g: ProductGroup }) {
+  const cc = CONTROL_CLASS_COLOR[g.control_class] || '#8fab98';
+
+  return (
+    <section className={styles.prodGroup}>
+      <div className={styles.prodGroupHead}>
+        <div>
+          <p className={styles.prodGroupLabel}>Contains</p>
+          <h3 className={styles.prodGroupTitle}>{g.ingredient}</h3>
+          <p className={styles.prodGroupFor}>Used for: {g.used_for}</p>
+        </div>
+        <div className={styles.tChips}>
+          <span className={styles.chip} style={{ color: cc, borderColor: `${cc}40`, background: `${cc}12` }}>{g.control_class}</span>
+          {g.organic_approved && <span className={styles.chip} style={{ color: '#00e87a', borderColor: '#00e87a40', background: '#00e87a12' }}>organic-approved</span>}
+        </div>
+      </div>
+
+      {g.products.length > 0 ? (
+        <div className={styles.prodGrid}>
+          {g.products.map(p => (
+            <article key={p.name} className={styles.prodTile}>
+              <div className={styles.prodTileTop}>
+                <span className={styles.prodBadge}>{p.name.charAt(0)}</span>
+                <div>
+                  <p className={styles.prodName}>{p.name}</p>
+                  <p className={styles.prodMaker}>by {p.maker}</p>
+                </div>
+              </div>
+              <span className={styles.formChip}>{p.formulation}</span>
+              {p.note && <p className={styles.prodTileNote}>{p.note}</p>}
+              <div className={styles.prodActions}>
+                <a className={styles.prodBtnPrimary} href={p.shop_url} target="_blank" rel="noreferrer">Compare prices</a>
+                {p.seller_url && <a className={styles.prodBtn} href={p.seller_url} target="_blank" rel="noreferrer">Shop</a>}
+                <a className={styles.prodBtn} href={p.product_url} target="_blank" rel="noreferrer">Details</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className={styles.prodNote}>
+          No product is on file for this ingredient yet.{' '}
+          <a href={g.search_url} target="_blank" rel="noreferrer">Search shops for {g.ingredient}</a>
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -318,11 +576,11 @@ export function SourcesPanel({ r }: { r: RetrievalResult }) {
             <li key={c.chunk_id} className={styles.srcItem}>
               <span className={styles.srcSection}>{c.section}</span>
               <div>
-                <p className={styles.srcTitle}>{c.title || `Passage #${c.chunk_id}`}</p>
+                <p className={styles.srcTitle}>{c.title || 'Reference'}</p>
                 <p className={styles.srcName}>
                   {c.source_url
                     ? <a href={c.source_url} target="_blank" rel="noreferrer">{c.source_name || c.source_url}</a>
-                    : (c.source_name === 'curated_kb' ? 'Plant-Pulse curated knowledge base' : c.source_name)}
+                    : (c.source_name === 'curated_kb' ? 'Plant-Pulse plant guide' : c.source_name)}
                 </p>
               </div>
             </li>
@@ -330,22 +588,6 @@ export function SourcesPanel({ r }: { r: RetrievalResult }) {
         </ul>
       ) : <p className={styles.noData}>No citations were recorded for this answer.</p>}
 
-      {r.retrieval && (
-        <div className={styles.retrBox}>
-          <p className={styles.cardTitle}>Retrieval trace</p>
-          <ul className={styles.chunkList}>
-            {r.retrieval.chunks_used.map(c => (
-              <li key={c.chunk_id} className={styles.chunkItem}>
-                <span className={styles.srcSection}>{c.section}</span>
-                <span>chunk #{c.chunk_id}</span>
-                <span className={styles.chunkScore}>{(c.score * 100).toFixed(0)}% match</span>
-              </li>
-            ))}
-          </ul>
-          {r.retrieval.note && <p className={styles.retrNote}>{r.retrieval.note}</p>}
-          {r.explanation?.note && <p className={styles.retrNote}>{r.explanation.note}</p>}
-        </div>
-      )}
     </div>
   );
 }
@@ -381,8 +623,8 @@ export function UnsurePanel({ r, onConfirm, busy, onRetake }: {
                 <div>
                   <p className={styles.candName}>{c.common_name} <span className={styles.candCrop}>· {c.crop}</span></p>
                   <p className={styles.candConf}>
-                    {pct != null ? `${pct}% model confidence` : 'known look-alike (not ranked by the model)'}
-                    {i === 0 && ' · model\'s first choice'}
+                    {pct != null ? `${pct}% match` : 'Looks similar'}
+                    {i === 0 && ' · best guess'}
                   </p>
                 </div>
                 <button className={styles.confirmBtn} onClick={() => onConfirm(c.disease_id)} disabled={busy}>
@@ -400,7 +642,7 @@ export function UnsurePanel({ r, onConfirm, busy, onRetake }: {
           );
         })}
       </ul>
-      <p className={styles.cardHint}>Confirming re-runs the retriever with that disease so you get its full treatment plan. Not sure? Retake the photo: one leaf, filling the frame, in daylight.</p>
+      <p className={styles.cardHint}>Pick the one that matches to see its full treatment plan. Not sure? Retake the photo: one leaf, filling the frame, in daylight.</p>
     </div>
   );
 }

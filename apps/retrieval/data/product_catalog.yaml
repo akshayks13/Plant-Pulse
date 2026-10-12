@@ -1,0 +1,99 @@
+# Products you can buy, grouped by active ingredient.
+#
+# Found by web search on the date below. "ingredient" must match an
+# active_ingredient name in kb_seed.yaml exactly (validate_kb.py checks this).
+#
+# Prices are NOT stored: they change every day. The app links each product to a
+# live shop search instead, so the user always sees today's price.
+#
+# Fields:
+#   name         brand name as sold
+#   maker        company that makes or markets it
+#   formulation  what the label says it contains
+#   product_url  maker page (or the listing that names the maker) - our source
+#   seller_url   one Indian online shop that lists it (optional)
+#   note         anything the buyer should know (optional)
+
+retrieved_on: '2026-10-12'
+
+products:
+
+  # ── Mancozeb (contact fungicide, FRAC M03) ────────────────────────────────
+  - ingredient: Mancozeb
+    name: Indofil M-45
+    maker: Indofil Industries
+    formulation: Mancozeb 75% WP
+    product_url: https://www.indofil.com/agro/fungicides/indofil-m-45
+    seller_url: https://www.kisanshop.in/product/indofil-m-45-a-broad-spectrum-fungicide-with-protective-action
+    note: Broad-spectrum protective fungicide; spray before or at the first spots.
+
+  # ── Copper (fungicide + bactericide, FRAC M01) ────────────────────────────
+  - ingredient: Copper hydroxide / copper oxychloride
+    name: Blitox 50
+    maker: Tata Rallis
+    formulation: Copper oxychloride 50% WP
+    product_url: https://www.rallis.com/international-business/copper-oxy-chloride
+    seller_url: https://www.bighaat.com/products/tata-rallis-blitox-fungicide
+    note: Rallis lists red rust (an algal disease) among its targets.
+
+  - ingredient: Copper hydroxide / copper oxychloride
+    name: Kocide 3000
+    maker: Bharat Certis
+    formulation: Copper hydroxide 46.1% WG
+    product_url: https://www.bharatcertis.com/kocide.php
+    seller_url: https://www.kisanshop.in/product/buy-bharat-certis-kocide-3000-fungicide
+    note: The maker describes it for both fungal and bacterial diseases.
+
+  # ── Sulfur (contact fungicide, FRAC M02) ──────────────────────────────────
+  - ingredient: Sulfur
+    name: Sulfex
+    maker: Sumitomo Chemical India
+    formulation: Sulphur 80% WP
+    product_url: https://sumichem.co.in/products/ecc/fungicides/sulfex.php
+    seller_url: https://www.bighaat.com/products/sulfex
+    note: Mainly used against powdery mildew. Do not spray in hot weather.
+
+  # ── Potassium bicarbonate (contact fungicide, FRAC NC) ────────────────────
+  - ingredient: Potassium bicarbonate
+    name: MilStop
+    maker: BioWorks
+    formulation: Potassium bicarbonate
+    product_url: https://ipm.ucanr.edu/home-and-landscape/powdery-mildew-on-ornamentals/
+    note: Named by UC IPM for powdery mildew. Mostly sold in the US; may be hard to find in India.
+
+  # ── Propiconazole (systemic triazole, FRAC 3) ─────────────────────────────
+  - ingredient: Propiconazole
+    name: Tilt
+    maker: Crystal Crop Protection
+    formulation: Propiconazole 25% EC
+    product_url: https://www.bighaat.com/products/tilt-fungicide
+    note: Sold in India under Crystal; Syngenta markets Tilt in other countries.
+
+  # ── Azoxystrobin (systemic strobilurin, FRAC 11) ──────────────────────────
+  - ingredient: Azoxystrobin
+    name: Amistar
+    maker: Syngenta India
+    formulation: Azoxystrobin 23% SC
+    product_url: https://www.syngenta.co.in/product/crop-protection/amistar
+    seller_url: https://www.bighaat.com/products/amistar-fungicide
+    note: High resistance risk - never use it twice in a row.
+
+  # ── Pseudomonas fluorescens (biological, FRAC BM02) ───────────────────────
+  - ingredient: Pseudomonas fluorescens
+    name: Striker
+    maker: Katyayani
+    formulation: Pseudomonas fluorescens 1% WP
+    product_url: https://katyayanikrishidirect.com/products/katyayani-pseudomonas-fluorescens-bio-fungicide-powder
+    seller_url: https://www.bighaat.com/products/katyayani-pseudomonas-fluorescens-bio-fungicide-powder
+
+  - ingredient: Pseudomonas fluorescens
+    name: Sudoz-P
+    maker: Utkarsh
+    formulation: Pseudomonas fluorescens 1.0% WP
+    product_url: https://utkarshagro.com/products/utkarsh-sudoz-p-pseudomonas-fluorescens1-0-w-p-2-x-10-8-cfu-gm-bio-pesticides
+
+  - ingredient: Pseudomonas fluorescens
+    name: Pseudo-Pep
+    maker: Peptech Biosciences
+    formulation: Pseudomonas fluorescens 1.0% WP
+    product_url: https://peptechbio.com/product/pseudomonas-fluorescens-1-0-w-p-pseudo-pep/

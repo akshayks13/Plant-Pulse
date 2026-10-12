@@ -24,11 +24,13 @@ from pathlib import Path
 import psycopg
 import psycopg.rows
 import yaml
+from dotenv import load_dotenv
 from embedding import embed_texts
 
 DATA = Path(__file__).parent / "data"
 
-DSN = os.environ.get("DATABASE_URL", "postgresql:///plantpulse")
+load_dotenv()   # read DATABASE_URL from .env, so this also works without `make`
+DSN = os.environ.get("DATABASE_URL", "postgresql://plantpulse:devonly@127.0.0.1:5432/plantpulse")
 MAX_CHARS = 1200                    # roughly 300 tokens
 OVERLAP = 150
 

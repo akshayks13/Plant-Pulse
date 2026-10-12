@@ -18,6 +18,11 @@ async def lifespan(app: FastAPI):
     await init_db()
     # Seed admin user
     await _seed_admin()
+    # Load the CNN models now so the first scan is fast (runs in a thread: it takes a few seconds)
+    from fastapi.concurrency import run_in_threadpool
+    from .services import ml_service
+    logger.info("Loading CNN models…")
+    await run_in_threadpool(ml_service.load_all_models)
     logger.info("Plant-Pulse API ready 🌿")
     yield
     logger.info("Shutting down.")
@@ -77,18 +82,16 @@ app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 @app.get("/health")
 async def health():
     """Liveness plus the state of the two pipeline stages behind /diagnosis/predict."""
-    from .services.ml_service import get_ml_service
-    from .services import retrieval_client
+    from .services import ml_service, retrieval_client
 
-    ml = get_ml_service()
     retrieval = await retrieval_client.health()
     return {
         "status": "healthy",
         "service": settings.app_name,
         "cnn": {
-            "model_source": ml.model_source,
-            "model_path": settings.model_path,
-            "model_loaded": ml.model_source != "mock",
+            "device": str(ml_service.DEVICE),
+            "model_dir": settings.model_dir,
+            "models": ml_service.list_models(),
         },
         "retrieval": retrieval,
     }

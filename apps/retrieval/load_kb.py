@@ -18,11 +18,13 @@ from pathlib import Path
 
 import psycopg
 import yaml
+from dotenv import load_dotenv
 
 from validate_kb import load as load_seed, validate
 
 DATA = Path(__file__).parent / "data"
-DSN = os.environ.get("DATABASE_URL", "postgresql:///plantpulse")
+load_dotenv()   # read DATABASE_URL from .env, so this also works without `make`
+DSN = os.environ.get("DATABASE_URL", "postgresql://plantpulse:devonly@127.0.0.1:5432/plantpulse")
 
 
 def upsert(cur, table: str, row: dict, key: str) -> None:

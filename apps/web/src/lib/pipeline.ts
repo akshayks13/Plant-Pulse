@@ -19,11 +19,11 @@ export const RESULT_META: Record<ResultType, { label: string; color: string; ico
 };
 
 export const RETRIEVAL_STATUS_META: Record<RetrievalStatus, { label: string; color: string }> = {
-  pending:           { label: 'Pending',           color: '#8fab98' },
-  ok:                { label: 'Treatment plan ready', color: '#00e87a' },
-  unsupported_class: { label: 'Built-in guidance', color: '#f5c542' },
-  unavailable:       { label: 'Service offline',   color: '#ff8c42' },
-  error:             { label: 'Service error',     color: '#ff4a6b' },
+  pending:           { label: 'Loading plan',          color: '#8fab98' },
+  ok:                { label: 'Treatment plan ready',  color: '#00e87a' },
+  unsupported_class: { label: 'General guidance',      color: '#f5c542' },
+  unavailable:       { label: 'Plan unavailable',      color: '#ff8c42' },
+  error:             { label: 'Plan unavailable',      color: '#ff4a6b' },
 };
 
 export const TIER_META: Record<SourceTier, { label: string; color: string; hint: string }> = {
@@ -41,18 +41,36 @@ export const CONTROL_CLASS_COLOR: Record<string, string> = {
 
 export function modelSourceLabel(src: string | null | undefined): string {
   switch (src) {
-    case 'tflite': return 'TFLite CNN';
-    case 'keras':  return 'Keras CNN';
-    case 'mock':   return 'Mock CNN (no model file)';
-    default:       return 'CNN';
+    case 'efficientnet': return 'EfficientNet-B0';
+    case 'mobilenet':    return 'MobileNetV3-Large';
+    case 'densenet':     return 'DenseNet-121';
+    case 'mock':         return 'Demo model';
+    default:             return 'Model';
   }
 }
 
-/** "Tomato___Late_blight" → { crop: "Tomato", name: "Late blight" } */
+// The training dataset spells "Betel" as "Beetel"; show the correct name.
+const CROP_DISPLAY: Record<string, string> = { Beetel: 'Betel' };
+
+/**
+ * Split a class label into crop + disease name.
+ *   "Papaya_Leaf_Blight"   → { crop: "Papaya", name: "Leaf Blight" }   (current models)
+ *   "Tomato___Late_blight" → { crop: "Tomato", name: "Late blight" }   (older scans)
+ */
 export function splitLabel(raw: string): { crop: string; name: string } {
-  const parts = raw.split('___').filter(Boolean);
-  const crop = (parts[0] || 'Plant').replace(/_/g, ' ');
-  const name = parts.slice(1).join(' ').replace(/_/g, ' ') || crop;
+  let cropPart: string;
+  let rest: string[];
+  if (raw.includes('___')) {
+    const parts = raw.split('___').filter(Boolean);
+    cropPart = parts[0] || 'Plant';
+    rest = parts.slice(1);
+  } else {
+    const parts = raw.split('_').filter(Boolean);
+    cropPart = parts[0] || 'Plant';
+    rest = parts.slice(1);
+  }
+  const crop = CROP_DISPLAY[cropPart] || cropPart.replace(/_/g, ' ');
+  const name = rest.join(' ').replace(/_/g, ' ') || crop;
   return { crop, name };
 }
 

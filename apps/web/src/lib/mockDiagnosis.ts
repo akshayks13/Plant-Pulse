@@ -11,22 +11,28 @@
 
 import type { Diagnosis } from './api';
 
+// Same 20 classes as the trained CNN models (apps/model_file).
 const DISEASE_POOL = [
-  { name: 'Tomato___Early_blight',      severity: 'moderate' as const },
-  { name: 'Tomato___Late_blight',       severity: 'critical' as const },
-  { name: 'Tomato___healthy',           severity: 'low' as const },
-  { name: 'Potato___Early_blight',      severity: 'moderate' as const },
-  { name: 'Potato___Late_blight',       severity: 'critical' as const },
-  { name: 'Potato___healthy',           severity: 'low' as const },
-  { name: 'Pepper___bell___Bacterial_spot', severity: 'high' as const },
-  { name: 'Pepper___bell___healthy',    severity: 'low' as const },
-  { name: 'Tomato___Leaf_mold',         severity: 'moderate' as const },
-  { name: 'Tomato___Spider_mites',      severity: 'low' as const },
-  { name: 'Rose___Black_spot',          severity: 'high' as const },
-  { name: 'Rose___healthy',             severity: 'low' as const },
-  { name: 'Aloe_Vera___Rust',           severity: 'moderate' as const },
-  { name: 'Money_Plant___Bacterial_Wilt', severity: 'critical' as const },
-  { name: 'Strawberry___Leaf_scorch',   severity: 'moderate' as const },
+  { name: 'Beetel_Anthracnose',          severity: 'high' },
+  { name: 'Beetel_Bacterial_Spot',       severity: 'high' },
+  { name: 'Beetel_Healthy',              severity: 'low' },
+  { name: 'Beetel_Powdery_Mildew',       severity: 'moderate' },
+  { name: 'Guava_Algal_Spot',            severity: 'low' },
+  { name: 'Guava_Anthracnose',           severity: 'high' },
+  { name: 'Guava_Healthy',               severity: 'low' },
+  { name: 'Guava_Red_Rust',              severity: 'moderate' },
+  { name: 'Hibiscus_Black_Spot',         severity: 'moderate' },
+  { name: 'Hibiscus_Healthy',            severity: 'low' },
+  { name: 'Hibiscus_Rust',               severity: 'moderate' },
+  { name: 'Hibiscus_Yellow_Vein_Mosaic', severity: 'critical' },
+  { name: 'Mint_Healthy',                severity: 'low' },
+  { name: 'Mint_Leaf_Spot',              severity: 'moderate' },
+  { name: 'Mint_Powdery_Mildew',         severity: 'moderate' },
+  { name: 'Mint_Rust',                   severity: 'moderate' },
+  { name: 'Papaya_Black_Spot',           severity: 'moderate' },
+  { name: 'Papaya_Healthy',              severity: 'low' },
+  { name: 'Papaya_Leaf_Blight',          severity: 'high' },
+  { name: 'Papaya_Ringspot',             severity: 'critical' },
 ];
 
 function uid() {
@@ -55,7 +61,7 @@ export async function mockPredict(file: File, cropType?: string): Promise<Diagno
     disease_name: pick.name,
     confidence,
     severity: pick.severity,
-    is_healthy: pick.name.endsWith('healthy'),
+    is_healthy: pick.name.toLowerCase().endsWith('healthy'),
     model_source: 'mock',
     candidates: [
       { label: pick.name, confidence },

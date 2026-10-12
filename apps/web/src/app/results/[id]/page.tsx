@@ -6,16 +6,16 @@ import { getDiagnosis, retrieveTreatment, mediaUrl, type Diagnosis } from '@/lib
 import { getLocalScan, isMockMode } from '@/lib/mockDiagnosis';
 import { getDiseaseInfo } from '@/lib/diseaseKb';
 import {
-  SEVERITY_COLOR, RESULT_META, RETRIEVAL_STATUS_META,
+  SEVERITY_COLOR, RESULT_META,
   modelSourceLabel, displayName, cropName, sentences,
 } from '@/lib/pipeline';
 import {
-  PipelineStrip, CandidatesCard, StatusBanner, ExplanationCard, TreatmentCard,
+  PipelineStrip, CandidatesCard, StatusBanner, OverviewCard, ActionPlan, PreventionList,
   DiyCard, ProductsPanel, SourcesPanel, UnsurePanel, HealthyPanel, FallbackKbPanel,
 } from './sections';
 import styles from './results.module.css';
 
-type Tab = 'treatment' | 'diy' | 'products' | 'prevention' | 'sources';
+type Tab = 'plan' | 'products' | 'diy' | 'prevention' | 'sources';
 
 export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +24,7 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState<'retry' | 'confirm' | null>(null);
-  const [tab, setTab] = useState<Tab>('treatment');
+  const [tab, setTab] = useState<Tab>('plan');
 
   useEffect(() => {
     let cancelled = false;
@@ -49,20 +49,27 @@ export default function ResultsPage() {
     return () => { cancelled = true; };
   }, [id]);
 
-  /** Re-run the retrieval step (after an outage). */
+  /**
+   * Re-run the retrieval step: after an outage, or to pick up a newer knowledge base.
+   * If the user already confirmed a candidate, keep that choice.
+   */
+  const confirmedId = data?.confirmed_disease_id;
   const retry = useCallback(async () => {
     setBusy('retry'); setError('');
-    try { setData(await retrieveTreatment(id)); }
+    try {
+      const body = confirmedId ? { confirmed_disease_id: confirmedId } : {};
+      setData(await retrieveTreatment(id, body));
+    }
     catch (err: unknown) { setError(err instanceof Error ? err.message : 'Retry failed.'); }
     finally { setBusy(null); }
-  }, [id]);
+  }, [id, confirmedId]);
 
   /** The user looked at the leaf and picked one of the "unsure" candidates. */
   const confirm = useCallback(async (diseaseId: string) => {
     setBusy('confirm'); setError('');
     try {
       setData(await retrieveTreatment(id, { confirmed_disease_id: diseaseId }));
-      setTab('treatment');
+      setTab('plan');
     }
     catch (err: unknown) { setError(err instanceof Error ? err.message : 'Could not confirm.'); }
     finally { setBusy(null); }
@@ -100,16 +107,19 @@ export default function ResultsPage() {
   const isHealthy = type === 'healthy' || (!ok && data.is_healthy);
   const sevColor = isHealthy ? SEVERITY_COLOR.low : (SEVERITY_COLOR[data.severity] || '#f5c542');
   const meta = type ? RESULT_META[type] : null;
-  const statusMeta = RETRIEVAL_STATUS_META[data.retrieval_status];
   const circumference = 2 * Math.PI * 42;
   const dashOffset = circumference * (1 - confPct / 100);
   const img = mediaUrl(data.image_url);
   const showTabs = ok && r && (type === 'normal' || type === 'incurable');
 
+  // how many products the "Buy products" tab will show
+  let productCount = r ? r.products.length : 0;
+  for (const g of r?.product_groups || []) productCount += g.products.length;
+
   const tabs: { key: Tab; label: string; count: number | null }[] = showTabs && r ? [
-    { key: 'treatment',  label: type === 'incurable' ? 'Containment' : 'Treatments', count: r.treatments.length },
+    { key: 'plan',       label: type === 'incurable' ? 'Containment plan' : 'Action plan', count: r.treatments.length },
+    { key: 'products',   label: 'Buy products',  count: productCount },
     { key: 'diy',        label: 'Home remedies', count: r.diy.length },
-    { key: 'products',   label: 'Products',      count: r.products.length },
     { key: 'prevention', label: 'Prevention',    count: r.explanation?.prevention.length ?? 0 },
     { key: 'sources',    label: 'Sources',       count: r.explanation?.citations.length ?? 0 },
   ] : [];
@@ -172,14 +182,8 @@ export default function ResultsPage() {
                   </span>
                 </div>
                 <div className={styles.metaRow}>
-                  <span className={styles.metaLabel}>Classifier</span>
+                  <span className={styles.metaLabel}>Model</span>
                   <span className={styles.metaVal}>{modelSourceLabel(data.model_source)}</span>
-                </div>
-                <div className={styles.metaRow}>
-                  <span className={styles.metaLabel}>Retriever</span>
-                  <span className={styles.metaBadge} style={{ color: statusMeta.color, borderColor: `${statusMeta.color}30`, background: `${statusMeta.color}10` }}>
-                    {statusMeta.label}
-                  </span>
                 </div>
                 {r?.disease.pathogen && (
                   <div className={styles.metaRow}>
@@ -270,7 +274,7 @@ export default function ResultsPage() {
 
             {showTabs && r && (
               <>
-                {r.explanation && <ExplanationCard e={r.explanation} />}
+                {r.explanation && <OverviewCard e={r.explanation} />}
 
                 {r.disease.symptoms && (
                   <div className={styles.section}>
@@ -300,40 +304,19 @@ export default function ResultsPage() {
                   </div>
 
                   <div className={styles.tabContent}>
-                    {tab === 'treatment' && (
-                      <div className={styles.cardStack}>
-                        {r.explanation && r.explanation.treatment_steps.length > 0 && (
-                          <ol className={styles.stepList}>
-                            {r.explanation.treatment_steps.map((s, i) => (
-                              <li key={i} className={styles.stepItem}><span className={styles.stepNum}>{i + 1}</span><span>{s}</span></li>
-                            ))}
-                          </ol>
-                        )}
-                        {r.treatments.length > 0
-                          ? r.treatments.map((t, i) => <TreatmentCard key={t.treatment_id} t={t} index={i} />)
-                          : <p className={styles.noData}>No treatment rows on file for this disease.</p>}
-                      </div>
-                    )}
+                    {tab === 'plan' && <ActionPlan r={r} onShowProducts={() => setTab('products')} />}
 
                     {tab === 'diy' && (
                       <div className={styles.cardStack}>
                         {r.diy.length > 0
                           ? r.diy.map(d => <DiyCard key={d.diy_id} d={d} />)
-                          : <p className={styles.noData}>No home-made remedy is recorded for this disease. That is deliberate: the knowledge base only lists remedies with a known effect.</p>}
+                          : <p className={styles.noData}>No home remedy is listed for this disease. That is on purpose: we only list remedies with a known effect{type === 'incurable' ? ', and nothing made at home can cure a virus' : ''}.</p>}
                       </div>
                     )}
 
                     {tab === 'products' && <ProductsPanel r={r} />}
 
-                    {tab === 'prevention' && (
-                      r.explanation && r.explanation.prevention.length > 0 ? (
-                        <ul className={styles.symptomList}>
-                          {r.explanation.prevention.map((p, i) => (
-                            <li key={i} className={styles.symptom}><span className={styles.symDot} />{p}</li>
-                          ))}
-                        </ul>
-                      ) : <p className={styles.noData}>No separate prevention notes; the containment steps above cover it.</p>
-                    )}
+                    {tab === 'prevention' && <PreventionList items={r.explanation?.prevention ?? []} />}
 
                     {tab === 'sources' && <SourcesPanel r={r} />}
                   </div>
@@ -344,6 +327,11 @@ export default function ResultsPage() {
             {r?.disclaimer && <p className={styles.disclaimer}>{r.disclaimer}</p>}
 
             <div className={styles.footer}>
+              {ok && (
+                <button className={styles.outlineBtn} onClick={retry} disabled={busy === 'retry'} title="Fetch the latest treatment info for this scan">
+                  {busy === 'retry' ? 'Refreshing…' : 'Refresh treatment plan'}
+                </button>
+              )}
               <button className={styles.outlineBtn} onClick={() => router.push('/history')}>View all scans</button>
               <button className={styles.outlineBtn} onClick={() => router.push('/community')}>Ask the community</button>
             </div>

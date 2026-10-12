@@ -65,7 +65,7 @@
 .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
 
 /* ── Left col ── */
-.left { display: flex; flex-direction: column; gap: 16px; }
+.left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .imgCard {
   aspect-ratio: 4/3; border-radius: 16px; overflow: hidden; position: relative;
   background: rgba(11,22,16,0.8); border: 1px solid rgba(0,232,122,0.1);
@@ -80,7 +80,7 @@
 .metaRows { width: 100%; display: flex; flex-direction: column; gap: 10px; }
 .metaRow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .metaLabel { font-size: 12px; color: rgba(240,247,242,0.35); flex-shrink: 0; }
-.metaVal { font-size: 13px; font-weight: 500; color: rgba(240,247,242,0.7); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.metaVal { font-size: 13px; font-weight: 500; color: rgba(240,247,242,0.7); text-align: right; min-width: 0; overflow-wrap: anywhere; }
 .metaBadge { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 99px; border: 1px solid; text-transform: capitalize; white-space: nowrap; }
 
 .cardTitle { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: rgba(240,247,242,0.7); margin-bottom: 10px; }
@@ -334,4 +334,163 @@
   .connector { display: none; }
   .careGrid { grid-template-columns: 1fr; }
   .candRow { grid-template-columns: 1fr 56px 36px; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Readable treatment layout: overview, action plan, products, home remedies
+   ════════════════════════════════════════════════════════════════════════ */
+
+.blockTitle {
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700;
+  color: rgba(240,247,242,0.5); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+/* ── Overview card ── */
+.overview {
+  padding: 20px 22px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(0,232,122,0.06), rgba(0,180,216,0.04));
+  border: 1px solid rgba(0,232,122,0.14);
+  display: flex; flex-direction: column; gap: 20px;
+}
+.overviewText { font-size: 15px; color: rgba(240,247,242,0.85); line-height: 1.65; }
+.overviewText + .overviewText { margin-top: 6px; }
+.factGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.fact {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(6,13,10,0.45); border: 1px solid rgba(255,255,255,0.06);
+}
+.factIcon { font-size: 20px; line-height: 1; margin-top: 2px; }
+.factLabel { font-size: 11px; font-weight: 700; color: #00e87a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.factText { font-size: 13px; color: rgba(240,247,242,0.75); line-height: 1.55; }
+.genNote { font-size: 11px; color: rgba(240,247,242,0.3); text-align: right; cursor: help; }
+
+/* ── Action plan groups ── */
+.planGroup { display: flex; flex-direction: column; gap: 10px; }
+.planGroup + .planGroup { margin-top: 10px; }
+.planHead { display: flex; align-items: center; gap: 12px; padding: 2px 2px 4px; }
+.planIcon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  background: rgba(0,232,122,0.08); border: 1px solid rgba(0,232,122,0.18);
+}
+.planTitle { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 800; color: #f0f7f2; }
+.planHint { font-size: 12px; color: rgba(240,247,242,0.4); }
+
+.tSteps { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.tSteps li {
+  position: relative; padding-left: 18px;
+  font-size: 14px; color: rgba(240,247,242,0.75); line-height: 1.55;
+}
+.tSteps li::before {
+  content: ''; position: absolute; left: 3px; top: 8px;
+  width: 6px; height: 6px; border-radius: 50%; background: #00e87a;
+}
+.caution {
+  padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,140,66,0.07); border: 1px solid rgba(255,140,66,0.2);
+}
+.cautionTitle { font-size: 12px; font-weight: 700; color: #ff8c42; margin-bottom: 4px; }
+.caution ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.caution li { font-size: 13px; color: rgba(255,200,160,0.9); line-height: 1.5; }
+.tFoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.linkBtn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: #00e87a; font-family: 'Inter', sans-serif;
+}
+.linkBtn:hover { text-decoration: underline; }
+
+/* ── Prevention ── */
+.preventGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.preventCard {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(11,22,16,0.7); border: 1px solid rgba(0,180,216,0.15);
+}
+.preventIcon { font-size: 18px; line-height: 1.2; }
+.preventTitle { font-size: 14px; font-weight: 700; color: #f0f7f2; margin-bottom: 3px; }
+.preventText { font-size: 13px; color: rgba(240,247,242,0.65); line-height: 1.55; }
+
+/* ── Home remedy (DIY) ── */
+.diyTitle { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #f0f7f2; margin-bottom: 4px; }
+.diyBody { display: grid; grid-template-columns: minmax(200px, 0.8fr) 1.2fr; gap: 18px; }
+.diyNeed { align-self: start; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); }
+.needList { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.needItem { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(240,247,242,0.75); }
+.needQty {
+  min-width: 58px; padding: 2px 8px; border-radius: 6px; text-align: center;
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800; color: #00e87a;
+  background: rgba(0,232,122,0.1);
+}
+.needName { flex: 1; }
+.stepFlow { list-style: none; display: flex; flex-direction: column; }
+.stepFlowItem {
+  position: relative; display: flex; gap: 12px; padding-bottom: 14px;
+  font-size: 14px; color: rgba(240,247,242,0.78); line-height: 1.55;
+}
+.stepFlowItem:last-child { padding-bottom: 0; }
+.stepFlowItem:not(:last-child)::before {
+  content: ''; position: absolute; left: 12px; top: 26px; bottom: 2px;
+  width: 1px; background: rgba(0,232,122,0.2);
+}
+.stepFlowNum {
+  width: 25px; height: 25px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #060d0a; background: #00e87a;
+  position: relative; z-index: 1;
+}
+
+/* ── Products ── */
+.prodIntro { font-size: 13px; color: rgba(240,247,242,0.55); line-height: 1.6; }
+.prodIntro b { color: #00e87a; }
+.prodGroup {
+  padding: 16px 18px; border-radius: 16px;
+  background: rgba(11,22,16,0.7); border: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.prodGroupHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.prodGroupLabel { font-size: 10px; font-weight: 700; color: rgba(240,247,242,0.35); text-transform: uppercase; letter-spacing: 0.08em; }
+.prodGroupTitle { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #f0f7f2; }
+.prodGroupFor { font-size: 12px; color: rgba(240,247,242,0.45); margin-top: 2px; }
+.prodGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.prodTile {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: 12px;
+  background: rgba(6,13,10,0.5); border: 1px solid rgba(0,232,122,0.12);
+  transition: border-color 0.15s, transform 0.15s;
+}
+.prodTile:hover { border-color: rgba(0,232,122,0.35); transform: translateY(-2px); }
+.prodTileTop { display: flex; gap: 10px; align-items: center; }
+.prodBadge {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 900; color: #060d0a;
+  background: linear-gradient(135deg, #00e87a, #00b4d8);
+}
+.prodMaker { font-size: 12px; color: rgba(240,247,242,0.45); }
+.formChip {
+  width: fit-content; padding: 3px 9px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; color: #00b4d8;
+  background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.25);
+}
+.prodTileNote { font-size: 12px; color: rgba(240,247,242,0.5); line-height: 1.5; flex: 1; }
+.prodActions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.prodBtnPrimary, .prodBtn {
+  padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  text-decoration: none; transition: all 0.15s; white-space: nowrap;
+}
+.prodBtnPrimary { background: #00e87a; color: #060d0a; }
+.prodBtnPrimary:hover { background: #00f285; }
+.prodBtn { border: 1px solid rgba(255,255,255,0.12); color: rgba(240,247,242,0.7); }
+.prodBtn:hover { border-color: rgba(0,232,122,0.4); color: #f0f7f2; }
+.labelReminder {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(245,197,66,0.06); border: 1px solid rgba(245,197,66,0.2);
+  font-size: 13px; color: rgba(240,247,242,0.7); line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .diyBody { grid-template-columns: 1fr; }
 }

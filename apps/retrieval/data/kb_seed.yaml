@@ -20,6 +20,12 @@ crops:
   - {crop_id: squash,      common_name: Squash,       scientific_name: Cucurbita spp.,      indoor_suitable: true}
   - {crop_id: strawberry,  common_name: Strawberry,   scientific_name: Fragaria x ananassa, indoor_suitable: true}
   - {crop_id: tomato,      common_name: Tomato,       scientific_name: Solanum lycopersicum, indoor_suitable: true}
+  # Crops covered by the PyTorch CNN models in apps/model_file (20 classes).
+  - {crop_id: betel,       common_name: Betel vine,   scientific_name: Piper betle,         indoor_suitable: true}
+  - {crop_id: guava,       common_name: Guava,        scientific_name: Psidium guajava,     indoor_suitable: false}
+  - {crop_id: hibiscus,    common_name: Hibiscus,     scientific_name: Hibiscus rosa-sinensis, indoor_suitable: true}
+  - {crop_id: mint,        common_name: Mint,         scientific_name: Mentha spp.,         indoor_suitable: true}
+  - {crop_id: papaya,      common_name: Papaya,       scientific_name: Carica papaya,       indoor_suitable: false}
 
 pathogens:
   - pathogen_id: P_CERCOSPORA_ZEAE
@@ -146,6 +152,71 @@ pathogens:
     notes: >-
       Unlike most foliar fungi, powdery mildews germinate without free water and
       are favoured by dry leaves with high ambient humidity.
+
+  # ── Pathogens for the 20-class CNN (betel, guava, hibiscus, mint, papaya) ──
+  - pathogen_id: P_COLLETOTRICHUM
+    scientific_name: Colletotrichum gloeosporioides species complex
+    synonyms: [Glomerella cingulata, Colletotrichum capsici]
+    type: fungal
+    survival: Infected leaves, dead twigs, mummified fruit and plant debris
+  - pathogen_id: P_XANTHOMONAS_BETLICOLA
+    scientific_name: Xanthomonas axonopodis pv. betlicola
+    synonyms: [Xanthomonas campestris pv. betlicola]
+    type: bacterial
+    survival: Infected vines, cuttings taken from infected vines, and crop debris
+  - pathogen_id: P_OIDIUM_PIPERIS
+    scientific_name: Oidium piperis
+    type: fungal
+    survival: On living leaves of infected vines
+  - pathogen_id: P_CEPHALEUROS_VIRESCENS
+    scientific_name: Cephaleuros virescens
+    type: algal
+    survival: Infected leaves and twigs on the tree
+    notes: >-
+      A parasitic green alga, not a fungus. Copper is the effective chemistry;
+      single-site fungicides do not act on it.
+  - pathogen_id: P_HIBISCUS_LEAF_SPOT
+    scientific_name: Leaf-spot fungi (Cercospora, Phyllosticta and Colletotrichum spp.)
+    type: fungal
+    survival: Infected and fallen leaves
+  - pathogen_id: P_KUEHNEOLA_MALVICOLA
+    scientific_name: Kuehneola malvicola
+    type: fungal
+    survival: Infected living leaves and fallen leaf debris
+  - pathogen_id: P_HIBISCUS_YVM
+    scientific_name: Begomovirus (hibiscus yellow vein mosaic complex)
+    type: viral
+    vector_organism: Bemisia tabaci (whitefly)
+    survival: Infected hibiscus and other malvaceous hosts such as okra, cotton and weeds; carried in cuttings from infected plants
+    notes: Not spread by touch or seed. Removal and whitefly control are the whole programme.
+  - pathogen_id: P_MINT_LEAF_SPOT
+    scientific_name: Leaf-spot fungi (Alternaria alternata, Septoria spp.)
+    type: fungal
+    survival: Infected leaves and plant debris
+  - pathogen_id: P_GOLOVINOMYCES_MINT
+    scientific_name: Golovinomyces spp. (Erysiphe cichoracearum group)
+    type: fungal
+    survival: On living leaves and stems
+  - pathogen_id: P_PUCCINIA_MENTHAE
+    scientific_name: Puccinia menthae
+    type: fungal
+    survival: Infected rhizomes and plant debris; new shoots from infected roots can already carry the disease
+  - pathogen_id: P_ASPERISPORIUM_CARICAE
+    scientific_name: Asperisporium caricae
+    type: fungal
+    survival: Infected older leaves
+  - pathogen_id: P_PAPAYA_LEAF_BLIGHT
+    scientific_name: Leaf-blight fungi (Corynespora cassiicola, Alternaria spp.)
+    type: fungal
+    survival: Infected leaves and plant debris
+  - pathogen_id: P_PRSV
+    scientific_name: Papaya ringspot virus (PRSV-P)
+    type: viral
+    vector_organism: Aphids, e.g. Aphis gossypii and Myzus persicae (non-persistent)
+    survival: Infected papaya and cucurbit plants; not seed-borne
+    notes: >-
+      Aphids pick up and pass on the virus within seconds of probing, so
+      insecticides cannot stop transmission. No cure exists.
 
 active_ingredients:
   - {ai_id: AI_MANCOZEB,        name: Mancozeb,               chemical_group: Dithiocarbamate,  frac_code: M03, is_multisite: true,  organic_approved: false, mode_of_action: Multi-site contact protectant, hazard_notes: Skin and eye irritant; wear gloves and mask when mixing}

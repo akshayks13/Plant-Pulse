@@ -1,326 +1,250 @@
 """
-ML service: image -> CNN class label + confidence.
+ml_service.py - runs our trained plant disease CNN models.
 
-This module is the single integration point for the leaf-disease CNN.
-The rest of the backend only ever calls `get_ml_service().predict(path)`
-and consumes the `CNNPrediction` it returns, so swapping the model in
-never touches the routes or the retrieval wiring.
+We trained 3 PyTorch models. Their checkpoints live in apps/model_file/:
 
-Pipeline position:
-    upload  ->  [ CNN  (this file) ]  ->  retrieval service  ->  UI
+    efficientnet  ->  efficientnet_b0_model.pth
+    mobilenet     ->  mobilenetv3_large_model.pth
+    densenet      ->  densenet121_model.pth
 
-Model loading priority:
-    1. TFLite model at settings.model_path   (preferred; small + fast)
-    2. Keras / H5 model at settings.model_path
-    3. Deterministic mock (no model file present) - for development only
+Each .pth file is a dictionary saved during training:
 
-TO INTEGRATE THE REAL CNN, see `_run_inference()` below. It must return one
-probability per entry in DISEASE_CLASSES, in that order. Everything else
-(top-k, runner-up, severity, healthy flag) is derived from that vector.
+    {
+        "model_state_dict": the trained weights,
+        "class_names":      the 20 class names, in the order the model outputs them,
+        "val_acc":          validation accuracy (%),
+        "model_meta":       size / parameter info,
+        "epoch":            the epoch the best weights came from,
+    }
+
+How one prediction works:
+    1. Build the same network architecture with timm (empty weights).
+    2. Load the trained weights from the .pth file into it.
+    3. Resize + normalize the photo exactly like during training.
+    4. Run the network, turn the scores into probabilities with softmax,
+       and keep the top 3 classes.
+
+Models are loaded once (at server start-up) and then kept in memory.
 """
-import hashlib
-import random
-from dataclasses import dataclass, field, asdict
+import threading
 from pathlib import Path
-from typing import Optional
 
-import numpy as np
+import timm
+import torch
 from loguru import logger
-from PIL import Image
+from PIL import Image, ImageOps
+from torch import nn
+from torchvision import transforms
 
 from ..config import get_settings
 
 settings = get_settings()
 
-# ── Disease classes (PlantVillage + Indoor datasets) ─────────────────────────
-# ORDER MATTERS: index i of the CNN's output vector must correspond to
-# DISEASE_CLASSES[i]. Keep this list in sync with the training label order.
-DISEASE_CLASSES = [
-    "Apple___Apple_scab",
-    "Apple___Black_rot",
-    "Apple___healthy",
-    "Aloe_Vera___Rust",
-    "Aloe_Vera___healthy",
-    "Money_Plant___Bacterial_Wilt",
-    "Money_Plant___healthy",
-    "Snake_Plant___Fungal_Leaf_Spot",
-    "Snake_Plant___healthy",
-    "Rose___Black_spot",
-    "Rose___healthy",
-    "Pepper___bell___Bacterial_spot",
-    "Pepper___bell___healthy",
-    "Potato___Early_blight",
-    "Potato___Late_blight",
-    "Potato___healthy",
-    "Strawberry___Leaf_scorch",
-    "Strawberry___healthy",
-    "Tomato___Bacterial_spot",
-    "Tomato___Early_blight",
-    "Tomato___Late_blight",
-    "Tomato___Leaf_Miner",
-    "Tomato___Leaf_mold",
-    "Tomato___Septoria_leaf_spot",
-    "Tomato___Spider_mites",
-    "Tomato___Target_Spot",
-    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
-    "Tomato___healthy",
-]
 
-SEVERITY_MAP = {
-    "Late_blight": "critical",
-    "Bacterial_Wilt": "critical",
-    "Yellow_Leaf_Curl_Virus": "critical",
-    "Early_blight": "moderate",
-    "Black_rot": "high",
-    "Black_spot": "high",
-    "Bacterial_spot": "high",
-    "Leaf_scorch": "moderate",
-    "Fungal_Leaf_Spot": "moderate",
-    "Rust": "moderate",
-    "Leaf_mold": "moderate",
-    "Septoria_leaf_spot": "moderate",
-    "Spider_mites": "low",
-    "Target_Spot": "moderate",
-    "Leaf_Miner": "moderate",
-    "Apple_scab": "high",
-    "healthy": "low",
+# ── The models the user can pick on the scan page ────────────────────────────
+# "arch" is the timm model name whose layers match the checkpoint exactly.
+MODELS = {
+    "efficientnet": {
+        "file": "efficientnet_b0_model.pth",
+        "arch": "efficientnet_b0",
+        "label": "EfficientNet-B0",
+    },
+    "mobilenet": {
+        "file": "mobilenetv3_large_model.pth",
+        "arch": "mobilenetv3_large_100",
+        "label": "MobileNetV3-Large",
+    },
+    "densenet": {
+        "file": "densenet121_model.pth",
+        "arch": "densenet121",
+        "label": "DenseNet-121",
+    },
+}
+DEFAULT_MODEL = "efficientnet"
+TOP_K = 3   # how many guesses we keep (the 2nd one is used for the look-alike check)
+
+
+# ── Image preprocessing (must match training) ────────────────────────────────
+# 224x224 RGB, scaled to [0, 1], then normalized with the ImageNet mean/std
+# that the pretrained timm backbones were trained with.
+IMAGE_SIZE = 224
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD = [0.229, 0.224, 0.225]
+
+preprocess = transforms.Compose([
+    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
+])
+
+
+# ── How bad is each disease? (used for the severity badge) ───────────────────
+# Checked in order, first match wins.
+SEVERITY = {
+    "Healthy": "low",
+    "Ringspot": "critical",            # viral, no cure
+    "Yellow_Vein_Mosaic": "critical",  # viral, no cure
+    "Bacterial_Spot": "high",
+    "Anthracnose": "high",
+    "Leaf_Blight": "high",
+    "Black_Spot": "moderate",
+    "Powdery_Mildew": "moderate",
+    "Rust": "moderate",                # also matches "Red_Rust"
+    "Leaf_Spot": "moderate",
+    "Algal_Spot": "low",
 }
 
-TOP_K = 3           # how many candidates we keep for the UI / look-alike check
-INPUT_SIZE = (224, 224)
 
-# Classes the retrieval knowledge base (apps/retrieval, 38 PlantVillage classes)
-# can answer for. Only used by the mock predictor so demo scans mostly reach
-# the full treatment pipeline; the real model is free to output any class.
-_KB_COVERED_PREFIXES = ("Apple___", "Pepper___bell___", "Potato___", "Strawberry___", "Tomato___")
-_KB_UNCOVERED = {"Tomato___Leaf_Miner"}
-KB_COVERED_CLASSES = [
-    c for c in DISEASE_CLASSES
-    if c.startswith(_KB_COVERED_PREFIXES) and c not in _KB_UNCOVERED
-]
-
-
-def _get_severity(disease_name: str) -> str:
-    for key, sev in SEVERITY_MAP.items():
-        if key.lower() in disease_name.lower():
-            return sev
+def get_severity(label):
+    for keyword, severity in SEVERITY.items():
+        if keyword.lower() in label.lower():
+            return severity
     return "moderate"
 
 
-# ── Output contract ───────────────────────────────────────────────────────────
-
-@dataclass
-class Candidate:
-    label: str
-    confidence: float
+def is_healthy(label):
+    return "healthy" in label.lower()
 
 
-@dataclass
-class CNNPrediction:
-    """What the CNN step hands to the rest of the pipeline."""
-    label: str                                 # top class, e.g. "Tomato___Late_blight"
-    confidence: float                          # top-1 probability, 0..1
-    candidates: list[Candidate] = field(default_factory=list)   # top-k, best first
-    model_source: str = "mock"                 # "tflite" | "keras" | "mock"
-
-    @property
-    def runner_up(self) -> Optional[Candidate]:
-        return self.candidates[1] if len(self.candidates) > 1 else None
-
-    @property
-    def is_healthy(self) -> bool:
-        return "healthy" in self.label.lower()
-
-    @property
-    def severity(self) -> str:
-        return _get_severity(self.label)
-
-    def to_dict(self) -> dict:
-        return {
-            "disease_name": self.label,
-            "confidence": self.confidence,
-            "severity": self.severity,
-            "is_healthy": self.is_healthy,
-            "model_source": self.model_source,
-            "candidates": [asdict(c) for c in self.candidates],
-            "runner_up": asdict(self.runner_up) if self.runner_up else None,
-        }
+# ── Device: use the GPU if there is one ──────────────────────────────────────
+def pick_device():
+    if torch.cuda.is_available():            # NVIDIA GPU
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():    # Apple Silicon GPU
+        return torch.device("mps")
+    return torch.device("cpu")
 
 
-# ── Service ───────────────────────────────────────────────────────────────────
+DEVICE = pick_device()
 
-class MLService:
-    def __init__(self):
-        self.interpreter = None
-        self.keras_model = None
-        self.input_size = INPUT_SIZE
-        self.model_source = "mock"
-        self._load_model()
 
-    # ---- model loading ------------------------------------------------------
+class ModelNotAvailable(Exception):
+    """Raised when the chosen model name is unknown or its .pth file is missing."""
 
-    def _load_model(self):
-        model_path = Path(settings.model_path)
-        if model_path.exists():
-            try:
-                if model_path.suffix == ".tflite":
-                    import tflite_runtime.interpreter as tflite
-                    self.interpreter = tflite.Interpreter(model_path=str(model_path))
-                    self.interpreter.allocate_tensors()
-                    self.model_source = "tflite"
-                    logger.info(f"TFLite model loaded: {model_path}")
-                    return
-            except ImportError:
-                pass
-            try:
-                import tensorflow as tf
-                if model_path.suffix == ".tflite":
-                    self.interpreter = tf.lite.Interpreter(model_path=str(model_path))
-                    self.interpreter.allocate_tensors()
-                    self.model_source = "tflite"
-                    logger.info(f"TFLite (tf) model loaded: {model_path}")
-                    return
-                elif model_path.suffix in (".h5", ".keras"):
-                    self.keras_model = tf.keras.models.load_model(str(model_path))
-                    self.model_source = "keras"
-                    logger.info(f"Keras model loaded: {model_path}")
-                    return
-            except Exception as e:
-                logger.warning(f"Could not load model: {e}")
-        logger.info(
-            f"No CNN model at {model_path} — using deterministic mock predictor. "
-            "Drop a .tflite/.keras file there (or set MODEL_PATH) to enable real inference."
-        )
 
-    # ---- preprocessing ------------------------------------------------------
+# Loaded models are cached here: {"efficientnet": {"network": ..., "class_names": [...], ...}}
+_loaded_models = {}
+# One lock so two requests never load or run a model at the same moment.
+_lock = threading.Lock()
 
-    def _preprocess(self, image_path: str) -> np.ndarray:
-        """Resize to the model's input size and scale to [0, 1], batch of 1.
 
-        Adjust here if your model expects different normalisation
-        (e.g. ImageNet mean/std, or [-1, 1] for MobileNet-style models).
-        """
-        img = Image.open(image_path).convert("RGB").resize(self.input_size)
-        arr = np.array(img, dtype=np.float32) / 255.0
-        return np.expand_dims(arr, axis=0)
+def build_network(arch, num_classes):
+    """Create the empty network with the right number of output classes."""
+    network = timm.create_model(arch, pretrained=False, num_classes=num_classes)
 
-    # ---- inference ----------------------------------------------------------
+    # The DenseNet checkpoint was trained with a Dropout + Linear head
+    # (its weights are saved as "classifier.1.weight"), so we rebuild that head.
+    if arch == "densenet121":
+        in_features = network.classifier.in_features
+        network.classifier = nn.Sequential(nn.Dropout(0.2), nn.Linear(in_features, num_classes))
 
-    def _run_inference(self, image_path: str) -> list[float]:
-        """
-        ╔══════════════════════════════════════════════════════════════════╗
-        ║  CNN INTEGRATION POINT                                            ║
-        ║                                                                   ║
-        ║  Return a list of probabilities, one per DISEASE_CLASSES entry,   ║
-        ║  in the same order, summing to ~1.0.                              ║
-        ║                                                                   ║
-        ║  The TFLite / Keras branches below already do this when a model   ║
-        ║  file is present at settings.model_path. To plug in a different   ║
-        ║  runtime (PyTorch, ONNX, a remote inference server, ...), replace ║
-        ║  or extend this method only. Nothing else needs to change.        ║
-        ╚══════════════════════════════════════════════════════════════════╝
-        """
-        if self.interpreter is not None:
-            arr = self._preprocess(image_path)
-            input_details = self.interpreter.get_input_details()
-            output_details = self.interpreter.get_output_details()
-            self.interpreter.set_tensor(input_details[0]["index"], arr)
-            self.interpreter.invoke()
-            return self.interpreter.get_tensor(output_details[0]["index"])[0].tolist()
+    return network
 
-        if self.keras_model is not None:
-            arr = self._preprocess(image_path)
-            return self.keras_model.predict(arr, verbose=0)[0].tolist()
 
-        return self._mock_probabilities(image_path)
+def _load_model(name):
+    """Load one model from disk (call only while holding _lock)."""
+    if name in _loaded_models:
+        return _loaded_models[name]
 
-    def _mock_probabilities(self, image_path: str) -> list[float]:
-        """Deterministic stand-in: the image bytes seed a fake probability vector.
+    if name not in MODELS:
+        raise ModelNotAvailable(f"Unknown model '{name}'. Choose one of: {', '.join(MODELS)}")
 
-        The same image always yields the same answer, so the UI is testable
-        without a model. Healthy classes are favoured ~30% of the time and a
-        small share of results land in the retrieval service's "unsure" band
-        so that branch of the UI can be exercised too.
-        """
-        with open(image_path, "rb") as f:
-            seed = int(hashlib.md5(f.read()).hexdigest()[:8], 16)
-        rng = random.Random(seed)
+    info = MODELS[name]
+    path = Path(settings.model_dir) / info["file"]
+    if not path.exists():
+        raise ModelNotAvailable(f"Model file not found: {path}")
 
-        # ~85% of demo scans land on a class the treatment KB covers, so the
-        # full pipeline is exercised; the rest show the "built-in guidance" path.
-        pool_top = KB_COVERED_CLASSES if rng.random() < 0.85 else DISEASE_CLASSES
-        top = rng.choice(pool_top)
-        if rng.random() < 0.3:
-            top = rng.choice([c for c in pool_top if c.endswith("___healthy")])
+    # weights_only=True is the safe way to load: it only reads tensors and
+    # plain data, never runs pickled code.
+    checkpoint = torch.load(path, map_location="cpu", weights_only=True)
+    class_names = checkpoint["class_names"]
 
-        roll = rng.random()
-        if roll < 0.12:
-            top_conf = rng.uniform(0.42, 0.58)     # "unsure" band
-        else:
-            top_conf = rng.uniform(0.72, 0.98)
+    network = build_network(info["arch"], len(class_names))
+    network.load_state_dict(checkpoint["model_state_dict"])   # strict: every weight must match
+    network.to(DEVICE)
+    network.eval()   # turns off dropout and uses the saved batch-norm statistics
 
-        probs = [0.0] * len(DISEASE_CLASSES)
-        probs[DISEASE_CLASSES.index(top)] = top_conf
+    _loaded_models[name] = {
+        "network": network,
+        "class_names": class_names,
+        "val_acc": checkpoint.get("val_acc"),
+        "meta": checkpoint.get("model_meta", {}),
+    }
+    logger.info(f"Loaded {info['label']} from {path.name} on {DEVICE} ({len(class_names)} classes)")
+    return _loaded_models[name]
 
-        # Spread the remainder over a few other classes, preferring the same crop
-        # so the runner-up looks plausible (e.g. Early vs Late blight).
-        crop = top.split("___")[0]
-        same_crop = [c for c in DISEASE_CLASSES if c.startswith(crop + "___") and c != top]
-        others = [c for c in DISEASE_CLASSES if c not in same_crop and c != top]
-        same_pick = rng.sample(same_crop, k=min(2, len(same_crop)))
-        other_pick = rng.sample(others, k=min(3, len(others)))
-        # same-crop classes get ~4x the weight so the runner-up is a plausible look-alike
-        pool = [(c, 4.0 * rng.random()) for c in same_pick] + [(c, rng.random()) for c in other_pick]
-        remaining = 1.0 - top_conf
-        total = sum(w for _, w in pool) or 1.0
-        for cls, w in pool:
-            probs[DISEASE_CLASSES.index(cls)] += remaining * (w / total)
-        return probs
 
-    # ---- public API ---------------------------------------------------------
-
-    def predict(self, image_path: str) -> CNNPrediction:
-        source = self.model_source
+def load_all_models():
+    """Load every model at start-up so the first scan is fast. Missing files are only logged."""
+    for name in MODELS:
         try:
-            probs = self._run_inference(image_path)
+            with _lock:
+                _load_model(name)
         except Exception as e:
-            logger.error(f"CNN inference failed, falling back to mock: {e}")
-            probs = self._mock_probabilities(image_path)
-            source = "mock"
-
-        probs = np.asarray(probs, dtype=np.float64).ravel()
-        if probs.shape[0] != len(DISEASE_CLASSES):
-            logger.warning(
-                f"Model returned {probs.shape[0]} classes but DISEASE_CLASSES has "
-                f"{len(DISEASE_CLASSES)}; truncating/padding. Fix the class list!"
-            )
-            fixed = np.zeros(len(DISEASE_CLASSES))
-            n = min(len(fixed), probs.shape[0])
-            fixed[:n] = probs[:n]
-            probs = fixed
-
-        order = np.argsort(probs)[::-1][:TOP_K]
-        candidates = [
-            Candidate(label=DISEASE_CLASSES[int(i)], confidence=round(float(probs[i]), 4))
-            for i in order
-            if probs[i] > 0
-        ]
-        if not candidates:                          # degenerate output; never crash the request
-            candidates = [Candidate(label=DISEASE_CLASSES[0], confidence=0.0)]
-
-        return CNNPrediction(
-            label=candidates[0].label,
-            confidence=candidates[0].confidence,
-            candidates=candidates,
-            model_source=source,
-        )
+            logger.warning(f"Could not load model '{name}': {e}")
 
 
-_ml_service: Optional[MLService] = None
+def predict(image_path, model_name=DEFAULT_MODEL):
+    """
+    Classify one leaf photo.
+
+    Returns a dict like:
+        {
+            "model": "efficientnet",
+            "label": "Papaya_Ringspot",
+            "confidence": 0.9731,
+            "candidates": [{"label": ..., "confidence": ...}, ...],   # top 3, best first
+        }
+    """
+    # 1. Open the photo. exif_transpose rotates phone photos the right way up.
+    image = Image.open(image_path)
+    image = ImageOps.exif_transpose(image).convert("RGB")
+
+    # 2. Turn it into a batch of one: shape [1, 3, 224, 224]
+    batch = preprocess(image).unsqueeze(0)
+
+    with _lock:
+        model = _load_model(model_name)
+        network = model["network"]
+
+        # 3. Forward pass. no_grad() because we are not training.
+        with torch.no_grad():
+            scores = network(batch.to(DEVICE))
+            probabilities = torch.softmax(scores, dim=1)[0].cpu()
+
+    # 4. Keep the top 3 guesses.
+    k = min(TOP_K, len(probabilities))
+    top_probs, top_indexes = torch.topk(probabilities, k)
+
+    candidates = []
+    for prob, index in zip(top_probs.tolist(), top_indexes.tolist()):
+        candidates.append({
+            "label": model["class_names"][index],
+            "confidence": round(prob, 4),
+        })
+
+    return {
+        "model": model_name,
+        "label": candidates[0]["label"],
+        "confidence": candidates[0]["confidence"],
+        "candidates": candidates,
+    }
 
 
-def get_ml_service() -> MLService:
-    global _ml_service
-    if _ml_service is None:
-        _ml_service = MLService()
-    return _ml_service
+def list_models():
+    """Info about each model for the model picker on the scan page."""
+    result = []
+    for name, info in MODELS.items():
+        loaded = _loaded_models.get(name)
+        meta = loaded["meta"] if loaded else {}
+        result.append({
+            "key": name,
+            "label": info["label"],
+            "file": info["file"],
+            "available": loaded is not None,
+            "val_acc": round(loaded["val_acc"], 2) if loaded and loaded["val_acc"] else None,
+            "params_m": meta.get("params_m"),
+            "size_mb": meta.get("fp32_size_mb"),
+            "is_default": name == DEFAULT_MODEL,
+        })
+    return result

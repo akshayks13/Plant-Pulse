@@ -1,6 +1,10 @@
-import os
 from functools import lru_cache
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+# apps/backend/app/config.py -> parents[2] is apps/, where model_file/ lives
+DEFAULT_MODEL_DIR = Path(__file__).resolve().parents[2] / "model_file"
 
 
 class Settings(BaseSettings):
@@ -12,8 +16,10 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     debug: bool = True
     cors_origins: str = "http://localhost:3000,http://localhost:3001"
-    model_path: str = "./model/plant_disease_model.tflite"
     app_name: str = "Plant-Pulse API"
+
+    # Folder with the trained PyTorch checkpoints (*.pth) used by ml_service.py
+    model_dir: str = str(DEFAULT_MODEL_DIR)
 
     # Treatment / RAG service (apps/retrieval). The backend forwards the CNN's
     # class label + confidence here and stores the assembled answer.
@@ -26,7 +32,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-        protected_namespaces = ()   # allow the "model_path" field name
+        protected_namespaces = ()   # allow field names that start with "model_"
 
 
 @lru_cache()

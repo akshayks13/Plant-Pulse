@@ -20,6 +20,7 @@ DATA = Path(__file__).parent / "data"
 VALID_PATHOGEN_TYPES = {
     "fungal", "oomycete", "bacterial", "viral", "phytoplasma",
     "arthropod_pest", "nutrient_deficiency", "abiotic", "none",
+    "algal",            # parasitic green algae (Cephaleuros) - copper is the control
 }
 VALID_CONTROL_CLASSES = {"chemical", "biological", "cultural", "physical"}
 VALID_CURABILITY = {"curable", "manageable", "incurable"}
@@ -34,6 +35,7 @@ ALLOWED_CHEMISTRY = {
     "bacterial":      {"frac"},        # copper only; checked separately below
     "viral":          set(),           # nothing acts on the virus itself
     "arthropod_pest": {"irac"},
+    "algal":          {"frac"},        # copper only; checked separately below
 }
 BACTERICIDES = {"AI_COPPER"}
 VECTOR_CONTROL_OK = {"AI_IMIDACLOPRID", "AI_AZADIRACHTIN", "AI_HORT_OIL"}
@@ -197,6 +199,19 @@ def validate(seed: dict, dis: dict, labels: list[dict]) -> Report:
     else:
         r.warn("healthy_care.yaml not found - healthy classes will have no content")
 
+    # --- product catalog ------------------------------------------------
+    catalog_path = DATA / "product_catalog.yaml"
+    if catalog_path.exists():
+        ai_names = {a["name"] for a in seed["active_ingredients"]}
+        catalog = yaml.safe_load(catalog_path.read_text())
+        for prod in catalog["products"]:
+            if prod["ingredient"] not in ai_names:
+                r.error(f"product_catalog.yaml: {prod['name']!r} has unknown ingredient "
+                        f"{prod['ingredient']!r} (must match an active_ingredient name)")
+            for field in ("name", "maker", "formulation", "product_url"):
+                if not prod.get(field):
+                    r.error(f"product_catalog.yaml: {prod.get('name')!r} is missing {field}")
+
     return r
 
 
@@ -213,6 +228,12 @@ def _check_chemistry(r: Report, did: str, ptype: str, ai_id: str, ai: dict) -> N
                 f"{did}: {ai['name']} is not a bactericide but is recommended "
                 f"against a bacterial pathogen"
             )
+        return
+
+    if ptype == "algal":
+        # An alga is not a fungus: single-site fungicides do not act on it.
+        if ai_id not in BACTERICIDES:
+            r.error(f"{did}: {ai['name']} is recommended against an alga - use copper")
         return
 
     if ptype == "arthropod_pest":

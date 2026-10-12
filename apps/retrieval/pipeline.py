@@ -31,7 +31,7 @@ from dotenv import load_dotenv
 
 from compose import compose, sentences
 from db import get_conn
-from products import find_products
+from products import find_products, load_catalog, product_groups
 from retrieval import retrieve, route_section
 
 load_dotenv()
@@ -153,12 +153,22 @@ def public_disease(d):
 
 def distinguishing_question(a, b):
     """One question a person can answer by looking at the leaf."""
-    sa = sentences(a.get("symptoms") or "")[:1]
-    sb = sentences(b.get("symptoms") or "")[:1]
-    sa = sa[0] if sa else "the symptoms recorded for it"
-    sb = sb[0] if sb else "the symptoms recorded for it"
-    return (f"Look closely at the leaf. Do you see: {sa} (that points to {a['common_name']}) "
-            f"- or - {sb} (that points to {b['common_name']})?")
+    # Two healthy candidates: the only question is which plant it is.
+    if not a.get("symptoms") and not b.get("symptoms"):
+        return f"Which plant is this leaf from: {a['crop']} or {b['crop']}?"
+
+    def what_to_look_for(candidate):
+        """First symptom sentence, lower-cased so it fits mid-sentence."""
+        first = sentences(candidate.get("symptoms") or "")[:1]
+        if not first:
+            return "a clean leaf with no spots or discolouration"     # a healthy class
+        text = first[0].rstrip(".")
+        return text[0].lower() + text[1:]
+
+    look_a = what_to_look_for(a)
+    look_b = what_to_look_for(b)
+    return (f"Look closely at the leaf. Do you see {look_a} (that points to {a['common_name']}), "
+            f"or {look_b} (that points to {b['common_name']})?")
 
 
 def gather_chunks(disease, question):
@@ -229,6 +239,7 @@ def diagnose(class_label, confidence, runner_up=None, is_leaf=None, question=Non
         "treatments": [],
         "diy": [],
         "products": [],
+        "product_groups": [],     # catalog products per active ingredient (normal results only)
         "disclaimer": DISCLAIMER,
     }
 
@@ -303,6 +314,8 @@ def diagnose(class_label, confidence, runner_up=None, is_leaf=None, question=Non
         return base
 
     base["result_type"] = "normal"
+    base["product_groups"] = product_groups(treatments)
+    base["catalog_retrieved_on"] = load_catalog().get("retrieved_on")
     ingredient, kind = pick_product_ingredient(treatments)
     if ingredient:
         shop = find_products(ingredient, kind)

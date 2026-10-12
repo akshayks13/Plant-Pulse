@@ -18,7 +18,7 @@ works: explanations come from a template and the product list is honestly empty.
 
 ```bash
 curl -s localhost:8001/health
-# {"status":"ok","database":true,"kb_chunks":123,"llm_configured":false,"product_search_configured":false}
+# {"status":"ok","database":true,"kb_chunks":200,"llm_configured":false,"product_search_configured":false}
 ```
 
 ## POST /diagnose

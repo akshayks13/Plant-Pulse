@@ -162,3 +162,36 @@ healthy_care:
       Your dataset has no soybean disease class, so there is no specific
       early-warning link. Rotation and clean residue management prevent most
       foliar problems.
+
+  # ── Crops covered by the PyTorch CNN models (apps/model_file) ──
+  - crop_id: betel
+    care: Partial shade, warm humid conditions and a support for the climbing vine. Keep the soil moist but well drained,
+      because waterlogging rots the roots. Water at the base, avoid wetting the leaves late in the day, and pick leaves
+      regularly to keep the vine productive.
+    watch_for: D_BETEL_BACTERIAL_SPOT
+    watch_note: Small water-soaked spots with a yellow halo, especially after rain, are the first sign of bacterial
+      leaf spot. Remove those leaves at once and keep knives and hands clean.
+  - crop_id: guava
+    care: Full sun, good drainage, and light pruning after harvest to keep the canopy open. Feed with a balanced fertiliser
+      plus organic manure, and mulch to hold soil moisture.
+    watch_for: D_GUAVA_ANTHRACNOSE
+    watch_note: Dark sunken spots on leaf tips or young fruit, especially in wet weather, are the first sign of anthracnose.
+      Prune out affected twigs early.
+  - crop_id: hibiscus
+    care: At least six hours of sun, deep regular watering with free drainage, and a balanced fertiliser during the
+      growing season. Prune to keep the bush open and check leaf undersides for whiteflies, aphids and mealybugs.
+    watch_for: D_HIBISCUS_YVM
+    watch_note: Yellow netting along the veins of new leaves is the first sign of yellow vein mosaic, a whitefly-spread
+      virus with no cure. Remove such a plant promptly and never take cuttings from it.
+  - crop_id: mint
+    care: Bright light to partial shade, consistently moist soil and good drainage. Grow it in a pot to contain the
+      spreading roots, harvest often to keep it bushy, and thin crowded stems so the leaves dry quickly.
+    watch_for: D_MINT_RUST
+    watch_note: Tiny orange pustules on the underside of leaves are the first sign of mint rust. Cut those stems straight
+      away, because the fungus can live on in the roots.
+  - crop_id: papaya
+    care: Full sun, warmth and very good drainage, since papaya roots rot quickly in waterlogged soil. Feed regularly,
+      water deeply but not too often, and remove old yellowing lower leaves.
+    watch_for: D_PAPAYA_RINGSPOT
+    watch_note: Yellow mottling on young leaves and leaves narrowing into strings are early signs of papaya ringspot
+      virus. Remove infected plants quickly; there is no cure.

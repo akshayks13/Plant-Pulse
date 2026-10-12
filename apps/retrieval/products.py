@@ -26,8 +26,10 @@ import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote_plus
 
 import httpx
+import yaml
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -174,6 +176,69 @@ def find_products(ingredient, kind="fungicide", max_results=5):
     cache[key] = {"saved_at": time.time(), "result": result}
     save_cache(cache)
     return result
+
+
+# ------------------------------------------------------- product catalog
+#
+# data/product_catalog.yaml lists real products for each active ingredient,
+# found by web search. It works without any API key. Prices are left out on
+# purpose (they change every day); each product links to a live shop search
+# instead, so the user always sees today's price.
+
+CATALOG_FILE = Path(__file__).parent / "data" / "product_catalog.yaml"
+_catalog = None
+
+
+def load_catalog():
+    """Read the catalog file once and keep it in memory."""
+    global _catalog
+    if _catalog is None:
+        _catalog = yaml.safe_load(CATALOG_FILE.read_text())
+    return _catalog
+
+
+def shop_search_url(text):
+    """A Google Shopping search link, e.g. for 'Blitox 50 WP'."""
+    return "https://www.google.com/search?tbm=shop&q=" + quote_plus(text + " buy India")
+
+
+def catalog_products(ingredient):
+    """All catalog products that contain this active ingredient."""
+    found = []
+    for product in load_catalog()["products"]:
+        if product["ingredient"] == ingredient:
+            item = dict(product)
+            item["shop_url"] = shop_search_url(product["name"])
+            found.append(item)
+    return found
+
+
+def product_groups(treatments):
+    """
+    One group per active ingredient in the treatment plan, in priority order:
+        {"ingredient", "used_for", "control_class", "frac_code", "organic_approved",
+         "products": [...], "search_url"}
+    Cultural and physical steps have no ingredient, so they are skipped.
+    """
+    groups = []
+    seen = set()
+    for t in treatments:
+        name = t.get("active_ingredient")
+        if not name or name in seen:
+            continue
+        if t["control_class"] not in ("chemical", "biological"):
+            continue
+        seen.add(name)
+        groups.append({
+            "ingredient": name,
+            "used_for": t["title"],
+            "control_class": t["control_class"],
+            "frac_code": t.get("frac_code"),
+            "organic_approved": t.get("organic_approved"),
+            "products": catalog_products(name),
+            "search_url": shop_search_url(name),
+        })
+    return groups
 
 
 if __name__ == "__main__":

@@ -1153,6 +1153,862 @@ diseases:
     feasibility_score: 5
     safety_notes: Higher concentrations can leave an odorous surface film and encourage saprophytic growth.
     evidence: peer_reviewed
+- disease_id: D_BETEL_ANTHRACNOSE
+  crop_id: betel
+  pathogen_id: P_COLLETOTRICHUM
+  common_name: Anthracnose
+  curability: manageable
+  severity_default: 4
+  symptoms: Small water-soaked spots that enlarge into dark brown to black, round or irregular lesions, often with
+    a yellow halo and mostly along the leaf margin and tip. Lesions merge, the leaf rots and drops, and dark lesions
+    on the stem can make the vine wilt.
+  favorable_conditions: Warm humid weather with frequent rain or overhead watering, around 25-30 C, in shaded and
+    crowded vines.
+  spread_mechanism: Spores are splashed by rain and irrigation water from infected leaves, debris and cuttings.
+  look_alikes:
+  - D_BETEL_BACTERIAL_SPOT
+  treatments:
+  - control_class: cultural
+    title: Remove infected leaves and open up the vines
+    instructions: Pick off and destroy spotted leaves, thin crowded vines for airflow, and water at the base early
+      in the day so leaves dry quickly.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: 'Spray both leaf surfaces at the first sign of spots and again after heavy rain, as the label
+      directs. Betel leaves are chewed fresh: use only a product labelled for betel vine and wait the full pre-harvest
+      interval on the label before picking.'
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper fungicide spray
+    instructions: 'An alternative protectant; cover the foliage well and do not spray in cool wet spells, when copper
+      can scorch leaves. Betel leaves are chewed fresh: use only a product labelled for betel vine and wait the
+      full pre-harvest interval on the label before picking.'
+    priority: 3
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_PSEUDOMONAS
+    title: Pseudomonas fluorescens bio-spray
+    instructions: A biological option that can suppress new leaf infections when applied preventively. It will not
+      stop an established outbreak.
+    priority: 4
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_BETEL_ANTH_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: 'Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves. These leaves are eaten: wash them well and ask your local agriculture office how long to
+      wait after spraying before picking.'
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_BETEL_BACTERIAL_SPOT
+  crop_id: betel
+  pathogen_id: P_XANTHOMONAS_BETLICOLA
+  common_name: Bacterial leaf spot
+  curability: manageable
+  severity_default: 4
+  symptoms: Small water-soaked spots that turn brown to black, angular because the veins limit them, with a bright
+    yellow halo. Spots merge into large dead patches; in humid weather leaves drop and stem lesions make the vine
+    wilt.
+  favorable_conditions: Rainy season, high humidity and warm temperatures, plus wounds from handling or insects.
+  spread_mechanism: Rain splash, irrigation water, contaminated cuttings, knives and hands.
+  look_alikes:
+  - D_BETEL_ANTHRACNOSE
+  treatments:
+  - control_class: cultural
+    title: Sanitation and clean planting material
+    instructions: Remove and destroy infected leaves and vines, take cuttings only from healthy vines, disinfect
+      knives, and avoid working among the vines while they are wet.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper bactericide spray
+    instructions: 'Copper is the only widely available spray with activity on bacteria. It protects healthy leaves
+      but does not cure spotted ones. Betel leaves are chewed fresh: use only a product labelled for betel vine
+      and wait the full pre-harvest interval on the label before picking.'
+    priority: 2
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_PSEUDOMONAS
+    title: Pseudomonas fluorescens preventive spray
+    instructions: Can reduce new infections when used before the rainy season. Not a cure for spotted leaves.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_BETEL_BACT_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: 'Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves. These leaves are eaten: wash them well and ask your local agriculture office how long to
+      wait after spraying before picking.'
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_BETEL_POWDERY_MILDEW
+  crop_id: betel
+  pathogen_id: P_OIDIUM_PIPERIS
+  common_name: Powdery mildew
+  curability: curable
+  severity_default: 2
+  symptoms: White to greyish powdery patches on the underside of leaves with pale yellow areas above them. Affected
+    leaves turn dull, curl and may drop, and lose their market value.
+  favorable_conditions: Dry days with cool nights and high humidity, mostly in the cooler months and in shaded,
+    crowded vines.
+  spread_mechanism: Wind-borne spores from infected leaves.
+  treatments:
+  - control_class: cultural
+    title: Remove infected leaves and open the canopy
+    instructions: Pick off the worst leaves and thin the vines so light and air reach the foliage.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_SULFUR
+    title: Wettable sulfur spray
+    instructions: 'Sulfur is the standard spray for powdery mildew. Apply in the cool part of the day and never
+      in hot weather above about 30 C. Betel leaves are chewed fresh: use only a product labelled for betel vine
+      and wait the full pre-harvest interval on the label before picking.'
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_POTASSIUM_BICARB
+    title: Potassium bicarbonate contact spray
+    instructions: 'Burns back existing mildew colonies on contact; repeat as the label directs. Betel leaves are
+      chewed fresh: use only a product labelled for betel vine and wait the full pre-harvest interval on the label
+      before picking.'
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_BETEL_PM_MILK
+    title: Diluted milk spray
+    ingredients:
+    - item: fresh milk
+      quantity: 100
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 900
+      unit: ml
+      home_available: true
+    steps: Mix 100 ml of fresh milk with 900 ml of water. Spray both sides of the leaves until they are wet, preferably
+      on a sunny morning. Repeat twice a week while the mildew is active. Make a fresh batch each time.
+    prep_time_hours: 0.1
+    efficacy: preventive
+    feasibility_score: 5
+    safety_notes: Test on a few leaves first. A stronger mix can leave a smelly film on the leaves and let mould
+      grow. Rinse the leaves before eating them.
+    evidence: peer_reviewed
+    verified: false
+    source_url: https://www.sciencedirect.com/science/article/abs/pii/S0261219499000460
+- disease_id: D_GUAVA_ALGAL_SPOT
+  crop_id: guava
+  pathogen_id: P_CEPHALEUROS_VIRESCENS
+  common_name: Algal leaf spot
+  curability: manageable
+  severity_default: 2
+  symptoms: Small raised circular spots with a velvety greenish-grey to brown surface on the upper leaf, from a
+    few millimetres up to about 1 cm. Spots can join into patches and older ones turn dark brown to black.
+  favorable_conditions: Hot, humid and rainy weather on shaded, poorly ventilated or nutrient-stressed trees.
+  spread_mechanism: Spores of the alga are splashed by rain and carried by wind from infected leaves and twigs.
+  look_alikes:
+  - D_GUAVA_RED_RUST
+  treatments:
+  - control_class: cultural
+    title: Prune for light and airflow and feed the tree
+    instructions: Thin crowded branches, remove badly affected leaves and fallen debris, and correct nutrient shortages.
+      Vigorous, well-lit trees resist the alga.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper spray
+    instructions: Copper oxychloride is the standard chemical control for algal leaf spot. Spray at the start of
+      the rainy season and repeat as the label directs.
+    priority: 2
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_GUAVA_ALGAL_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_GUAVA_ANTHRACNOSE
+  crop_id: guava
+  pathogen_id: P_COLLETOTRICHUM
+  common_name: Anthracnose
+  curability: manageable
+  severity_default: 4
+  symptoms: Dark brown to black sunken spots on leaves, often starting at the tip and margin, with leaf tips and
+    young shoots dying back. On fruit, sunken dark lesions show pinkish spore masses in wet weather.
+  favorable_conditions: Warm wet weather around 25-30 C with frequent rain, and wounded or over-ripe fruit.
+  spread_mechanism: Rain-splashed spores from infected twigs, leaves, mummified fruit and debris.
+  treatments:
+  - control_class: cultural
+    title: Prune dead twigs and clear fallen fruit
+    instructions: Cut out dead and dying shoots, collect fallen and mummified fruit, and keep the canopy open.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: Spray at flowering and fruit set in wet weather, as the label directs, and respect the pre-harvest
+      interval on fruit.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper fungicide spray
+    instructions: An alternative protectant for the rainy season; avoid spraying in cool wet spells, when copper
+      can scorch leaves.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_GUAVA_ANTH_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_GUAVA_RED_RUST
+  crop_id: guava
+  pathogen_id: P_CEPHALEUROS_VIRESCENS
+  common_name: Red rust
+  curability: manageable
+  severity_default: 3
+  symptoms: Rusty orange-red velvety patches on the upper leaf surface, made of the alga's fruiting hairs. Patches
+    are slightly raised, round to irregular, and can also appear on twigs and fruit.
+  favorable_conditions: Hot, humid and rainy weather on shaded, poorly ventilated or nutrient-stressed trees.
+  spread_mechanism: Spores of the alga are splashed by rain and carried by wind from infected leaves and twigs.
+  look_alikes:
+  - D_GUAVA_ALGAL_SPOT
+  treatments:
+  - control_class: cultural
+    title: Prune for light and airflow and feed the tree
+    instructions: Thin the canopy, remove heavily affected leaves and twigs, and keep the tree well fed. This is
+      the main long-term control.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper spray
+    instructions: Copper oxychloride controls the alga. Spray when the rainy season starts and repeat as the label
+      directs.
+    priority: 2
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_GUAVA_RUST_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_HIBISCUS_BLACK_SPOT
+  crop_id: hibiscus
+  pathogen_id: P_HIBISCUS_LEAF_SPOT
+  common_name: Black spot (fungal leaf spot)
+  curability: manageable
+  severity_default: 3
+  symptoms: Round to irregular dark brown to black spots, sometimes with a yellow halo, scattered over the leaf.
+    Heavily spotted leaves turn yellow and drop early.
+  favorable_conditions: Warm, wet or humid weather, leaves that stay wet overnight, and crowded plants.
+  spread_mechanism: Spores splash from infected and fallen leaves in rain and overhead watering.
+  look_alikes:
+  - D_HIBISCUS_RUST
+  treatments:
+  - control_class: cultural
+    title: Remove spotted and fallen leaves and water at the base
+    instructions: Pick off spotted leaves, clear fallen ones from under the plant, prune for airflow, and avoid
+      wetting the foliage.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: Spray new growth at the first sign of spots and repeat after rain, as the label directs.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper fungicide spray
+    instructions: An alternative protectant; do not spray in hot sun or cool wet spells.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_HIB_SPOT_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_HIBISCUS_RUST
+  crop_id: hibiscus
+  pathogen_id: P_KUEHNEOLA_MALVICOLA
+  common_name: Rust
+  curability: manageable
+  severity_default: 3
+  symptoms: Small orange to yellow-brown powdery pustules on the underside of leaves, with matching yellow spots
+    on the upper surface. Badly infected leaves turn yellow and fall.
+  favorable_conditions: Warm humid weather with long periods of leaf wetness.
+  spread_mechanism: Wind-blown and splashed spores from pustules on infected leaves.
+  look_alikes:
+  - D_HIBISCUS_BLACK_SPOT
+  treatments:
+  - control_class: cultural
+    title: Remove infected leaves early
+    instructions: Pick off and bag leaves with pustules as soon as you see them and clear fallen leaves.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_PROPICONAZOLE
+    title: Triazole fungicide spray
+    instructions: A systemic rust fungicide. Rotate with a product from a different group and do not apply it twice
+      in a row.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: Protects new leaves from fresh infections; use as a rotation partner.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_HIB_RUST_NEEM
+    title: Neem oil spray
+    ingredients:
+    - item: neem oil
+      quantity: 15
+      unit: ml
+      home_available: false
+    - item: soap solution
+      quantity: 1
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Mix 1 ml of soap solution into a little warm water. Add 15 ml of neem oil and stir hard until the mix
+      turns milky. Top it up with water to make 1 litre. Spray both sides of the leaves in the evening. Shake the
+      sprayer often and use the mix the same day, because the oil separates.
+    prep_time_hours: 0.25
+    efficacy: preventive
+    feasibility_score: 4
+    safety_notes: Do not spray in hot sun or above about 32 C, or within two weeks of a sulphur spray. Test on a
+      few leaves first.
+    evidence: anecdotal
+    verified: false
+    source_url: https://agritech.tnau.ac.in/itk/itk_crop_traditional_pesticides.html
+- disease_id: D_HIBISCUS_YVM
+  crop_id: hibiscus
+  pathogen_id: P_HIBISCUS_YVM
+  common_name: Yellow vein mosaic
+  curability: incurable
+  severity_default: 4
+  symptoms: Bright yellow netting along the veins of young leaves that spreads into a yellow mosaic. Leaves may
+    become smaller and curl, and the plant flowers poorly.
+  favorable_conditions: High whitefly populations in warm, dry weather, with infected okra, cotton or malvaceous
+    weeds nearby.
+  spread_mechanism: Transmitted by the whitefly Bemisia tabaci and carried in cuttings or grafts from infected plants.
+    Not spread by touch or seed.
+  treatments:
+  - control_class: cultural
+    title: There is no cure - remove the plant
+    instructions: An infected plant cannot recover and is a source of virus for whiteflies. Remove and bag it, and
+      never take cuttings from it.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: physical
+    title: Whitefly monitoring and exclusion
+    instructions: Use yellow sticky traps, check leaf undersides regularly, and remove malvaceous weeds nearby.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: biological
+    ai_id: AI_AZADIRACHTIN
+    title: Neem-based whitefly suppression
+    instructions: Reduces whitefly numbers on nearby healthy plants. It has no effect on an already infected plant.
+    priority: 3
+    evidence: extension_guideline
+- disease_id: D_MINT_LEAF_SPOT
+  crop_id: mint
+  pathogen_id: P_MINT_LEAF_SPOT
+  common_name: Leaf spot
+  curability: manageable
+  severity_default: 3
+  symptoms: Small brown to dark brown spots, often with a lighter centre and a yellow border. Spots enlarge and
+    merge, and badly affected leaves yellow and drop.
+  favorable_conditions: Warm humid weather, dense planting and foliage kept wet by overhead watering.
+  spread_mechanism: Rain and irrigation splash spores from infected leaves and debris.
+  look_alikes:
+  - D_MINT_RUST
+  treatments:
+  - control_class: cultural
+    title: Cut out affected stems and keep foliage dry
+    instructions: Harvest or cut back spotted stems, thin the clump, and water the soil rather than the leaves.
+      For a kitchen plant this is usually enough.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: 'Only for a large planting with spreading spots. Mint is eaten fresh: use only a product labelled
+      for mint or culinary herbs and wait the full pre-harvest interval on the label before harvesting.'
+    priority: 2
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_MINT_SPOT_NEEM
+    title: Neem oil spray
+    ingredients:
+    - item: neem oil
+      quantity: 15
+      unit: ml
+      home_available: false
+    - item: soap solution
+      quantity: 1
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Mix 1 ml of soap solution into a little warm water. Add 15 ml of neem oil and stir hard until the mix
+      turns milky. Top it up with water to make 1 litre. Spray both sides of the leaves in the evening. Shake the
+      sprayer often and use the mix the same day, because the oil separates.
+    prep_time_hours: 0.25
+    efficacy: preventive
+    feasibility_score: 4
+    safety_notes: Do not spray in hot sun or above about 32 C, or within two weeks of a sulphur spray. Test on a
+      few leaves first. Rinse the leaves well before eating them.
+    evidence: anecdotal
+    verified: false
+    source_url: https://agritech.tnau.ac.in/itk/itk_crop_traditional_pesticides.html
+- disease_id: D_MINT_POWDERY_MILDEW
+  crop_id: mint
+  pathogen_id: P_GOLOVINOMYCES_MINT
+  common_name: Powdery mildew
+  curability: curable
+  severity_default: 2
+  symptoms: White powdery growth on the upper leaf surface and on stems; leaves later yellow, curl and dry up.
+  favorable_conditions: Warm days, cool nights and high humidity with dry leaf surfaces, in crowded or shaded plants.
+  spread_mechanism: Wind-borne spores.
+  treatments:
+  - control_class: cultural
+    title: Cut back affected stems and improve airflow
+    instructions: Trim mildewed stems, thin the clump, and move pots to a brighter, airier spot.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_SULFUR
+    title: Wettable sulfur spray
+    instructions: 'The standard powdery mildew spray. Never apply above about 30 C. Mint is eaten fresh: use only
+      a product labelled for mint or culinary herbs and wait the full pre-harvest interval on the label before harvesting.'
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_POTASSIUM_BICARB
+    title: Potassium bicarbonate contact spray
+    instructions: 'Clears existing mildew on contact; repeat as the label directs. Mint is eaten fresh: use only
+      a product labelled for mint or culinary herbs and wait the full pre-harvest interval on the label before harvesting.'
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_MINT_PM_MILK
+    title: Diluted milk spray
+    ingredients:
+    - item: fresh milk
+      quantity: 100
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 900
+      unit: ml
+      home_available: true
+    steps: Mix 100 ml of fresh milk with 900 ml of water. Spray both sides of the leaves until they are wet, preferably
+      on a sunny morning. Repeat twice a week while the mildew is active. Make a fresh batch each time.
+    prep_time_hours: 0.1
+    efficacy: preventive
+    feasibility_score: 5
+    safety_notes: Test on a few leaves first. A stronger mix can leave a smelly film on the leaves and let mould
+      grow. Rinse the leaves before eating them.
+    evidence: peer_reviewed
+    verified: false
+    source_url: https://www.sciencedirect.com/science/article/abs/pii/S0261219499000460
+- disease_id: D_MINT_RUST
+  crop_id: mint
+  pathogen_id: P_PUCCINIA_MENTHAE
+  common_name: Rust
+  curability: manageable
+  severity_default: 3
+  symptoms: Small orange to cinnamon-brown powdery pustules on the underside of leaves and on stems, and swollen,
+    distorted shoots in spring. Leaves yellow and drop.
+  favorable_conditions: Mild humid weather with long periods of leaf wetness.
+  spread_mechanism: Wind-blown spores; the fungus also survives in infected rhizomes, so shoots from infected roots
+    can already be diseased.
+  look_alikes:
+  - D_MINT_LEAF_SPOT
+  treatments:
+  - control_class: cultural
+    title: Remove infected shoots and replant from clean rhizomes
+    instructions: Cut and destroy infected stems at soil level. If rust returns every year, replant from healthy
+      rhizomes in a fresh pot or spot.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_PROPICONAZOLE
+    title: Triazole fungicide spray
+    instructions: 'Only for a large planting. Mint is eaten fresh: use only a product labelled for mint or culinary
+      herbs and wait the full pre-harvest interval on the label before harvesting.'
+    priority: 2
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_MINT_RUST_NEEM
+    title: Neem oil spray
+    ingredients:
+    - item: neem oil
+      quantity: 15
+      unit: ml
+      home_available: false
+    - item: soap solution
+      quantity: 1
+      unit: ml
+      home_available: true
+    - item: water
+      quantity: 1
+      unit: L
+      home_available: true
+    steps: Mix 1 ml of soap solution into a little warm water. Add 15 ml of neem oil and stir hard until the mix
+      turns milky. Top it up with water to make 1 litre. Spray both sides of the leaves in the evening. Shake the
+      sprayer often and use the mix the same day, because the oil separates.
+    prep_time_hours: 0.25
+    efficacy: preventive
+    feasibility_score: 4
+    safety_notes: Do not spray in hot sun or above about 32 C, or within two weeks of a sulphur spray. Test on a
+      few leaves first. Rinse the leaves well before eating them.
+    evidence: anecdotal
+    verified: false
+    source_url: https://agritech.tnau.ac.in/itk/itk_crop_traditional_pesticides.html
+- disease_id: D_PAPAYA_BLACK_SPOT
+  crop_id: papaya
+  pathogen_id: P_ASPERISPORIUM_CARICAE
+  common_name: Black spot
+  curability: manageable
+  severity_default: 3
+  symptoms: Small dark brown to black, slightly raised spots on the underside of older leaves, with pale or yellow
+    areas on the upper surface. Heavily spotted leaves yellow and drop, and small round black spots can appear on
+    the fruit skin.
+  favorable_conditions: Warm humid weather with frequent rain.
+  spread_mechanism: Airborne and rain-splashed spores from infected older leaves.
+  look_alikes:
+  - D_PAPAYA_LEAF_BLIGHT
+  treatments:
+  - control_class: cultural
+    title: Remove older spotted leaves
+    instructions: Cut off and destroy the lower, heavily spotted leaves to reduce the spore load.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: Spray the leaf undersides as the label directs and respect the pre-harvest interval on fruit.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_COPPER
+    title: Copper fungicide spray
+    instructions: An alternative protectant for wet periods.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_PAPAYA_SPOT_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_PAPAYA_LEAF_BLIGHT
+  crop_id: papaya
+  pathogen_id: P_PAPAYA_LEAF_BLIGHT
+  common_name: Leaf blight
+  curability: manageable
+  severity_default: 4
+  symptoms: Brown to dark brown irregular lesions, often starting at the leaf margin and tip, that expand and merge
+    until large parts of the leaf dry up and look scorched. Larger lesions may show concentric rings.
+  favorable_conditions: Warm humid weather with rain, poor airflow and stressed plants.
+  spread_mechanism: Wind and rain-splashed spores from infected leaves and debris.
+  look_alikes:
+  - D_PAPAYA_BLACK_SPOT
+  treatments:
+  - control_class: cultural
+    title: Remove blighted leaves and clear debris
+    instructions: Cut off badly blighted leaves, clear fallen leaves, and avoid wetting the foliage.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_MANCOZEB
+    title: Protectant fungicide spray
+    instructions: Spray at the first lesions and after rain as the label directs.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: chemical
+    ai_id: AI_AZOXYSTROBIN
+    title: QoI strobilurin spray
+    instructions: A rotation partner for the protectant. Never apply it twice in a row.
+    priority: 3
+    evidence: extension_guideline
+  diy:
+  - diy_id: DIY_PAPAYA_BLIGHT_BORDEAUX
+    title: 1% Bordeaux mixture
+    ingredients:
+    - item: copper sulphate (blue crystals)
+      quantity: 10
+      unit: g
+      home_available: false
+    - item: lime (slaked lime / chuna)
+      quantity: 10
+      unit: g
+      home_available: true
+    - item: water for the copper sulphate
+      quantity: 500
+      unit: ml
+      home_available: true
+    - item: water for the lime
+      quantity: 500
+      unit: ml
+      home_available: true
+    steps: Dissolve 10 g of copper sulphate in 500 ml of water in a plastic, earthen or wooden container, never
+      metal. Mix 10 g of lime into another 500 ml of water in a second container. Slowly pour the copper sulphate
+      solution into the lime solution while stirring all the time. Dip a polished knife in the mixture for one minute
+      and take it out. If the blade has a reddish-brown coating, stir in a little more lime and test again until
+      the blade stays clean. Spray both sides of the leaves the same day, because the mixture does not keep.
+    prep_time_hours: 0.5
+    efficacy: preventive
+    feasibility_score: 3
+    safety_notes: Copper sulphate is poisonous if swallowed and irritates skin and eyes, so wear gloves, keep it
+      away from children and pets, and never use kitchen utensils. Do not spray in cool, wet weather, when copper
+      can scorch leaves.
+    evidence: extension_guideline
+    verified: false
+    source_url: https://agritech.tnau.ac.in/horticulture/horti_pcrops_coconut_dis_mgnt.html
+- disease_id: D_PAPAYA_RINGSPOT
+  crop_id: papaya
+  pathogen_id: P_PRSV
+  common_name: Papaya ringspot virus
+  curability: incurable
+  severity_default: 5
+  symptoms: Yellow mosaic and mottling on young leaves, with leaves becoming distorted, puckered and narrow like
+    shoestrings. Dark green rings appear on fruit and oily streaks on stems; plants are stunted and the yield collapses.
+  favorable_conditions: High aphid activity, often after rains, with infected papaya or cucurbits nearby.
+  spread_mechanism: Aphids spread it in a non-persistent way, passing it on within seconds of probing, so insecticides
+    cannot stop transmission. Not seed-borne.
+  treatments:
+  - control_class: cultural
+    title: There is no cure - remove infected plants
+    instructions: Uproot and destroy infected plants as soon as symptoms appear to remove the source of virus.
+    priority: 1
+    evidence: extension_guideline
+  - control_class: cultural
+    title: Start clean and keep away from cucurbits
+    instructions: Raise seedlings under insect-proof net, do not plant next to cucumbers, melons or squash, and
+      use tolerant varieties where available.
+    priority: 2
+    evidence: extension_guideline
+  - control_class: physical
+    title: Barrier crops and aphid monitoring
+    instructions: A tall barrier crop such as maize around the plot and yellow sticky traps reduce how many aphids
+      land on the papaya.
+    priority: 3
+    evidence: extension_guideline
 healthy_classes:
 - disease_id: H_APPLE
   crop_id: apple
@@ -1190,3 +2046,18 @@ healthy_classes:
 - disease_id: H_TOMATO
   crop_id: tomato
   common_name: Healthy tomato foliage
+- disease_id: H_BETEL
+  crop_id: betel
+  common_name: Healthy betel leaf
+- disease_id: H_GUAVA
+  crop_id: guava
+  common_name: Healthy guava foliage
+- disease_id: H_HIBISCUS
+  crop_id: hibiscus
+  common_name: Healthy hibiscus foliage
+- disease_id: H_MINT
+  crop_id: mint
+  common_name: Healthy mint foliage
+- disease_id: H_PAPAYA
+  crop_id: papaya
+  common_name: Healthy papaya foliage

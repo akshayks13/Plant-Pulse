@@ -50,7 +50,9 @@ extension passages in `data/external_docs.yaml`). The first `docs` run
 downloads the embedding model (about 130 MB) from Hugging Face; later runs use
 the cache.
 
-Expected end state: 38 disease rows, 82 treatments, about 123 embedded chunks.
+Expected end state: 58 disease rows (41 diseases + 17 healthy classes), 124 treatments, about
+200 embedded chunks. That is the original 38 PlantVillage classes plus the 20 classes of the
+PyTorch CNN models in `apps/model_file` (betel, guava, hibiscus, mint, papaya).
 
 ## 2. Run the API
 
@@ -64,7 +66,7 @@ Check it is alive:
 
 ```bash
 curl -s localhost:8001/health
-# {"status":"ok","database":true,"kb_chunks":123,"llm_configured":false,"product_search_configured":false}
+# {"status":"ok","database":true,"kb_chunks":200,"llm_configured":false,"product_search_configured":false}
 
 curl -s -X POST localhost:8001/diagnose -H 'content-type: application/json' \
   -d '{"class_label":"Tomato_Late_blight","confidence":0.91}' | jq
@@ -128,18 +130,43 @@ user guide prescribes. An *unsure* answer shows the candidates and the
 distinguishing question; when the user confirms one, the backend looks up its
 class label via `GET /disease/{id}` and re-runs `/diagnose` with it.
 
-The backend's ML service names classes like `Tomato___Late_blight`; the
-knowledge base uses PlantVillage spelling like `Tomato_Late_blight`. This
-service normalises both, so backend labels are sent as-is. Classes the
-knowledge base does not cover (Aloe Vera, Money Plant, Snake Plant, Rose,
-Tomato Leaf Miner) return `404 unknown class_label`; the backend records
-`retrieval_status: unsupported_class` and the web app shows its built-in
-guidance for those.
+The backend's CNN models output the 20 labels in `data/class_labels.csv` marked
+`plantpulse20` (for example `Papaya_Ringspot`, `Beetel_Healthy`), and they are sent
+as-is. The label lookup also normalises spelling (underscores, commas, case), so
+PlantVillage-style labels such as `Tomato___Late_blight` still resolve. A label the
+knowledge base does not know returns `404 unknown class_label`; the backend records
+`retrieval_status: unsupported_class`.
+
+The entries for the 20 CNN classes follow the same curation rule as the rest: no
+numeric doses (every dose shows as "no verified dose" until a label or extension
+source is added), viral diseases (papaya ringspot, hibiscus yellow vein mosaic)
+are `incurable` with removal and vector advice only, and treatments for betel and
+mint carry a pre-harvest-interval warning because the leaves are eaten. Guava
+algal spot and red rust are caused by an alga, so the schema gained an `algal`
+pathogen type and the validator only allows copper against it. **Have an
+agronomist review these entries before relying on them.**
 
 If this service is down, scans still succeed: the diagnosis is stored with
 `retrieval_status: unavailable` and the results page offers a Retry button
 (`POST /diagnosis/{id}/retrieve`). Set `RETRIEVAL_URL` in `apps/backend/.env`
 if it runs somewhere other than `http://localhost:8001`.
+
+### Products and home remedies
+
+- **Products to buy** come from `data/product_catalog.yaml`: real products for each
+  active ingredient, found by web search (date in the file). `/diagnose` returns them
+  as `product_groups` for treatable (`normal`) results; incurable diseases get none.
+  Prices are not stored; each product carries a live shop-search link instead. To add
+  a product, add an entry whose `ingredient` matches an `active_ingredient` name
+  exactly; `make validate` checks this. The optional `SERPER_API_KEY` live search
+  still works as before and shows up as `products`.
+- **Home remedies (DIY)** live under `diy:` in `data/diseases.yaml`. The 20 CNN
+  classes use three sourced recipes: 1% Bordeaux mixture (TNAU), diluted milk spray
+  (Bettiol 1999) and neem oil spray (TNAU traditional practice). Viral diseases have
+  none on purpose. Each recipe's `steps` text is shown as numbered steps, one per
+  sentence.
+- After editing either file, run `make build` and press **Refresh treatment plan** on
+  older scans: each scan stores a snapshot of its plan.
 
 ## 6. Files
 

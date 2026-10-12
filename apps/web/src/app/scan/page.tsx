@@ -2,23 +2,31 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { predictDisease, retrieveTreatment, isAuthenticated, type Diagnosis } from '@/lib/api';
+import { predictDisease, retrieveTreatment, getModels, isAuthenticated, type Diagnosis, type ModelInfo, type ModelKey } from '@/lib/api';
 import { mockPredict, isMockMode } from '@/lib/mockDiagnosis';
 import { prettyLabel, modelSourceLabel, RESULT_META, RETRIEVAL_STATUS_META } from '@/lib/pipeline';
 import styles from './scan.module.css';
 
 /**
  * Scan flow (each stage is a real round-trip, not a timer):
- *   1. upload   → POST /diagnosis/predict (run_retrieval=false)  → CNN label + confidence
+ *   0. on load  → GET  /diagnosis/models                          → models for the picker
+ *   1. upload   → POST /diagnosis/predict (model, run_retrieval=false) → CNN label + confidence
  *   2. retrieve → POST /diagnosis/{id}/retrieve                  → treatment plan
  *   3. done     → /results/{id}
  */
 type Stage = 'idle' | 'classifying' | 'retrieving' | 'done';
 
+// A plain-English line for each model in the picker (no technical numbers).
+const MODEL_BLURB: Record<string, string> = {
+  efficientnet: 'Balanced speed and accuracy',
+  mobilenet: 'Lightest and quickest',
+  densenet: 'Largest model, takes a little longer',
+};
+
 const STEPS: { key: Exclude<Stage, 'idle'> | 'upload'; title: string; sub: string }[] = [
-  { key: 'upload',      title: 'Upload image',        sub: 'Sent securely to the API' },
-  { key: 'classifying', title: 'CNN classification',  sub: 'Model names the disease + confidence' },
-  { key: 'retrieving',  title: 'Treatment retrieval', sub: 'Knowledge base builds the plan' },
+  { key: 'upload',      title: 'Upload photo',             sub: 'Sent securely' },
+  { key: 'classifying', title: 'Identify the disease',     sub: 'The model names the disease' },
+  { key: 'retrieving',  title: 'Build the treatment plan', sub: 'Steps, products and home remedies' },
 ];
 
 export default function ScanPage() {
@@ -33,13 +41,36 @@ export default function ScanPage() {
   const [final, setFinal] = useState<Diagnosis | null>(null);   // after step 2
   const [error, setError] = useState('');
 
+  // Model picker: the list comes from the backend so it only offers models it can load.
+  const [models, setModels] = useState<ModelInfo[]>([]);
+  const [model, setModel] = useState<ModelKey>('efficientnet');
+  const [modelsError, setModelsError] = useState('');
+
   const loading = stage === 'classifying' || stage === 'retrieving';
+  const selectedModel = models.find(m => m.key === model);
 
   useEffect(() => {
     if (!isAuthenticated()) {
       router.replace('/auth/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getModels()
+      .then(data => {
+        if (cancelled) return;
+        setModels(data.models);
+        // start on the server's default model, or the first one that loaded
+        const start = data.models.find(m => m.key === data.default && m.available)
+          || data.models.find(m => m.available);
+        if (start) setModel(start.key);
+      })
+      .catch(() => {
+        if (!cancelled) setModelsError('Could not load the model list. Is the backend running?');
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   function acceptFile(f: File) {
     setError('');
@@ -79,7 +110,7 @@ export default function ScanPage() {
     let step1: Diagnosis;
     try {
       setStage('classifying');
-      step1 = await predictDisease(file, { runRetrieval: false });
+      step1 = await predictDisease(file, { model, runRetrieval: false });
       setCnn(step1);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Scan failed. Try again.');
@@ -95,7 +126,7 @@ export default function ScanPage() {
       setStage('retrieving');
       step2 = await retrieveTreatment(step1.id);
     } catch {
-      step2 = { ...step1, retrieval_status: 'unavailable', retrieval_note: 'Treatment service could not be reached.' };
+      step2 = { ...step1, retrieval_status: 'unavailable', retrieval_note: null };
     }
     setFinal(step2);
     setStage('done');
@@ -124,7 +155,7 @@ export default function ScanPage() {
 
         <div className={styles.header}>
           <h1 className={styles.title}>Scan a plant</h1>
-          <p className={styles.sub}>Upload a clear photo of one affected leaf — the CNN names the disease, then the knowledge base builds a treatment plan.</p>
+          <p className={styles.sub}>Upload a clear photo of one affected leaf. We&apos;ll identify the disease and build a treatment plan for it.</p>
         </div>
 
         <div className={styles.layout}>
@@ -158,7 +189,7 @@ export default function ScanPage() {
                       <div className={styles.scanLine} />
                       <span className={styles.scanPill}>
                         <span className={styles.scanDot} />
-                        {stage === 'classifying' ? 'Classifying with CNN…' : 'Retrieving treatment plan…'}
+                        {stage === 'classifying' ? 'Identifying the disease…' : 'Building the treatment plan…'}
                       </span>
                     </div>
                   )}
@@ -185,6 +216,37 @@ export default function ScanPage() {
 
           <div className={styles.optionsCol}>
 
+            {/* ── Model picker ───────────────────────────────────────── */}
+            <div className={styles.modelCard}>
+              <h3 className={styles.optionsTitle}>Choose a model</h3>
+              <p className={styles.optionsDesc}>Not sure? Keep the recommended one.</p>
+              {modelsError && <p className={styles.modelError}>{modelsError}</p>}
+              <div className={styles.modelList} role="radiogroup" aria-label="Model">
+                {models.map(m => (
+                  <button
+                    key={m.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={model === m.key}
+                    className={`${styles.modelOption} ${model === m.key ? styles.modelActive : ''}`}
+                    onClick={() => setModel(m.key)}
+                    disabled={!m.available || loading || stage === 'done'}
+                  >
+                    <span className={styles.modelRadio} />
+                    <span className={styles.modelText}>
+                      <span className={styles.modelName}>
+                        {m.label}
+                        {m.is_default && <span className={styles.modelTag}>recommended</span>}
+                      </span>
+                      <span className={styles.modelMeta}>
+                        {m.available ? (MODEL_BLURB[m.key] || '') : 'Not available right now'}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* ── Pipeline card ─────────────────────────────────────── */}
             <div className={styles.pipelineCard}>
               <h3 className={styles.optionsTitle}>How your scan is processed</h3>
@@ -207,7 +269,9 @@ export default function ScanPage() {
                                     ? RESULT_META[final.result_type].label
                                     : RETRIEVAL_STATUS_META[final.retrieval_status].label}
                                 </span>
-                              : s.sub}
+                              : i === 1 && selectedModel
+                                ? `${selectedModel.label} will identify the disease`
+                                : s.sub}
                         </span>
                       </div>
                     </li>
@@ -226,9 +290,9 @@ export default function ScanPage() {
               </ul>
             </div>
 
-            <button className={styles.scanBtn} onClick={handleScan} disabled={!file || loading || stage === 'done'}>
+            <button className={styles.scanBtn} onClick={handleScan} disabled={!file || loading || stage === 'done' || (models.length > 0 && !selectedModel?.available)}>
               {loading ? (
-                <><span className={styles.spinner} />{stage === 'classifying' ? 'Classifying…' : 'Retrieving…'}</>
+                <><span className={styles.spinner} />{stage === 'classifying' ? 'Identifying…' : 'Building plan…'}</>
               ) : stage === 'done' ? (
                 <>Opening results…</>
               ) : (

@@ -11,7 +11,8 @@ DROP TYPE IF EXISTS pathogen_type, control_class, curability,
 
 CREATE TYPE pathogen_type AS ENUM (
     'fungal', 'oomycete', 'bacterial', 'viral', 'phytoplasma',
-    'arthropod_pest', 'nutrient_deficiency', 'abiotic', 'none'
+    'arthropod_pest', 'nutrient_deficiency', 'abiotic', 'none',
+    'algal'            -- parasitic green algae, e.g. Cephaleuros (guava algal spot / red rust)
 );
 
 CREATE TYPE control_class AS ENUM ('chemical', 'biological', 'cultural', 'physical');
@@ -56,7 +57,10 @@ CREATE TABLE disease (
     favorable_conditions  text,
     spread_mechanism      text,
     look_alikes           text[] NOT NULL DEFAULT '{}',  -- other disease_ids confusable by eye
-    UNIQUE (crop_id, pathogen_id)
+    -- One organism can cause two named conditions on the same crop
+    -- (guava 'algal spot' and 'red rust' are both Cephaleuros virescens),
+    -- so the name is part of the key. The same disease still cannot be listed twice.
+    UNIQUE (crop_id, pathogen_id, common_name)
 );
 
 -- The only place the CNN's vocabulary touches the KB.

@@ -132,7 +132,20 @@ export type Candidate = { label: string; confidence: number };
 export type ResultType = 'normal' | 'unsure' | 'incurable' | 'healthy';
 export type RetrievalStatus = 'pending' | 'ok' | 'unsupported_class' | 'unavailable' | 'error';
 export type SourceTier = 'label' | 'research' | 'none';
-export type ModelSource = 'tflite' | 'keras' | 'mock';
+/** Keys of the CNN models the backend can run (see GET /diagnosis/models). */
+export type ModelKey = 'efficientnet' | 'mobilenet' | 'densenet';
+export type ModelSource = ModelKey | 'mock';
+
+export type ModelInfo = {
+  key: ModelKey;
+  label: string;          // e.g. "EfficientNet-B0"
+  file: string;           // checkpoint file name
+  available: boolean;     // false if the .pth file is missing on the server
+  val_acc: number | null; // validation accuracy (%) saved in the checkpoint
+  params_m: number | null;
+  size_mb: number | null;
+  is_default: boolean;
+};
 
 export type RetrievalDisease = {
   disease_id: string;
@@ -229,6 +242,29 @@ export type Product = {
   retrieved_at: string;
 };
 
+/** A real product found by web search (apps/retrieval/data/product_catalog.yaml). */
+export type CatalogProduct = {
+  ingredient: string;
+  name: string;
+  maker: string;
+  formulation: string;
+  product_url: string;       // maker page = our source
+  seller_url?: string;       // one online shop that lists it
+  shop_url: string;          // live shop search, for today's price
+  note?: string;
+};
+
+/** Products grouped by the active ingredient they contain. */
+export type ProductGroup = {
+  ingredient: string;
+  used_for: string;          // title of the treatment that needs it
+  control_class: string;
+  frac_code: string | null;
+  organic_approved: boolean | null;
+  products: CatalogProduct[];
+  search_url: string;        // shop search for the ingredient itself
+};
+
 export type RetrievalSummary = {
   chunks_used: { chunk_id: number; section: string; score: number; source_name: string | null }[];
   best_score: number;
@@ -255,6 +291,8 @@ export type RetrievalResult = {
   // normal
   product_note?: string;
   product_ingredient?: string;
+  product_groups?: ProductGroup[];
+  catalog_retrieved_on?: string | null;
   products_searched_at?: string | null;
   // healthy
   care?: { care_notes: string | null; watch_for: string | null };
@@ -291,11 +329,12 @@ export type Diagnosis = {
  */
 export async function predictDisease(
   file: File,
-  opts: { cropType?: string; runRetrieval?: boolean } = {},
+  opts: { model?: ModelKey; cropType?: string; runRetrieval?: boolean } = {},
 ) {
   const token = getToken();
   const form = new FormData();
   form.append('file', file);
+  if (opts.model) form.append('model', opts.model);
   if (opts.cropType) form.append('crop_type', opts.cropType);
   form.append('run_retrieval', String(opts.runRetrieval ?? true));
   const res = await safeFetch(`${BASE_URL}/diagnosis/predict`, {
@@ -323,6 +362,11 @@ export async function retrieveTreatment(
     method: 'POST',
     body: JSON.stringify(body),
   });
+}
+
+/** The CNN models the user can choose from on the scan page. */
+export async function getModels() {
+  return request<{ models: ModelInfo[]; default: ModelKey }>('/diagnosis/models');
 }
 
 export async function getDiagnosisHistory(page = 1, size = 20) {
