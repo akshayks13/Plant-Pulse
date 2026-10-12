@@ -1,0 +1,8 @@
+psycopg[binary]
+pyyaml
+sentence-transformers
+python-dotenv
+fastapi
+uvicorn
+httpx
+anthropic

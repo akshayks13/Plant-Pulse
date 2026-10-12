@@ -1,0 +1,32 @@
+name: plantpulse
+
+services:
+  db:
+    # Stock `postgres` has no pgvector. This image is the official pgvector
+    # build and includes contrib modules, so pg_trgm is available too.
+    image: pgvector/pgvector:pg17
+    container_name: plantpulse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plantpulse
+      POSTGRES_USER: plantpulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devonly}
+      # Speeds up initdb noticeably and is fine for a dev database.
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    ports:
+      # Bound to localhost only. Do not publish 5432 to 0.0.0.0.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Read-only mount so `make schema` / `make psql` can reach the SQL files
+      # from inside the container without copying them in.
+      - ./:/repo:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plantpulse -d plantpulse"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    shm_size: 256mb
+
+volumes:
+  pgdata:

@@ -85,6 +85,9 @@ async def list_diagnoses(
             "created_at": str(d.created_at),
             "user_id": d.user_id,
             "user_email": row.user_email,
+            "model_source": d.model_source,
+            "result_type": d.result_type,
+            "retrieval_status": d.retrieval_status,
         })
 
     return {"items": items, "total": total, "page": page, "size": size}
