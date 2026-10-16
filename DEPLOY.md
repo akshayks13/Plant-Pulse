@@ -21,15 +21,14 @@ git checkout deploy && git push -u origin deploy
 
 1. Sign up at neon.com (GitHub login works) and create a project named `plantpulse` (Postgres 17, region closest to you).
 2. Open **Connect** and copy the connection string. It looks like `postgresql://USER:PASSWORD@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require`.
-3. From the repo root, load the knowledge base (a few minutes; it computes embeddings on your computer):
+3. Save the connection string in the git-ignored file `deploy/.neon_url` (one line, nothing else), then load the knowledge base from the repo root (a few minutes; it computes embeddings on your computer):
 
    ```bash
-   export DATABASE_URL='<the connection string>'
    bash deploy/load_kb_to_neon.sh
    ```
 
-   It uses `apps/retrieval/.venv` if present, otherwise `python3` (install `apps/retrieval/requirements.txt` first).
-4. Check: `psql "$DATABASE_URL" -c "select count(*) from kb_chunk;"` should print a number above 0.
+   It refuses to run against a local database, and uses `apps/retrieval/.venv` if present, otherwise `python3` (install `apps/retrieval/requirements.txt` first).
+4. Check: `psql "$(cat deploy/.neon_url)" -c "select count(*) from kb_chunk;"` should print a number above 0.
 
 ## 2. Hugging Face Space (API)
 

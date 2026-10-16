@@ -26,3 +26,6 @@ dist/
 # Env
 .env
 .env.local
+
+# Deployment secrets
+deploy/.neon_url
