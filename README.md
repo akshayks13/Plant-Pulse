@@ -2,6 +2,26 @@
 
 **AI-powered plant disease detection** — upload a plant photo, get instant diagnosis with symptoms and treatment plans.
 
+## Live demo
+
+| | Link |
+|---|---|
+| **Web app** | https://plant-pulse-ai.vercel.app |
+| **Admin dashboard** | https://plant-pulse-ai-admin.vercel.app (admin account: `admin@plant-pulse.ai`) |
+| **API** | https://plantpulse-api-a4i3.onrender.com |
+| API docs (Swagger) | https://plantpulse-api-a4i3.onrender.com/docs |
+| API health | https://plantpulse-api-a4i3.onrender.com/health |
+| Source (deployed branch) | https://github.com/akshayks13/Plant-Pulse/tree/deploy |
+
+The treatment service (`https://plantpulse-retrieval.onrender.com`) is internal and needs an API key, so it is not meant to be opened directly.
+
+Notes on the hosted version (free tiers):
+
+- The API sleeps after about 15 minutes without traffic. The first request after that can take a minute or more while it wakes up.
+- Only the EfficientNet-B0 model is loaded online; the other two models are greyed out on the scan page. All three run in the local setup below.
+- The API's database is not persistent: accounts and scan history reset whenever the API restarts or redeploys.
+- Pushing to the `deploy` branch redeploys the web and admin apps (Vercel) and the API and treatment service (Render). Deployment details are in [DEPLOY.md](DEPLOY.md).
+
 ## Apps
 
 | App | Description | URL | Port |
