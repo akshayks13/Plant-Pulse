@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     # class label + confidence here and stores the assembled answer.
     retrieval_url: str = "http://localhost:8001"
     retrieval_timeout_seconds: float = 45.0
+    # Shared secret sent to the retrieval service as X-API-Key (empty = no key, local dev)
+    retrieval_api_key: str = ""
+
+    # Memory control for small hosts. preload_models: comma list loaded at start-up (empty = all).
+    # max_loaded_models: keep at most this many CNNs in memory, evicting the oldest (0 = no limit).
+    preload_models: str = ""
+    max_loaded_models: int = 0
 
     @property
     def cors_origins_list(self) -> list[str]:

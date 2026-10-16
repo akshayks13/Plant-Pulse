@@ -29,3 +29,6 @@ dist/
 
 # Deployment secrets
 deploy/.neon_url
+
+# Deployment secrets (cont.)
+deploy/.admin_password

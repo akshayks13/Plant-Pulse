@@ -1,0 +1,45 @@
+# Render Blueprint: two free web services built from this repository (branch: deploy).
+# The knowledge base lives in Neon Postgres; load it once with deploy/load_kb_to_neon.sh.
+services:
+  - type: web
+    name: plantpulse-retrieval
+    runtime: docker
+    dockerfilePath: ./deploy/render/Dockerfile.retrieval
+    dockerContext: .
+    plan: free
+    branch: deploy
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL          # Neon connection string
+        sync: false
+      - key: RETRIEVAL_API_KEY     # shared secret; paste the same value into plantpulse-api
+        generateValue: true
+      - key: ANTHROPIC_API_KEY     # optional
+        sync: false
+      - key: SERPER_API_KEY        # optional
+        sync: false
+
+  - type: web
+    name: plantpulse-api
+    runtime: docker
+    dockerfilePath: ./deploy/render/Dockerfile.backend
+    dockerContext: .
+    plan: free
+    branch: deploy
+    healthCheckPath: /health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@plant-pulse.ai
+      - key: CORS_ORIGINS          # the two Vercel URLs, comma separated
+        sync: false
+      - key: RETRIEVAL_URL         # https://plantpulse-retrieval.onrender.com
+        sync: false
+      - key: RETRIEVAL_API_KEY     # same value as on plantpulse-retrieval
+        fromService:
+          type: web
+          name: plantpulse-retrieval
+          envVarKey: RETRIEVAL_API_KEY

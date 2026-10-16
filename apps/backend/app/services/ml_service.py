@@ -26,6 +26,7 @@ How one prediction works:
 
 Models are loaded once (at server start-up) and then kept in memory.
 """
+import gc
 import threading
 from pathlib import Path
 
@@ -170,13 +171,23 @@ def _load_model(name):
         "val_acc": checkpoint.get("val_acc"),
         "meta": checkpoint.get("model_meta", {}),
     }
+    del checkpoint
+
+    # Small hosts: keep only the most recently loaded models in memory.
+    limit = settings.max_loaded_models
+    while limit > 0 and len(_loaded_models) > limit:
+        evicted = next(iter(_loaded_models))
+        del _loaded_models[evicted]
+        gc.collect()
+        logger.info(f"Unloaded {MODELS[evicted]['label']} to stay within MAX_LOADED_MODELS={limit}")
     logger.info(f"Loaded {info['label']} from {path.name} on {DEVICE} ({len(class_names)} classes)")
     return _loaded_models[name]
 
 
 def load_all_models():
-    """Load every model at start-up so the first scan is fast. Missing files are only logged."""
-    for name in MODELS:
+    """Load models at start-up so the first scan is fast (all, or the PRELOAD_MODELS list). Missing files are only logged."""
+    wanted = [n.strip() for n in settings.preload_models.split(",") if n.strip()] or list(MODELS)
+    for name in wanted:
         try:
             with _lock:
                 _load_model(name)

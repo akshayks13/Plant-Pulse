@@ -41,9 +41,14 @@ class RetrievalOutcome:
         return self.status == STATUS_OK
 
 
+def _headers() -> dict[str, str]:
+    return {"X-API-Key": settings.retrieval_api_key} if settings.retrieval_api_key else {}
+
+
 def _client() -> httpx.AsyncClient:
     return httpx.AsyncClient(
         base_url=settings.retrieval_url.rstrip("/"),
+        headers=_headers(),
         timeout=httpx.Timeout(settings.retrieval_timeout_seconds, connect=5.0),
     )
 

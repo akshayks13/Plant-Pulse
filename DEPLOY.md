@@ -1,91 +1,56 @@
-# Deploying PlantPulse (free tiers, no credit card)
+# Deploying PlantPulse (free tiers)
 
-| Part | Where | What runs there |
+| Part | Where | Notes |
 |---|---|---|
-| Web app | Vercel | `apps/web` |
-| Admin app | Vercel | `apps/admin` |
-| API | Hugging Face Space (Docker) | `apps/backend` (public) + `apps/retrieval` (private, same container) + the 3 `.pth` models |
-| Knowledge-base database | Neon (Postgres + pgvector) | tables used by `apps/retrieval` |
+| Knowledge-base database | Neon (Postgres + pgvector) | loaded once with `deploy/load_kb_to_neon.sh` |
+| Retrieval service | Render, free web service | `render.yaml` -> `plantpulse-retrieval` |
+| Backend API | Render, free web service | `render.yaml` -> `plantpulse-api` (one CNN in memory: EfficientNet-B0) |
+| Web app and Admin app | Vercel | `apps/web` and `apps/admin` |
 
-Do the steps in this order: Neon, then the Space, then Vercel, then go back to the Space once to set CORS.
+Code branch: `deploy` (`main` and `local` are untouched).
 
-## 0. Code branch
+## 1. Neon (done once)
 
-The deployment changes live on the `deploy` branch (`main` and `local` are untouched). The Space builds from `deploy`: change `ARG REPO_REF` in its Dockerfile to use another branch.
+Create a Neon project, save its connection string in the git-ignored file `deploy/.neon_url`, then run `bash deploy/load_kb_to_neon.sh`. Check with
+`psql "$(cat deploy/.neon_url)" -c "select count(*) from kb_chunk;"` (expect 200).
 
-```bash
-git checkout deploy && git push -u origin deploy
-```
+## 2. Render (API and retrieval)
 
-## 1. Neon (database)
+1. Sign up at render.com with GitHub.
+2. **New -> Blueprint**, pick the repo `akshayks13/Plant-Pulse` and the branch `deploy`. Render reads `render.yaml` and creates both services.
+3. Fill the prompted values:
 
-1. Sign up at neon.com (GitHub login works) and create a project named `plantpulse` (Postgres 17, region closest to you).
-2. Open **Connect** and copy the connection string. It looks like `postgresql://USER:PASSWORD@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require`.
-3. Save the connection string in the git-ignored file `deploy/.neon_url` (one line, nothing else), then load the knowledge base from the repo root (a few minutes; it computes embeddings on your computer):
+   | Service | Variable | Value |
+   |---|---|---|
+   | plantpulse-retrieval | `DATABASE_URL` | contents of `deploy/.neon_url` |
+   | plantpulse-retrieval | `ANTHROPIC_API_KEY`, `SERPER_API_KEY` | leave empty (optional) |
+   | plantpulse-api | `ADMIN_PASSWORD` | the admin login password you want |
+   | plantpulse-api | `RETRIEVAL_URL` | the public URL of plantpulse-retrieval, e.g. `https://plantpulse-retrieval.onrender.com` (copy it from the dashboard) |
+   | plantpulse-api | `CORS_ORIGINS` | temporary `https://example.com`, replaced in step 4 |
 
-   ```bash
-   bash deploy/load_kb_to_neon.sh
-   ```
-
-   It refuses to run against a local database, and uses `apps/retrieval/.venv` if present, otherwise `python3` (install `apps/retrieval/requirements.txt` first).
-4. Check: `psql "$(cat deploy/.neon_url)" -c "select count(*) from kb_chunk;"` should print a number above 0.
-
-## 2. Hugging Face Space (API)
-
-1. Sign up at huggingface.co. **New Space** -> name `plantpulse-api` -> SDK **Docker (Blank)** -> hardware **CPU basic (free)** -> **Public**.
-2. In the Space's **Files** tab, upload two files:
-   - `deploy/huggingface/Dockerfile` as `Dockerfile`
-   - `deploy/huggingface/SPACE_README.md` as `README.md` (replace the generated one)
-3. **Settings -> Variables and secrets -> New secret**, add:
-
-   | Name | Value |
-   |---|---|
-   | `RETRIEVAL_DATABASE_URL` | the Neon connection string |
-   | `SECRET_KEY` | any long random string (`openssl rand -hex 32`) |
-   | `ADMIN_PASSWORD` | the password you want for the admin login |
-   | `ADMIN_EMAIL` (variable, optional) | defaults to `admin@plant-pulse.ai` |
-   | `CORS_ORIGINS` | set in step 4 |
-   | `ANTHROPIC_API_KEY`, `SERPER_API_KEY` | optional (LLM explanation, live product search) |
-
-4. The Space builds (about 10 minutes). When it shows **Running**, open `https://<your-hf-username>-plantpulse-api.hf.space/health`. It should report the models and `retrieval` status. `/docs` shows the API.
+   `SECRET_KEY` and the shared `RETRIEVAL_API_KEY` are generated automatically.
+4. Wait for both builds (10 to 15 minutes). Then open `https://<plantpulse-api URL>/health`: it should show `"device": "cpu"` and the retrieval service as reachable.
 
 ## 3. Vercel (web and admin)
 
-Create two projects from the same GitHub repo (vercel.com -> Add New -> Project -> import `Plant-Pulse`):
-
-| Project | Root Directory | Environment variable |
-|---|---|---|
-| plantpulse-web | `apps/web` | `NEXT_PUBLIC_API_URL` = `https://<your-hf-username>-plantpulse-api.hf.space` |
-| plantpulse-admin | `apps/admin` | `NEXT_PUBLIC_API_URL` = the same URL |
-
-Deploy both and note their URLs (for example `https://plantpulse-web.vercel.app`).
+Two projects from the same repo, root directories `apps/web` and `apps/admin`, each with the environment variable `NEXT_PUBLIC_API_URL` = the plantpulse-api URL. Note both Vercel URLs.
 
 ## 4. Allow the frontends to call the API
 
-In the Space, set the `CORS_ORIGINS` secret to both Vercel URLs, comma separated, no trailing slash:
-
-```
-https://plantpulse-web.vercel.app,https://plantpulse-admin.vercel.app
-```
-
-The Space restarts by itself.
+In Render, plantpulse-api -> Environment, set `CORS_ORIGINS` to both Vercel URLs, comma separated, no trailing slash. The service redeploys.
 
 ## 5. Test
 
-1. Open the web app, register, scan a leaf photo, and check that a diagnosis and treatment advice appear.
-2. Open the admin app and log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+Open the web app, register, scan a leaf, and check that a diagnosis and treatment advice appear. Log into the admin app with `admin@plant-pulse.ai` and your `ADMIN_PASSWORD`.
 
 ## Things to know about the free tiers
 
-- **Sleep:** an idle Space goes to sleep and wakes on the next visit (about 30 to 60 seconds while the models load). Neon also sleeps after a few minutes idle. Open the site a minute before a demo.
-- **Resets:** the Space disk is not persistent. Users, scan history and uploaded photos reset whenever the Space restarts. The admin account is re-created on start.
-- **Admin mock data:** if the admin app cannot reach the API, it falls back to built-in mock data, so a populated dashboard does not prove the connection works. Check `/health`.
-- **Updating:** after pushing new code to GitHub, use Space **Settings -> Factory rebuild**. Vercel redeploys on every push.
-- **Local development** is unchanged. With `DEBUG=true` (the default) the admin password falls back to `admin123`; with `DEBUG=false` the API refuses to start without `SECRET_KEY`.
+- **Memory:** measured on CPU, the backend uses about 350 MB and retrieval about 205 MB, against a 512 MB limit. Only the EfficientNet-B0 file is shipped; the scan page greys out the other two models ("Not available right now").
+- **Speed:** a free instance has a fraction of a CPU, so a scan can take several seconds, and a cold start (after 15 minutes idle) can take one to two minutes. Open the site a few minutes before a demo.
+- **Resets:** the disk is not persistent. Users, scan history and uploaded photos reset when the API restarts. The admin account is re-created on start.
+- **Admin mock data:** if the admin app cannot reach the API it shows built-in mock data. Check `/health` to be sure.
+- **Local development** is unchanged: with `DEBUG=true` (default) the admin password falls back to `admin123`, all three models load, and no API key is needed.
 
-## Troubleshooting
+## Environment variables added for deployment
 
-- *Space build fails at `pip install`:* open the **Logs** tab and send the error.
-- *`/health` shows retrieval unavailable:* check the `RETRIEVAL_DATABASE_URL` secret and that step 1 finished.
-- *Browser shows a CORS error:* the Vercel URL is missing or mistyped in `CORS_ORIGINS`.
-- *Scan photos do not show in the admin app:* confirm `NEXT_PUBLIC_API_URL` is set on the Vercel project and redeploy.
+`SECRET_KEY`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`, `PRELOAD_MODELS`, `MAX_LOADED_MODELS` (backend), `RETRIEVAL_API_KEY` (both services), `EMBEDDING_BACKEND=fastembed` (retrieval, same bge-small model through ONNX Runtime; vectors match the default backend to six decimals).

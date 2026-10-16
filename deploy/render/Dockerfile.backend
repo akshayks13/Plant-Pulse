@@ -1,0 +1,28 @@
+# Backend API (FastAPI + PyTorch CNNs) for a 512 MB Render free instance.
+# Build context: repository root.
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    OMP_NUM_THREADS=1 \
+    DEBUG=false \
+    DATABASE_URL=sqlite+aiosqlite:////tmp/plant_pulse.db \
+    UPLOAD_DIR=/tmp/uploads \
+    PRELOAD_MODELS=efficientnet \
+    MAX_LOADED_MODELS=1
+
+WORKDIR /srv
+
+# CPU-only PyTorch (the default Linux wheel pulls in CUDA libraries), then the rest
+RUN pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+COPY apps/backend/requirements.txt /tmp/requirements.txt
+RUN grep -v -E '^(torch|torchvision)==' /tmp/requirements.txt > /tmp/requirements-rest.txt \
+    && pip install -r /tmp/requirements-rest.txt
+
+COPY apps/backend /srv/apps/backend
+# Only the default model ships: a 512 MB instance can hold one CNN. The scan page greys out the others.
+COPY apps/model_file/efficientnet_b0_model.pth /srv/apps/model_file/efficientnet_b0_model.pth
+
+WORKDIR /srv/apps/backend
+EXPOSE 10000
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]

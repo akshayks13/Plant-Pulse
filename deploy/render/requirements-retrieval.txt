@@ -1,0 +1,10 @@
+# Retrieval service on a small host: same embedding model through ONNX Runtime (no PyTorch)
+psycopg[binary]
+pyyaml
+python-dotenv
+fastapi
+uvicorn
+httpx
+anthropic
+fastembed
+numpy

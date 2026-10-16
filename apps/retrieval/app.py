@@ -14,11 +14,12 @@ ANTHROPIC_API_KEY (optional), SERPER_API_KEY (optional).
 See README_API.md for curl examples.
 """
 
+import hmac
 import os
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 import pipeline
@@ -57,6 +58,13 @@ class DiagnoseRequest(BaseModel):
         description="Optional plain-English question to steer retrieval.")
 
 
+def require_api_key(x_api_key: Optional[str] = Header(default=None)):
+    """If RETRIEVAL_API_KEY is set, the data routes need a matching X-API-Key header."""
+    expected = os.environ.get("RETRIEVAL_API_KEY", "")
+    if expected and not hmac.compare_digest(x_api_key or "", expected):
+        raise HTTPException(401, "missing or invalid API key")
+
+
 @app.get("/health")
 def health():
     try:
@@ -75,7 +83,7 @@ def health():
     }
 
 
-@app.post("/diagnose")
+@app.post("/diagnose", dependencies=[Depends(require_api_key)])
 def diagnose(req: DiagnoseRequest):
     runner_up = req.runner_up.model_dump() if req.runner_up else None
     result = pipeline.diagnose(req.class_label, req.confidence, runner_up,
@@ -85,7 +93,7 @@ def diagnose(req: DiagnoseRequest):
     return result
 
 
-@app.get("/disease/{disease_id}")
+@app.get("/disease/{disease_id}", dependencies=[Depends(require_api_key)])
 def disease(disease_id: str):
     entry = pipeline.disease_entry(disease_id)
     if entry is None:
@@ -93,7 +101,7 @@ def disease(disease_id: str):
     return entry
 
 
-@app.get("/retrieve")
+@app.get("/retrieve", dependencies=[Depends(require_api_key)])
 def retrieve_debug(
     disease_id: str,
     q: str,
