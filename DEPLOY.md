@@ -9,6 +9,14 @@
 
 Code branch: `deploy` (`main` and `local` are untouched).
 
+Live addresses: web https://plant-pulse-ai.vercel.app, admin https://plant-pulse-ai-admin.vercel.app, API https://plantpulse-api-a4i3.onrender.com (Render project "PlantPulse", environment "production").
+
+## How updates reach the live sites
+
+- **Vercel (web and admin):** connected to GitHub with `deploy` as the production branch (root directories `apps/web` and `apps/admin`). Every push to `deploy` rebuilds both automatically.
+- **Render (API and retrieval):** the services were created from the public repository URL, so GitHub does not notify Render and **a push does not redeploy them**. Redeploy manually: Render dashboard -> the service -> **Manual Deploy -> Deploy latest commit**. To get automatic deploys, install Render's GitHub app (Account Settings -> GitHub) and reconnect the services to the repository.
+- Redeploying the API resets its SQLite data (users and scan history).
+
 ## 1. Neon (done once)
 
 Create a Neon project, save its connection string in the git-ignored file `deploy/.neon_url`, then run `bash deploy/load_kb_to_neon.sh`. Check with

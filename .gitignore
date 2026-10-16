@@ -34,3 +34,4 @@ deploy/.neon_url
 deploy/.admin_password
 deploy/.render_key
 deploy/.render_services.json
+deploy/.frontend_urls.json
