@@ -7,8 +7,15 @@ from pydantic_settings import BaseSettings
 DEFAULT_MODEL_DIR = Path(__file__).resolve().parents[2] / "model_file"
 
 
+DEV_SECRET_KEY = "plant-pulse-dev-secret-change-in-prod"
+
+
 class Settings(BaseSettings):
-    secret_key: str = "plant-pulse-dev-secret-change-in-prod"
+    secret_key: str = DEV_SECRET_KEY
+
+    # Seeded admin account. Leave ADMIN_PASSWORD unset only in local dev (DEBUG=true).
+    admin_email: str = "admin@plant-pulse.ai"
+    admin_password: str = ""
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
 

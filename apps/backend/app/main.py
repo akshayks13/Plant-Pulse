@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
-from .config import get_settings
+from .config import DEV_SECRET_KEY, get_settings
 from .database import init_db
 from .routes import auth, diagnosis, admin, community
 
@@ -14,6 +14,8 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if not settings.debug and settings.secret_key == DEV_SECRET_KEY:
+        raise RuntimeError("SECRET_KEY must be set when DEBUG is false (refusing to start with the dev key).")
     logger.info("Initializing database…")
     await init_db()
     # Seed admin user
@@ -29,24 +31,39 @@ async def lifespan(app: FastAPI):
 
 
 async def _seed_admin():
-    """Create default admin if not exists."""
+    """Create the admin user if it does not exist (credentials come from ADMIN_EMAIL / ADMIN_PASSWORD)."""
+    import secrets as _secrets
+
     from .database import AsyncSessionLocal
     from .models import User
     from sqlalchemy import select
     from .services.auth import hash_password
 
+    email = settings.admin_email
+    password = settings.admin_password
+    generated = False
+    if not password:
+        if settings.debug:
+            password = "admin123"          # local development only
+        else:
+            password = _secrets.token_urlsafe(12)
+            generated = True
+
     async with AsyncSessionLocal() as db:
-        result = await db.execute(select(User).where(User.email == "admin@plant-pulse.ai"))
+        result = await db.execute(select(User).where(User.email == email))
         if not result.scalar_one_or_none():
             admin = User(
-                email="admin@plant-pulse.ai",
+                email=email,
                 full_name="Plant-Pulse Admin",
-                hashed_password=hash_password("admin123"),
+                hashed_password=hash_password(password),
                 role="ADMIN",
             )
             db.add(admin)
             await db.commit()
-            logger.info("Default admin created: admin@plant-pulse.ai / admin123")
+            if generated:
+                logger.warning(f"ADMIN_PASSWORD not set: generated one-time admin password for {email}: {password}")
+            else:
+                logger.info(f"Admin user created: {email}")
 
 
 app = FastAPI(
