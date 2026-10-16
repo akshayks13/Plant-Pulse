@@ -13,9 +13,9 @@ Live addresses: web https://plant-pulse-ai.vercel.app, admin https://plant-pulse
 
 ## How updates reach the live sites
 
-- **Vercel (web and admin):** connected to GitHub with `deploy` as the production branch (root directories `apps/web` and `apps/admin`). Every push to `deploy` rebuilds both automatically.
-- **Render (API and retrieval):** the services were created from the public repository URL, so GitHub does not notify Render and **a push does not redeploy them**. Redeploy manually: Render dashboard -> the service -> **Manual Deploy -> Deploy latest commit**. To get automatic deploys, install Render's GitHub app (Account Settings -> GitHub) and reconnect the services to the repository.
-- Redeploying the API resets its SQLite data (users and scan history).
+- **Vercel (web and admin):** connected to GitHub with `deploy` as the production branch (root directories `apps/web` and `apps/admin`). Every push to `deploy` rebuilds both automatically (about 1 minute).
+- **Render (API and retrieval):** connected to GitHub through Render's GitHub app (installed on the `Plant-Pulse` repository), branch `deploy`, auto-deploy on every commit. A push to `deploy` rebuilds both services. If it ever stops, check that the Render app still has access to the repository (github.com/settings/installations).
+- Every redeploy of the API, including these automatic ones, resets its SQLite data (users and scan history).
 
 ## 1. Neon (done once)
 
