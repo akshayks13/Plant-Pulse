@@ -32,3 +32,5 @@ deploy/.neon_url
 
 # Deployment secrets (cont.)
 deploy/.admin_password
+deploy/.render_key
+deploy/.render_services.json
