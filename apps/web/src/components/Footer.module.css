@@ -46,6 +46,15 @@
   text-align: right;
 }
 
+.resources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.resources a { color: rgba(240, 247, 242, 0.5); transition: color 0.15s; }
+.resources a:hover { color: #00e87a; }
+
 .email {
   font-size: 13px;
   color: rgba(240, 247, 242, 0.5);

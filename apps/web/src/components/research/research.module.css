@@ -1,0 +1,221 @@
+/* Research section: shared styles. Uses the app's global colour variables. */
+
+.page { padding: 40px 0 96px; position: relative; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ─── Sub navigation ─────────────────────────────────────────────────────── */
+.subnavBar {
+  position: sticky; top: 72px; z-index: 40;
+  background: rgba(6, 13, 10, 0.88);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.subnav {
+  max-width: 1080px; margin: 0 auto; padding: 0 24px;
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+}
+.subnav::-webkit-scrollbar { display: none; }
+.subLink {
+  flex: none; padding: 14px 14px; font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+.subLink:hover { color: var(--text-primary); }
+.subActive { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+/* ─── Hero ───────────────────────────────────────────────────────────────── */
+.hero { padding: 32px 0 8px; }
+.eyebrow {
+  display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent-primary); margin-bottom: 14px;
+}
+.title {
+  font-size: clamp(30px, 4.4vw, 46px); font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 16px;
+}
+.lead { max-width: 760px; font-size: 18px; line-height: 1.65; color: var(--text-secondary); }
+.heroActions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+/* ─── Sections ───────────────────────────────────────────────────────────── */
+.section { padding-top: 56px; scroll-margin-top: 130px; }
+.h2 { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+.sectionLead { color: var(--text-secondary); max-width: 780px; margin-bottom: 22px; font-size: 16px; }
+.h3 { font-size: 18px; font-weight: 600; margin: 32px 0 10px; }
+.p { color: var(--text-secondary); max-width: 820px; margin-bottom: 14px; font-size: 15.5px; line-height: 1.7; }
+.p strong, .li strong { color: var(--text-primary); font-weight: 600; }
+.ul { max-width: 820px; margin: 0 0 16px 20px; color: var(--text-secondary); }
+.li { margin-bottom: 8px; font-size: 15.5px; line-height: 1.65; }
+
+.inlineLink { color: var(--accent-primary); text-decoration: underline; text-underline-offset: 3px; }
+.inlineLink:hover { color: #5affb0; }
+
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.tocLink {
+  font-size: 13px; padding: 6px 12px; border-radius: var(--radius-full);
+  border: 1px solid var(--border); color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.tocLink:hover { color: var(--accent-primary); border-color: var(--border-hover); }
+
+/* ─── Stats ──────────────────────────────────────────────────────────────── */
+.statGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 24px 0 4px; }
+.stat {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 20px 20px 18px;
+}
+.statValue {
+  font-family: var(--font-display); font-size: 34px; font-weight: 800; line-height: 1.1;
+  background: linear-gradient(135deg, #00e87a, #00b4d8); -webkit-background-clip: text;
+  background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+.statLabel { margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.statNote { margin-top: 4px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+.cardGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card {
+  display: flex; flex-direction: column; gap: 8px; padding: 22px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  transition: all var(--transition);
+}
+a.card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+.cardKicker { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-primary); }
+.cardTitle { font-size: 18px; font-weight: 700; }
+.cardDesc { font-size: 14.5px; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+.cardLink { margin-top: 6px; font-size: 14px; font-weight: 600; color: var(--accent-primary); }
+
+.modelCards { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+.modelCard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; }
+.modelName { font-size: 18px; font-weight: 700; }
+.modelTag { display: inline-block; margin-top: 6px; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-full); background: var(--accent-glow-soft); color: var(--accent-primary); border: 1px solid var(--border); }
+.modelAcc { font-family: var(--font-display); font-size: 44px; font-weight: 800; margin: 14px 0 2px; color: var(--text-primary); }
+.modelAccSub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.pvCards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin: 14px 0 20px; }
+.pvCards .modelCard { padding: 16px 18px; }
+.pvCards .modelName { font-size: 16px; }
+.pvCards .modelTag { font-size: 11px; }
+.pvCards .modelAcc { font-size: 34px; margin: 10px 0 2px; }
+.pvCards .modelAccSub { font-size: 12px; margin-bottom: 10px; }
+.pvCards .kv { font-size: 13px; gap: 5px 10px; }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; }
+.kv dt { color: var(--text-secondary); }
+.kv dd { color: var(--text-primary); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ─── Secondary (smaller) sections ──────────────────────────────────────── */
+.sectionCompact { padding-top: 44px; }
+.h2Small { font-size: clamp(18px, 2vw, 22px); font-weight: 700; margin-bottom: 8px; }
+.secondaryTag {
+  display: inline-block; margin-bottom: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius-full); padding: 3px 10px;
+}
+.sectionCompact .p { font-size: 14.5px; }
+.sectionCompact .tableBlock { margin: 14px 0 18px; }
+.tableCompact { font-size: 13px; }
+.tableCompact th, .tableCompact td { padding: 7px 11px; }
+.tableCompact thead th { font-size: 11px; }
+.twoCol { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start; }
+.miniGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0 6px; }
+.miniCard {
+  display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radius-md);
+  background: var(--bg-card); border: 1px solid var(--border); transition: all var(--transition);
+}
+.miniCard:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.miniLabel { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
+.miniValue { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+.miniDesc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+.miniLink { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-primary); }
+
+/* ─── Buttons (links) ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; font-size: 14px; font-weight: 600;
+  border-radius: var(--radius-full); border: 1px solid var(--border-hover); color: var(--text-primary);
+  transition: all var(--transition);
+}
+.btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.btnPrimary { background: var(--accent-primary); color: #04110a; border-color: var(--accent-primary); }
+.btnPrimary:hover { color: #04110a; box-shadow: 0 0 24px var(--accent-glow); }
+
+/* ─── Callouts ───────────────────────────────────────────────────────────── */
+.callout { max-width: 860px; margin: 22px 0; padding: 16px 20px; border-radius: var(--radius-md); border: 1px solid var(--border); border-left-width: 4px; background: rgba(13, 30, 20, 0.55); }
+.calloutNote { border-left-color: #00b4d8; }
+.calloutCaveat { border-left-color: var(--severity-moderate); }
+.calloutGood { border-left-color: var(--accent-primary); }
+.calloutTitle { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.calloutBody { font-size: 14.5px; line-height: 1.65; color: var(--text-secondary); }
+.calloutBody p + p { margin-top: 8px; }
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+.tableBlock { margin: 20px 0 26px; }
+.tableCaption { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+.tableScroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(13, 30, 20, 0.45); }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: 10px 14px; text-align: center; border-bottom: 1px solid rgba(0, 232, 122, 0.08); white-space: nowrap; }
+.table th:first-child, .table td:first-child { text-align: left; white-space: normal; min-width: 150px; }
+.table thead th { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); background: rgba(0, 232, 122, 0.06); }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: rgba(0, 232, 122, 0.04); }
+.rowStrong td { color: var(--text-primary); font-weight: 600; background: rgba(0, 232, 122, 0.07); }
+.wrapCells td, .wrapCells th { white-space: normal; }
+.leftAlign th, .leftAlign td { text-align: left; }
+.tableNote { font-size: 13px; color: var(--text-muted); margin-top: 8px; max-width: 820px; line-height: 1.55; }
+.heatCell { color: #fff; font-weight: 600; }
+.deltaCell small { display: block; color: var(--text-muted); font-size: 11.5px; font-weight: 400; }
+.deltaGood { color: var(--accent-primary); font-weight: 700; }
+.deltaBad { color: var(--severity-critical); font-weight: 700; }
+.deltaNeutral { color: var(--text-secondary); font-weight: 500; }
+.muted { color: var(--text-muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-muted); margin-top: 8px; }
+.legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+.legGood::before { background: var(--accent-primary); }
+.legBad::before { background: var(--severity-critical); }
+.legNeutral::before { background: var(--text-muted); }
+
+/* ─── Bar charts ─────────────────────────────────────────────────────────── */
+.chartGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 20px 0 8px; }
+.chart { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; }
+.chartTitle { font-size: 15px; font-weight: 600; }
+.chartSub { font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px; }
+.barRow { display: grid; grid-template-columns: 118px 1fr 70px; gap: 10px; align-items: center; margin-bottom: 9px; font-size: 13.5px; }
+.barLabel { color: var(--text-secondary); }
+.barTrack { height: 12px; background: rgba(255, 255, 255, 0.06); border-radius: var(--radius-full); overflow: hidden; }
+.barFill { height: 100%; border-radius: var(--radius-full); background: linear-gradient(90deg, #00b4d8, #00e87a); }
+.barValue { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── Figures ────────────────────────────────────────────────────────────── */
+.figure { margin: 26px 0; max-width: 100%; }
+.figureWide { max-width: 100%; }
+.figureNarrow { max-width: 620px; }
+.figImg { background: #fff; border-radius: var(--radius-md); padding: 10px; border: 1px solid var(--border); overflow: hidden; }
+.figImg img { display: block; width: 100%; height: auto; border-radius: 6px; }
+.figCaption { font-size: 13.5px; color: var(--text-secondary); margin-top: 10px; line-height: 1.55; }
+.figRow { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+/* ─── Flow diagram ───────────────────────────────────────────────────────── */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin: 22px 0; }
+.flowStep { flex: 1 1 170px; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card); }
+.flowStepAccent { border-color: var(--border-hover); background: rgba(0, 232, 122, 0.08); }
+.flowTitle { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.flowDesc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.flowArrow { align-self: center; color: var(--accent-primary); font-size: 20px; flex: none; }
+
+/* ─── Details / team ─────────────────────────────────────────────────────── */
+.details { margin: 22px 0; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(13, 30, 20, 0.4); }
+.details > summary { cursor: pointer; padding: 16px 20px; font-weight: 600; font-size: 15px; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.details > summary::-webkit-details-marker { display: none; }
+.details > summary::after { content: '+'; color: var(--accent-primary); font-size: 20px; line-height: 1; }
+.details[open] > summary::after { content: '–'; }
+.detailsBody { padding: 0 20px 18px; }
+.team { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 8px; }
+.person { padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); }
+.personName { font-weight: 700; }
+.personRole { font-size: 13.5px; color: var(--text-secondary); }
+.fine { font-size: 13px; color: var(--text-muted); margin-top: 16px; max-width: 820px; }
+
+@media (max-width: 720px) {
+  .wrap, .subnav { padding: 0 16px; }
+  .barRow { grid-template-columns: 96px 1fr 62px; }
+  .lead { font-size: 16.5px; }
+  .section { padding-top: 44px; }
+}

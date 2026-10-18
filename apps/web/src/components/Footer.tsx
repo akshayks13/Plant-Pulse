@@ -26,6 +26,13 @@ export default function Footer() {
           </Link>
           <p className={styles.tagline}>AI plant disease detection for growers and gardeners.</p>
         </div>
+        <nav className={styles.resources} aria-label="Project resources">
+          <Link href="/research">Research</Link>
+          <Link href="/team">Team</Link>
+          <a href="https://github.com/akshayks13/Plant-Pulse" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://ieee-dataport.org/documents/leaf-disease-augmentation-real-world-mobile-camera-denoising-dataset" target="_blank" rel="noopener noreferrer">IEEE DataPort</a>
+          <a href="https://www.kaggle.com/datasets/sarvesha223454/multiplant-foliar-dataset" target="_blank" rel="noopener noreferrer">Kaggle dataset</a>
+        </nav>
         <div className={styles.meta}>
           <a href="mailto:support@plant-pulse.ai" className={styles.email}>support@plant-pulse.ai</a>
           <span className={styles.copy}>© {year} Plant-Pulse</span>
