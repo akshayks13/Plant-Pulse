@@ -363,3 +363,17 @@
   .ctaInner { padding: 28px 24px; }
   .howSection, .featuresSection { padding: 64px 0; }
 }
+
+.researchSection {
+  padding: 24px 0 72px;
+}
+.researchLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+.researchSection .sectionSub {
+  max-width: 640px;
+  margin-bottom: 24px;
+}

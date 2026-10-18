@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import styles from './page.module.css';
 import { HeroInner, CtaBand } from '@/components/LandingSections';
 
@@ -140,6 +141,21 @@ export default function HomePage() {
                 <p className={styles.featureDesc}>{f.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.researchSection}>
+        <div className="container">
+          <h2 className={styles.sectionTitle}>Built on real research</h2>
+          <p className={styles.sectionSub}>
+            Our own dataset, three models compared, a DnCNN denoiser, explainability, a GAN, formal testing and an ablation study.
+          </p>
+          <div className={styles.researchLinks}>
+            <Link href="/research" className={styles.primaryBtn}>Explore the research</Link>
+            <a href="https://github.com/akshayks13/Plant-Pulse" target="_blank" rel="noopener noreferrer" className={styles.ghostBtn}>GitHub</a>
+            <a href="https://ieee-dataport.org/documents/leaf-disease-augmentation-real-world-mobile-camera-denoising-dataset" target="_blank" rel="noopener noreferrer" className={styles.ghostBtn}>IEEE DataPort</a>
+            <a href="https://www.kaggle.com/datasets/sarvesha223454/multiplant-foliar-dataset" target="_blank" rel="noopener noreferrer" className={styles.ghostBtn}>Kaggle dataset</a>
           </div>
         </div>
       </section>

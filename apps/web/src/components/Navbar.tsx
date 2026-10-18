@@ -78,6 +78,8 @@ export default function Navbar() {
           <nav className={styles.links} aria-label="Primary">
             <Link href={howHref} className={styles.link}>How it works</Link>
             <NavLink href="/scan" label="Scan" pathname={pathname} />
+            <NavLink href="/research" label="Research" pathname={pathname} />
+            <NavLink href="/team" label="Team" pathname={pathname} />
             {appLinks}
           </nav>
 
@@ -118,6 +120,8 @@ export default function Navbar() {
           <nav className={styles.drawerNav}>
             <Link href={howHref} className={styles.drawerLink}>How it works</Link>
             <Link href="/scan" className={styles.drawerLink}>Scan</Link>
+            <Link href="/research" className={styles.drawerLink}>Research</Link>
+            <Link href="/team" className={styles.drawerLink}>Team</Link>
             {user && (
               <>
                 <Link href="/history" className={styles.drawerLink}>History</Link>
