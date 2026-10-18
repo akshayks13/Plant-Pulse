@@ -17,7 +17,7 @@ const STATUS = {
     ['Treatment plan and knowledge base', 'Live: shown on every result'],
     ['DnCNN denoiser', 'Research result: not part of the scan flow yet'],
     ['Explainability (Grad-CAM)', 'Research result: heat maps are not shown on the result page yet'],
-    ['Conditional GAN for lesion synthesis', 'Research model: trained, not connected to the app'],
+    ['Conditional GAN for lesion synthesis', 'Research model: trained, output not yet usable; not connected to the app'],
     ['Test and evaluation, ablation study', 'Research reports: results on these pages'],
   ],
 };
@@ -73,7 +73,7 @@ export default function ResearchHome() {
           <LinkCard href="/research/dataset" kicker="Data" title="The Multi-Plant dataset" desc="How the 8,000 paired images were built: framing, synthetic lesions and a mobile-camera degradation model." cta="Open" />
           <LinkCard href="/research/denoising" kicker="Image restoration" title="Denoising with DnCNN" desc="A residual denoiser that lifts image quality by 8.45 dB, and what it does for classification." cta="Open" />
           <LinkCard href="/research/xai" kicker="Explainable AI" title="Explainability (Grad-CAM)" desc="Heat maps that show which part of the leaf drove a prediction, and how far they can be trusted." cta="Open" />
-          <LinkCard href="/research/gan" kicker="Generative model" title="Conditional GAN" desc="An attention-guided GAN that paints disease symptoms onto healthy leaves: design, losses and status." cta="Open" />
+          <LinkCard href="/research/gan" kicker="Generative model" title="Conditional GAN" desc="A GAN built to paint disease symptoms onto healthy leaves: its design, what it produced, and what we learnt." cta="Open" />
           <LinkCard href="/research/testing" kicker="Test & evaluation" title="Testing the model properly" desc="A study using the US CDAO framework: calibration, corruptions, rotations, adversarial attacks and rare cases." cta="Open" />
           <LinkCard href="/research/ablation" kicker="Ablation study" title="What really matters in training" desc="72 models trained to find which training ingredients help each backbone, with confidence intervals." cta="Open" />
         </div>
